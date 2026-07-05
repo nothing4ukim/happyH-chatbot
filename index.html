@@ -381,7 +381,16 @@ function initSTT(){
   };
   return r;
 }
+// ══════════ 서버 음성인식 (브라우저 독립) — 변수 선언을 먼저 배치 ══════════
+let serverSTT=false, mediaStream=null, mediaRecorder=null, sttCtx=null, sttAnalyser=null;
+let recChunks=[], recActive=false, vadTimer=null, skipSend=false;
+
 recognition=initSTT();
+
+// ── iOS Safari 감지: 애플 네이티브 연속 음성인식은 다회 세션에서 불안정 ──
+// iOS에서는 처음부터 서버 인식(Worker STT)만 사용하도록 고정
+const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+if(isIOS){ serverSTT = true; }
 
 // ── 브라우저 호환성 감지: 크로미움 계열(웨일·브레이브·오페라)은 STT API가 있어도 작동 안 함 ──
 function checkBrowserSTT(){
@@ -389,6 +398,15 @@ function checkBrowserSTT(){
   const isWhale=/Whale/.test(ua);
   const isOpera=/OPR\//.test(ua);
   const isEdge=/Edg\//.test(ua);
+  if(isIOS){
+    if(!W_STT){
+      const bar=document.createElement("div");
+      bar.style.cssText="background:#faeeda;border:1px solid #efc27b;border-radius:8px;padding:10px 14px;font-size:13px;color:#633806;margin-bottom:.75rem;line-height:1.6";
+      bar.innerHTML="ℹ <b>아이폰에서는 서버 음성인식이 필요합니다.</b> 지금은 Worker가 연결되지 않아 음성 입력을 쓸 수 없으니, 버튼과 키보드로 편하게 진행해 주세요. 답변 내용은 동일하게 저장됩니다.";
+      document.getElementById("app").insertBefore(bar,document.getElementById("app").firstChild);
+    }
+    return true;
+  }
   const isRealChrome=/Chrome\//.test(ua)&&!isWhale&&!isOpera&&!isEdge&&navigator.vendor==="Google Inc.";
   if(isWhale||isOpera){
     const name=isWhale?"네이버 웨일":"오페라";
@@ -451,8 +469,7 @@ function micUI(rec){
 // ══════════ 서버 음성인식 (브라우저 독립) ══════════
 // 브라우저 내장 인식이 3회 무응답이면 자동으로 이 방식으로 전환.
 // MediaRecorder로 녹음 → Worker /stt → ElevenLabs Scribe → 텍스트
-let serverSTT=false, mediaStream=null, mediaRecorder=null, sttCtx=null, sttAnalyser=null;
-let recChunks=[], recActive=false, vadTimer=null;
+// (서버 인식 변수는 상단에서 선언됨)
 
 async function startServerListen(){
   if(!W_STT){
@@ -495,7 +512,7 @@ async function startServerListen(){
     document.getElementById("mic-hint").textContent="⚠ 녹음 시작 실패: "+(e.name||e)+" — 버튼·키보드로 진행하세요";
   }
 }
-let skipSend=false;
+// (skipSend는 상단에서 선언됨)
 function stopServerListen(noSpeech){
   skipSend=!!noSpeech;
   if(vadTimer){clearInterval(vadTimer);vadTimer=null;}
@@ -1022,7 +1039,8 @@ function buildSummary(){
 function startBranch(b){
   branch=b;stepIdx=0;inFollowup=false;steps=STEPS[b];answers={};
   document.getElementById("hdr-sub").textContent=b==="pain"?"통증 문진 · 편하게, 전문의에게 이야기하듯":"자율신경 문진 · 편하게, 전문의에게 이야기하듯";
-  if(recognition)document.getElementById("mic-bar").style.display="flex";
+  if(recognition||serverSTT)document.getElementById("mic-bar").style.display="flex";
+  if(isIOS)document.getElementById("mic-hint").textContent=W_STT?"🌐 서버 음성인식 — 자동으로 켜집니다":"음성 입력 준비 중 — 버튼·키보드로 진행하세요";
   setProgress(0,steps.length);
   askQuestion(steps[0],false);
 }

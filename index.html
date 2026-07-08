@@ -3,1085 +3,948 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>행복한H병원 사전문진 v5</title>
+<meta name="theme-color" content="#185FA5">
+<title>행복한H병원 사전문진</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Malgun Gothic',sans-serif;background:#f8f7f4;color:#1a1a1a;min-height:100vh;padding:1rem}
-#app{max-width:680px;margin:0 auto}
-.v-header{background:#fff;border:1px solid #d3d1c7;border-radius:12px;padding:1rem 1.25rem;margin-bottom:.75rem;display:flex;align-items:center;gap:14px}
-.v-avatar{width:48px;height:48px;border-radius:50%;background:#1a2a3a;display:flex;align-items:center;justify-content:center;flex-shrink:0;position:relative;color:#7aabdc;font-size:22px}
-.v-dot{width:9px;height:9px;border-radius:50%;background:#4CAF50;position:absolute;bottom:1px;right:1px;border:2px solid #fff;transition:background .3s}
-.v-dot.speaking{background:#378ADD;animation:pdot .8s infinite}
-.v-dot.listening{background:#E24B4A;animation:pdot .5s infinite}
-@keyframes pdot{0%,100%{transform:scale(1)}50%{transform:scale(1.5)}}
-.v-title{font-size:15px;font-weight:600}
-.v-sub{font-size:12px;color:#5f5e5a;margin-top:2px}
-.v-badge{margin-left:auto;padding:4px 12px;border-radius:99px;font-size:11px;font-weight:500;white-space:nowrap;border:1px solid #d3d1c7;color:#5f5e5a;background:#fff}
-.ctrl-bar{display:flex;align-items:center;gap:12px;margin-bottom:.75rem;flex-wrap:wrap;font-size:12px;color:#5f5e5a}
-.tgl{display:flex;align-items:center;gap:6px;cursor:pointer;user-select:none}
-.tgl-track{width:34px;height:18px;border-radius:9px;background:#d3d1c7;position:relative;transition:background .2s;flex-shrink:0}
-.tgl-track.on{background:#185FA5}
-.tgl-knob{position:absolute;top:2px;left:2px;width:14px;height:14px;border-radius:50%;background:#fff;transition:transform .2s}
-.tgl-track.on .tgl-knob{transform:translateX(16px)}
-.speed-sel{margin-left:auto;font-size:12px;padding:4px 8px;border-radius:6px;border:1px solid #d3d1c7;background:#fff;cursor:pointer}
-.prog-wrap{height:4px;background:#d3d1c7;border-radius:99px;margin-bottom:.4rem;overflow:hidden}
-.prog-fill{height:4px;background:#185FA5;border-radius:99px;transition:width .5s}
-.prog-lbl{font-size:11px;color:#5f5e5a;text-align:right;margin-bottom:.75rem}
-.msgs{display:flex;flex-direction:column;gap:12px;margin-bottom:.75rem}
-.msg-bot{display:flex;gap:10px;align-items:flex-start}
-.b-ava{width:32px;height:32px;border-radius:50%;background:#1a2a3a;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;color:#7aabdc;font-size:15px}
-.bub-bot{background:#f1efe8;border:1px solid #d3d1c7;border-radius:0 12px 12px 12px;padding:.75rem 1rem;font-size:14px;line-height:1.65;max-width:87%;white-space:pre-wrap}
-.bub-user{background:#185FA5;color:#fff;border-radius:12px 12px 0 12px;padding:.75rem 1rem;font-size:14px;max-width:87%;margin-left:auto;line-height:1.65}
-.choices{display:flex;flex-wrap:wrap;gap:7px;margin-top:4px;margin-left:42px}
-.cbtn{background:#fff;border:1px solid #b4b2a9;border-radius:8px;padding:6px 14px;font-size:13px;cursor:pointer;transition:all .12s;font-family:inherit}
-.cbtn:hover:not(:disabled){background:#e6f1fb;border-color:#185FA5}
-.cbtn.sel{background:#e6f1fb;border:1.5px solid #185FA5;color:#0c447c}
-.cbtn:disabled{opacity:.45;cursor:default}
-.cbtn.nxt{background:#185FA5;color:#fff;border-color:#185FA5}
-.cbtn.nxt:hover:not(:disabled){background:#0c447c}
-.check-wrap{margin-left:42px;margin-top:6px;display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:6px}
-.chk-item{display:flex;align-items:flex-start;gap:7px;padding:7px 10px;border:1px solid #d3d1c7;border-radius:8px;cursor:pointer;font-size:13px;line-height:1.4;background:#fff;transition:all .12s;user-select:none}
-.chk-item:hover{background:#e6f1fb;border-color:#85b7eb}
-.chk-item.sel{background:#e6f1fb;border-color:#185FA5}
-.chk-item input{flex-shrink:0;accent-color:#185FA5;margin-top:1px;pointer-events:none}
-.vas-wrap{margin-left:42px;margin-top:7px;padding:12px 14px;background:#f1efe8;border:1px solid #d3d1c7;border-radius:8px}
-.vas-row{display:flex;align-items:center;gap:10px;margin-bottom:8px}
-.vas-lbl{font-size:12px;color:#5f5e5a;min-width:80px}
-.vas-row input[type=range]{flex:1;accent-color:#185FA5}
-.vas-num{font-size:15px;font-weight:600;color:#185FA5;min-width:24px;text-align:right}
-.vas-scale{display:flex;justify-content:space-between;font-size:11px;color:#5f5e5a;margin-bottom:8px}
-.bodymap-wrap{margin-left:42px;margin-top:7px;padding:12px;background:#f1efe8;border:1px solid #d3d1c7;border-radius:10px;max-width:440px}
-.bm-tabs{display:flex;gap:5px;margin-bottom:8px;flex-wrap:wrap}
-.bm-tab{padding:5px 12px;border:1px solid #b4b2a9;border-radius:99px;font-size:12px;cursor:pointer;background:#fff;font-family:inherit;transition:all .12s}
-.bm-tab.act{background:#185FA5;color:#fff;border-color:#185FA5}
-.bm-svg-box{background:#fff;border:1px solid #d3d1c7;border-radius:8px;display:flex;justify-content:center;padding:6px}
-.bm-svg-box svg{cursor:crosshair;max-width:100%;height:auto}
-.bm-hint{font-size:11.5px;color:#5f5e5a;margin:6px 0}
-.bm-tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:6px;min-height:24px}
-.bm-tag{background:#fce8e6;border:1px solid #e8a49c;border-radius:99px;padding:3px 10px;font-size:12px;color:#8c2f22;display:flex;align-items:center;gap:5px}
-.bm-tag button{background:none;border:none;cursor:pointer;color:#8c2f22;font-size:13px;padding:0;line-height:1}
-.mic-bar{display:flex;align-items:center;gap:10px;margin-top:8px;padding:10px 14px;background:#f1efe8;border:1px solid #d3d1c7;border-radius:8px}
-.mic-btn{width:44px;height:44px;border-radius:50%;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;transition:all .15s;font-family:inherit}
-.mic-btn.idle{background:#e6f1fb;color:#185FA5}
-.mic-btn.rec{background:#E24B4A;color:#fff;animation:mpulse 1s infinite}
-@keyframes mpulse{0%,100%{transform:scale(1)}50%{transform:scale(1.12)}}
-.mic-hint{font-size:12px;color:#5f5e5a;flex:1}
-.mic-live{font-size:13px;color:#185FA5;font-style:italic;min-height:18px}
-.wave{display:flex;align-items:center;gap:2px;height:26px}
-.wave span{width:3px;background:#E24B4A;border-radius:2px;animation:wv 1s infinite}
-.wave span:nth-child(2){animation-delay:.1s}.wave span:nth-child(3){animation-delay:.2s}
-.wave span:nth-child(4){animation-delay:.3s}.wave span:nth-child(5){animation-delay:.2s}
-@keyframes wv{0%,100%{height:3px}50%{height:20px}}
-.wave.hidden{display:none}
-.input-row{display:flex;gap:8px;align-items:flex-end;margin-top:8px}
-.txt-inp{flex:1;border:1px solid #b4b2a9;border-radius:8px;padding:10px 14px;font-size:14px;resize:none;min-height:44px;max-height:110px;line-height:1.5;font-family:inherit;background:#fff}
-.txt-inp:focus{outline:none;border-color:#185FA5}
-.send-btn{width:44px;height:44px;border-radius:8px;background:#185FA5;border:none;cursor:pointer;color:#fff;font-size:17px;flex-shrink:0;font-family:inherit}
-.send-btn:hover:not(:disabled){background:#0c447c}
-.send-btn:disabled{opacity:.4;cursor:default}
-.sum-card{margin-top:8px;padding:1rem 1.25rem;border:1px solid #d3d1c7;border-radius:12px;background:#fff;font-size:13px}
-.sum-title{font-size:14px;font-weight:600;color:#0c447c;margin-bottom:2px}
-.sum-date{font-size:11px;color:#999;margin-bottom:10px}
-.sum-sec{font-size:10.5px;font-weight:600;color:#185FA5;letter-spacing:.6px;margin:12px 0 5px;border-bottom:1px solid #e8e6de;padding-bottom:3px}
-.sum-row{display:flex;gap:8px;margin-bottom:5px;font-size:12.5px}
-.sum-lbl{color:#5f5e5a;min-width:104px;flex-shrink:0}
-.act-btn{width:100%;padding:10px;border-radius:8px;font-size:13px;cursor:pointer;margin-top:6px;border:1px solid #d3d1c7;background:#f8f7f4;font-family:inherit}
-.act-btn:hover{background:#e6f1fb}
-.typing{display:flex;gap:4px;align-items:center}
-.typing span{width:7px;height:7px;background:#888780;border-radius:50%;animation:bounce 1.2s infinite}
-.typing span:nth-child(2){animation-delay:.2s}
-.typing span:nth-child(3){animation-delay:.4s}
-@keyframes bounce{0%,80%,100%{transform:translateY(0)}40%{transform:translateY(-5px)}}
-.freetalk-done{margin-left:42px;margin-top:6px}
+html{-webkit-text-size-adjust:100%}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Malgun Gothic','Apple SD Gothic Neo',sans-serif;background:#f4f2ec;color:#1a1a1a;min-height:100vh;padding:16px 14px 40px;line-height:1.6;-webkit-font-smoothing:antialiased}
+#app{max-width:640px;margin:0 auto}
+
+/* header */
+.hdr{background:#fff;border:1px solid #dcdacf;border-radius:14px;padding:16px 18px;margin-bottom:12px;display:flex;align-items:center;gap:13px}
+.hdr-ava{width:46px;height:46px;border-radius:50%;background:#16324b;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:22px}
+.hdr-t{font-size:15.5px;font-weight:700}
+.hdr-s{font-size:12px;color:#6b6a64;margin-top:2px}
+.hdr-badge{margin-left:auto;padding:4px 12px;border-radius:99px;font-size:11.5px;font-weight:600;white-space:nowrap;border:1px solid #185FA5;color:#185FA5;background:#eef5fc}
+.hdr-badge.hide{display:none}
+
+/* progress */
+.prog-wrap{height:5px;background:#dcdacf;border-radius:99px;margin-bottom:5px;overflow:hidden}
+.prog-fill{height:100%;background:#185FA5;border-radius:99px;transition:width .4s ease;width:0}
+.prog-lbl{font-size:11.5px;color:#6b6a64;text-align:right;margin-bottom:12px}
+.prog-lbl.hide,.prog-wrap.hide{display:none}
+
+/* card */
+.card{background:#fff;border:1px solid #dcdacf;border-radius:14px;padding:20px 20px 18px;margin-bottom:12px}
+.q-ask{font-size:15.5px;font-weight:600;line-height:1.7;white-space:pre-wrap;margin-bottom:4px}
+.q-note{font-size:12.5px;color:#8a887f;margin-top:6px}
+
+/* intro */
+.intro-greet{font-size:14.5px;line-height:1.85;white-space:pre-wrap;color:#3a3a37;margin-bottom:18px}
+.sec-t{font-size:12px;font-weight:700;color:#185FA5;letter-spacing:.4px;margin:2px 0 12px}
+
+/* choices */
+.opts{display:flex;flex-direction:column;gap:9px;margin-top:16px}
+.opt{width:100%;text-align:left;background:#fff;border:1.5px solid #cbc9be;border-radius:10px;padding:13px 16px;font-size:14.5px;cursor:pointer;font-family:inherit;transition:all .12s;color:#1a1a1a;line-height:1.45}
+.opt:hover{background:#eef5fc;border-color:#7aabdc}
+.opt:active{transform:scale(.995)}
+.opt.sel{background:#eef5fc;border-color:#185FA5;font-weight:600;color:#0c447c}
+.opt.sel::before{content:"✓ ";color:#185FA5;font-weight:700}
+
+/* multi checkbox grid */
+.multi{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:16px}
+.multi.one{grid-template-columns:1fr}
+.chk{display:flex;align-items:center;gap:9px;padding:12px 13px;border:1.5px solid #cbc9be;border-radius:10px;cursor:pointer;font-size:14px;background:#fff;transition:all .12s;user-select:none;line-height:1.35}
+.chk:hover{background:#eef5fc;border-color:#7aabdc}
+.chk.sel{background:#eef5fc;border-color:#185FA5;color:#0c447c;font-weight:600}
+.chk .box{width:19px;height:19px;border-radius:5px;border:2px solid #b4b2a9;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:13px;color:#fff;transition:all .12s}
+.chk.sel .box{background:#185FA5;border-color:#185FA5}
+
+/* text */
+.txt-inp{width:100%;border:1.5px solid #cbc9be;border-radius:10px;padding:13px 15px;font-size:15px;resize:vertical;min-height:100px;line-height:1.6;font-family:inherit;background:#fdfdfc;margin-top:16px}
+.txt-inp:focus{outline:none;border-color:#185FA5;background:#fff}
+.short-inp{min-height:auto;height:52px;resize:none}
+
+/* fields */
+.fields{display:flex;flex-direction:column;gap:12px;margin-top:16px}
+.field-row{display:flex;align-items:center;gap:12px}
+.field-lbl{font-size:14px;color:#4a4a46;min-width:96px;flex-shrink:0}
+.field-inp{flex:1;border:1.5px solid #cbc9be;border-radius:9px;padding:11px 13px;font-size:15px;font-family:inherit;background:#fdfdfc}
+.field-inp:focus{outline:none;border-color:#185FA5;background:#fff}
+
+/* vas / sliders */
+.vas-block{margin-top:16px;display:flex;flex-direction:column;gap:18px}
+.vas-item{background:#f7f5ef;border:1px solid #e3e1d7;border-radius:11px;padding:14px 16px}
+.vas-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.vas-name{font-size:14px;color:#3a3a37;font-weight:500}
+.vas-num{font-size:22px;font-weight:800;color:#185FA5;min-width:34px;text-align:right;line-height:1}
+.vas-item input[type=range]{width:100%;accent-color:#185FA5;height:26px}
+.vas-scale{display:flex;justify-content:space-between;font-size:11px;color:#8a887f;margin-top:3px}
+
+/* scale 0-3 group */
+.sg-item{padding:12px 0;border-bottom:1px solid #eceadf}
+.sg-item:last-child{border-bottom:none}
+.sg-name{font-size:14px;color:#3a3a37;margin-bottom:9px;line-height:1.45}
+.sg-opts{display:flex;gap:6px}
+.sg-opt{flex:1;text-align:center;border:1.5px solid #cbc9be;border-radius:8px;padding:8px 2px;font-size:12.5px;cursor:pointer;background:#fff;transition:all .12s;font-family:inherit;color:#4a4a46;line-height:1.25}
+.sg-opt:hover{background:#eef5fc}
+.sg-opt.sel{background:#185FA5;border-color:#185FA5;color:#fff;font-weight:700}
+.sg-opt b{display:block;font-size:15px}
+
+/* actions */
+.actions{display:flex;gap:10px;margin-top:20px}
+.btn{border:none;border-radius:10px;padding:14px 18px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .12s}
+.btn:active{transform:scale(.99)}
+.btn-primary{background:#185FA5;color:#fff;flex:1}
+.btn-primary:hover{background:#0c447c}
+.btn-primary:disabled{background:#c3c1b8;cursor:default}
+.btn-ghost{background:#f0eee6;color:#5f5e58;border:1px solid #dcdacf}
+.btn-ghost:hover{background:#e6e4da}
+.btn-back{background:none;border:none;color:#8a887f;font-size:13px;cursor:pointer;padding:8px 4px;font-family:inherit;margin-top:2px}
+.btn-back:hover{color:#185FA5;text-decoration:underline}
+
+/* summary */
+.sum-badge{display:inline-block;padding:5px 14px;border-radius:99px;font-size:12.5px;font-weight:700;color:#fff;margin-bottom:4px}
+.sum-badge.pain{background:#d1584f}.sum-badge.auto{background:#7d5ba6}.sum-badge.cancer{background:#2e8b78}
+.sum-date{font-size:11.5px;color:#999;margin:6px 0 4px}
+.sum-hi{font-size:15px;line-height:1.7;margin-bottom:6px}
+.sum-sec{font-size:11px;font-weight:700;color:#185FA5;letter-spacing:.5px;margin:20px 0 8px;border-bottom:1.5px solid #ebe9df;padding-bottom:5px}
+.sum-row{display:flex;gap:10px;margin-bottom:7px;font-size:13.5px;line-height:1.55}
+.sum-lbl{color:#7a786f;min-width:112px;flex-shrink:0;font-weight:500}
+.sum-val{color:#1a1a1a;flex:1;white-space:pre-wrap;word-break:break-word}
+.sum-val.free{background:#f7f5ef;border-radius:8px;padding:10px 12px;border:1px solid #e3e1d7}
+
+/* score bars */
+.bar-row{display:flex;align-items:center;gap:10px;margin-bottom:9px;font-size:13px}
+.bar-name{min-width:110px;color:#4a4a46;flex-shrink:0}
+.bar-track{flex:1;height:16px;background:#ece9df;border-radius:99px;overflow:hidden;display:block}
+.bar-fill{display:block;height:100%;min-width:2px;background:#7d5ba6;border-radius:99px;transition:width .5s}
+.bar-num{min-width:46px;text-align:right;font-weight:700;color:#7d5ba6;font-size:12.5px}
+.score-total{background:#f4effa;border:1px solid #e0d4ee;border-radius:10px;padding:12px 14px;margin-top:12px;font-size:13.5px;display:flex;justify-content:space-between;align-items:center}
+.score-total b{font-size:17px;color:#7d5ba6}
+.sev{padding:3px 10px;border-radius:99px;font-size:11.5px;font-weight:700;color:#fff}
+
+.copy-btn{width:100%;padding:14px;border-radius:10px;font-size:14.5px;font-weight:700;cursor:pointer;margin-top:20px;border:none;background:#16324b;color:#fff;font-family:inherit}
+.copy-btn:hover{background:#0f2436}
+.copy-btn.done{background:#2e8b78}
+.print-btn{width:100%;padding:12px;border-radius:10px;font-size:13.5px;cursor:pointer;margin-top:9px;border:1px solid #dcdacf;background:#fff;color:#5f5e58;font-family:inherit}
+.print-btn:hover{background:#f4f2ec}
+.foot-note{font-size:11.5px;color:#a09e95;text-align:center;margin-top:18px;line-height:1.6}
+
+.resume-bar{background:#fff8e6;border:1px solid #eddca0;border-radius:11px;padding:12px 15px;margin-bottom:12px;font-size:13px;color:#7a5c12;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.resume-bar button{border:none;border-radius:7px;padding:7px 13px;font-size:12.5px;font-weight:600;cursor:pointer;font-family:inherit}
+.resume-yes{background:#185FA5;color:#fff}
+.resume-no{background:#efe6c8;color:#7a5c12}
+
+@media(max-width:420px){
+  .multi{grid-template-columns:1fr}
+  .field-lbl{min-width:80px}
+  .sum-lbl{min-width:92px}
+}
+@media print{
+  body{background:#fff;padding:0}
+  .copy-btn,.print-btn,.foot-note,.btn-back{display:none}
+}
 </style>
 </head>
 <body>
 <div id="app">
-  <div class="v-header">
-    <div class="v-avatar">🩺<div class="v-dot" id="vdot"></div></div>
+  <div class="hdr">
+    <div class="hdr-ava">🩺</div>
     <div>
-      <div class="v-title">행복한H병원 사전문진</div>
-      <div class="v-sub" id="hdr-sub">다정한 사람들의 따스한 치유</div>
+      <div class="hdr-t">행복한H병원 사전문진</div>
+      <div class="hdr-s">다정한 사람들의 따스한 치유</div>
     </div>
-    <div class="v-badge" id="vbadge">대기 중</div>
+    <div class="hdr-badge hide" id="badge"></div>
   </div>
 
-  <div class="ctrl-bar">
-    <div class="tgl" onclick="toggleTTS()"><div class="tgl-track on" id="tts-tgl"><div class="tgl-knob"></div></div><span>음성 읽기</span></div>
-    <div class="tgl" onclick="toggleAuto()"><div class="tgl-track on" id="auto-tgl"><div class="tgl-knob"></div></div><span>자동 마이크</span></div>
-    <select id="speed-sel" class="speed-sel">
-      <option value="0.8">느리게</option>
-      <option value="1.0" selected>보통</option>
-      <option value="1.2">빠르게</option>
-    </select>
-  </div>
+  <div class="prog-wrap hide" id="progWrap"><div class="prog-fill" id="progFill"></div></div>
+  <div class="prog-lbl hide" id="progLbl"></div>
 
-  <div class="prog-wrap"><div class="prog-fill" id="prog" style="width:0%"></div></div>
-  <div class="prog-lbl" id="prog-lbl">시작 전</div>
-  <div class="msgs" id="msgs"></div>
-
-  <div class="mic-bar" id="mic-bar" style="display:none">
-    <button class="mic-btn idle" id="mic-btn" onclick="toggleMic()" aria-label="음성 입력">🎤</button>
-    <div style="flex:1">
-      <div class="mic-hint" id="mic-hint">자동 마이크가 켜져 있습니다 — 질문 후 바로 말씀하세요</div>
-      <div class="mic-live" id="mic-live"></div>
-      <div id="mic-meter-wrap" style="display:none;margin-top:5px">
-        <div style="height:8px;background:#ddd;border-radius:4px;overflow:hidden">
-          <div id="mic-meter" style="height:8px;width:0%;background:#1D9E75;transition:width .1s"></div>
-        </div>
-        <div id="mic-meter-lbl" style="font-size:11px;color:#5f5e5a;margin-top:3px">소리를 내 보세요 (5초 측정)...</div>
-      </div>
-    </div>
-    <button class="cbtn" id="mic-test-btn" type="button" onclick="micTest()" style="font-size:11.5px;white-space:nowrap">🔧 마이크<br>테스트</button>
-    <div class="wave hidden" id="wave"><span></span><span></span><span></span><span></span><span></span></div>
-  </div>
-
-  <div class="input-row">
-    <textarea class="txt-inp" id="txt" placeholder="말씀하시거나 직접 입력하세요" rows="1"></textarea>
-    <button class="send-btn" id="sbtn" onclick="handleSend()" aria-label="전송">➤</button>
-  </div>
+  <div id="stage"></div>
 </div>
 
 <script>
 "use strict";
-const WORKER_URL = ""; // Cloudflare Worker 기본 주소 (예: "https://happyh.xxx.workers.dev") — /tts, /stt 자동 연결. 비우면 브라우저 내장 기능 사용.
-const W_BASE = WORKER_URL.replace(/\/(tts|stt)\/?$/,"").replace(/\/$/,"");
-const W_TTS = W_BASE ? W_BASE + "/tts" : "";
-const W_STT = W_BASE ? W_BASE + "/stt" : "";
+/* ============================================================
+   행복한H병원 사전문진 — 텍스트 전용 정적 웹페이지
+   · 서버/외부 요청 0건 · 순수 클라이언트 · 오프라인 동작
+   · 정적 호스팅(CDN)에 올리면 동시 접속 수에 사실상 무제한
+   ============================================================ */
 
-let ttsOn=true, autoListen=true;
-let currentAudio=null, recognition=null, synthVoice=null, isListening=false;
-let currentQ=null, stepIdx=0, inFollowup=false, pendingFU=null;
-let branch=null, steps=[], answers={}, multiSel=[], lastChoicesEl=null;
-let freetalkBuf=[];
+/* ---------- 공통 선택지 조각 ---------- */
+const COMORBID = ["고혈압","당뇨","고지혈증","심장질환","갑상선질환","암","없음"];
+const FAMILY   = ["심장질환(심근경색 등)","뇌졸중","고혈압","당뇨","암","없음"];
 
-// ══════════ 문진 흐름 (특허 문서 + 6월 6일 문진 반영) ══════════
-const STEPS={
- pain:[
-  {bot:"먼저 성함을 여쭤볼게요. 호칭과 진료 준비를 위해서예요.", type:"text", key:"name", ph:"예: 김정훈"},
-  {bot:"생년월일을 알려주세요.", type:"text", key:"birth", ph:"예: 1968년 11월 21일"},
-  {bot:"성별을 선택하거나 말씀해 주세요.", type:"single", key:"gender", ch:["남성","여성"]},
-  {bot:"이제 아픈 곳을 그림에 직접 표시해 주세요.\n앞면·뒷면을 바꿔가며, 손·발은 확대해서 정확한 위치를 눌러주세요.", type:"bodymap", key:"pain_loc"},
-  {bot:"통증이 얼마나 심한지 알려주세요.\n가장 심할 때와 가장 약할 때를 각각 옮겨 주세요.", type:"vas2", key:"vas", lblA:"가장 심할 때", lblB:"가장 약할 때"},
-  {bot:"통증은 언제부터 시작되었나요? 편하게 말씀해 주세요.", type:"text", key:"onset", ph:"예: 2주 전부터"},
-  {bot:"최근 들어 갑자기 더 심해진 적이 있나요?", type:"single", key:"worse", ch:["네, 갑자기 심해졌어요","아니요, 비슷해요"],
-   fu:{bot:"그때 어떤 상황이었나요? 기억나는 대로 말씀해 주세요.", type:"text", key:"worse_situation", ph:"예: 잠을 잘 못 잔 날 이후로..."}, fuIf:"네"},
-  {bot:"혹시 다쳐서 아프기 시작했나요? (외상 여부)", type:"single", key:"trauma", ch:["네, 다쳤어요","아니요"]},
-  {bot:"밤에 잘 때도 아파서 깨거나 불편한가요?", type:"single", key:"night", ch:["네, 밤에도 아파요","아니요"]},
-  {bot:"통증이 다른 곳으로 뻗어 나가는 느낌이 있나요?", type:"single", key:"radiation", ch:["네, 뻗어 나가요","아니요"]},
-  {bot:"통증이 어떤 느낌에 가까운가요? 해당하는 것을 모두 골라주세요.", type:"multi", key:"quality", ch:["묵직하고 뻐근하다","찌르거나 날카롭다","저리거나 전기 오는 느낌","화끈거린다","감각이 둔하다","조이는 느낌"]},
-  {bot:"그 밖에 표현하고 싶은 느낌이 있다면 자유롭게 말씀해 주세요. (없으면 건너뛰기)", type:"text", key:"quality_free", ph:"예: 가끔 바늘로 찌르는 느낌", optional:true},
-  {bot:"가만히 있을 때도 아픈가요, 아니면 움직일 때만 아픈가요?", type:"single", key:"rest_pain", ch:["가만히 있어도 아파요","움직일 때만 아파요"]},
-  {bot:"어떤 동작이나 자세에서 더 아픈가요? 편하게 말씀해 주세요.", type:"text", key:"aggravate", ph:"예: 갑자기 움직일 때, 고개를 숙일 때"},
-  {bot:"반대로, 어떻게 하면 통증이 좀 줄어드나요?", type:"text", key:"relieve", ph:"예: 가만히 누워 있으면 좀 낫습니다", optional:true},
-  {bot:"아픈 부위의 넓이는 어느 정도인가요?", type:"single", key:"area", ch:["500원 동전보다 작다","500원 동전 정도","손바닥 크기","손바닥보다 넓다"]},
-  {bot:"통증이 느껴지는 깊이는 어느 정도인가요?", type:"single", key:"depth", ch:["뼈 깊숙한 곳","근육 부위","피부 바깥쪽","피부 안쪽","잘 모르겠음"]},
-  {bot:"가장 심한 통증은 얼마나 자주 나타나나요?", type:"single", key:"freq", ch:["계속 아프다","하루에 여러 번","하루 1회 정도","일주일에 여러 번","한 달에 여러 번"]},
-  {bot:"그렇게 심한 통증은 보통 얼마나 오래 지속되나요?", type:"single", key:"duration", ch:["몇 초","몇 분","몇 시간","반나절 이상","계속 지속"]},
-  {bot:"지금까지 이 통증으로 받은 치료가 있나요? 모두 골라주세요.", type:"multi", key:"past_tx", ch:["수술","신경차단술","인대증식주사","체외충격파","도수치료","물리치료","약물 복용","한방 치료","받은 적 없어요"]},
-  {bot:"현재 진단받았거나 약을 드시는 질환이 있나요?", type:"multi", key:"comorbid", ch:["고혈압","당뇨","고지혈증","심장질환","갑상선질환","암","없음"]},
-  {bot:"드시는 약 이름이나 기간을 아시면 말씀해 주세요. (모르시면 건너뛰기)", type:"text", key:"meds", ph:"예: 혈압약 5년째 복용 중", optional:true},
-  {bot:"지금까지 수술을 받으신 적이 있나요?", type:"single", key:"surgery", ch:["네, 있어요","아니요"],
-   fu:{bot:"어떤 수술을 언제 받으셨나요?", type:"text", key:"surgery_detail", ph:"예: 2020년 허리 디스크 수술"}, fuIf:"네"},
-  {bot:"가족 중에 심장질환·뇌졸중·고혈압·당뇨·암 등이 있으셨나요?", type:"multi", key:"family", ch:["심장질환(심근경색 등)","뇌졸중","고혈압","당뇨","암","없음"]},
-  {bot:"알레르기가 있으신가요? (약물·음식 모두)", type:"text", key:"allergy", ph:"예: 없어요 / 페니실린 알레르기", optional:true},
-  {bot:"평소 정기적으로 하는 운동이 있나요? (주 2회 이상)", type:"single", key:"exercise", ch:["규칙적으로 해요","가끔 해요","거의 안 해요"]},
-  {bot:"평소 생활이나 직업에서 많이 하는 자세나 동작을 알려주세요.", type:"text", key:"posture", ph:"예: 앉아서 4시간 이상 컴퓨터를 봅니다"},
-  {bot:"지금까지 다른 병원에서 진단받은 내용이 있다면 말씀해 주세요.\n(예: 디스크, 협착증, 오십견 등. 없으면 건너뛰기)", type:"text", key:"prev_dx", ph:"예: 목 디스크 진단을 받았습니다", optional:true},
-  {bot:"가지고 계신 검사 자료가 있나요? 내원하실 때 가져오시면 진료가 훨씬 정확해집니다.\n해당하는 것을 모두 골라주세요.", type:"multi", key:"records", ch:["MRI CD","CT CD","X-ray 자료","수술기록지","진단서·소견서","약 처방전·복약 목록","혈액검사 결과지","조직검사 결과지","가진 자료 없음"]},
-  {bot:"가장 빨리 회복되고 싶은 점은 무엇인가요?", type:"text", key:"goal", ph:"예: 오래 앉아 있어도 통증이 없으면 좋겠습니다"},
-  {bot:"다 나으면 꼭 하고 싶은 일이 있다면 들려주세요. 😊", type:"text", key:"wish", ph:"예: 서핑, 손주와 여행", optional:true},
-  {bot:"치료 방법에 대해 평소 선호하시는 것이 있나요? 참고만 하니 편하게 말씀해 주세요.", type:"text", key:"tx_pref", ph:"예: 주사는 피하고 싶어요", optional:true},
-  {bot:"마지막으로, 선생님께 하고 싶은 말씀을 충분히 들려주세요.\n걱정되는 점, 궁금한 점, 어떤 이야기든 좋습니다.\n여러 번 나눠 말씀하셔도 됩니다. 다 하셨으면 '말씀 완료' 버튼을 눌러주세요.", type:"freetalk", key:"free_talk"},
- ],
- ans:[
-  {bot:"먼저 성함을 여쭤볼게요.", type:"text", key:"name", ph:"예: 김정훈"},
-  {bot:"생년월일을 알려주세요.", type:"text", key:"birth", ph:"예: 1968년 11월 21일"},
-  {bot:"성별을 선택하거나 말씀해 주세요.", type:"single", key:"gender", ch:["남성","여성"]},
-  {bot:"가장 불편하신 증상을 모두 골라주세요.", type:"multi", key:"sx", ch:["어지럼증","두근거림","만성 피로","두통","수족냉증","식은땀","소화불량","수면 장애","불안·긴장","체온 조절 어려움","호흡 답답함"]},
-  {bot:"불편한 부위가 있다면 그림에 표시해 주세요. (전신 증상이면 건너뛰기 가능)", type:"bodymap", key:"sx_loc", optional:true},
-  {bot:"증상이 시작된 지 얼마나 되었나요?", type:"single", key:"onset", ch:["1개월 이내","1~3개월","3~6개월","6개월~1년","1~3년","3년 이상"]},
-  {bot:"다른 병원에서 검사를 받아보신 적이 있나요?", type:"single", key:"hosp", ch:["검사했으나 이상 없다는 결과","검사에서 이상이 발견됨","아직 검사를 못 했음"]},
-  {bot:"현재 스트레스 수준을 알려주세요.", type:"vas2", key:"stress", lblA:"요즘 평균", lblB:"가장 심할 때", single:true},
-  {bot:"수면 상태는 어떠신가요? 해당하는 것을 모두 골라주세요.", type:"multi", key:"sleep", ch:["잠들기 어렵다","자다가 자주 깬다","새벽에 일찍 깬다","자도 피로가 안 풀린다","꿈을 많이 꾼다","야간뇨가 잦다","수면에는 별 문제 없다"]},
-  {bot:"증상이 심해지는 상황이 있나요?", type:"multi", key:"trigger", ch:["스트레스 받을 때","과로 후","기상 변화 때","식사 후","사람 많은 곳","특별한 패턴 없음"]},
-  {bot:"현재 진단받았거나 약을 드시는 질환이 있나요?", type:"multi", key:"comorbid", ch:["고혈압","당뇨","공황장애","불안장애","우울증","갑상선질환","갱년기 증후군","없음"]},
-  {bot:"드시는 약 이름이나 기간을 아시면 말씀해 주세요. (모르시면 건너뛰기)", type:"text", key:"meds", ph:"예: 혈압약 5년째", optional:true},
-  {bot:"지금까지 다른 병원에서 진단받은 내용이 있다면 말씀해 주세요. (없으면 건너뛰기)", type:"text", key:"prev_dx", ph:"예: 자율신경실조증 의심 소견", optional:true},
-  {bot:"가지고 계신 검사 자료가 있나요? 내원 시 가져오시면 진료가 훨씬 정확해집니다.", type:"multi", key:"records", ch:["혈액검사 결과지","심전도·홀터 결과","뇌 MRI CD","내시경 결과지","진단서·소견서","약 처방전","가진 자료 없음"]},
-  {bot:"가족 중에 심장질환·뇌졸중·고혈압·당뇨·암 등이 있으셨나요?", type:"multi", key:"family", ch:["심장질환","뇌졸중","고혈압","당뇨","암","없음"]},
-  {bot:"가장 빨리 회복되고 싶은 점은 무엇인가요?", type:"text", key:"goal", ph:"예: 불안하지 않고 평온했으면 좋겠다"},
-  {bot:"좋아지면 꼭 하고 싶은 일이 있다면 들려주세요. 😊", type:"text", key:"wish", ph:"예: 운동을 다시 하고 싶다", optional:true},
-  {bot:"마지막으로, 선생님께 하고 싶은 말씀을 충분히 들려주세요.\n걱정되는 점, 궁금한 점, 어떤 이야기든 좋습니다.\n다 하셨으면 '말씀 완료' 버튼을 눌러주세요.", type:"freetalk", key:"free_talk"},
- ]
-};
+/* ---------- 분기별 문진 흐름 ---------- */
+/* type: single | multi | text | vas | vas2 | sliders | scale03 | fields | freetalk
+   optional:true → "건너뛰기" 허용
+   fu / fuIf → 특정 답변일 때만 뒤따르는 후속 질문 */
 
-const LABELS={name:"성함",birth:"생년월일",gender:"성별",pain_loc:"통증 위치",sx_loc:"증상 부위",vas:"통증 강도",stress:"스트레스",onset:"발병 시점",worse:"급성 악화",worse_situation:"악화 상황",trauma:"외상",night:"야간통증",radiation:"방사통",quality:"통증 양상",quality_free:"양상(자유)",rest_pain:"안정시 통증",aggravate:"악화 요인",relieve:"완화 요인",area:"통증 넓이",depth:"통증 깊이",freq:"통증 빈도",duration:"지속 시간",past_tx:"기존 치료",comorbid:"과거력·복용약",meds:"약물 상세",surgery:"수술력",surgery_detail:"수술 상세",family:"가족력",allergy:"알레르기",exercise:"운동",posture:"생활·자세",prev_dx:"기존 진단",records:"보유 자료",goal:"빨리 낫고 싶은 점",wish:"나으면 하고 싶은 일",tx_pref:"치료 선호",free_talk:"자유 말씀",sx:"주요 증상",hosp:"타원 검사",sleep:"수면",trigger:"악화 상황"};
-
-// ══════════ 입력 매칭 ══════════
-function norm(s){return String(s).replace(/[\s·,~+()→\-]/g,"").toLowerCase();}
-function matchChoice(input,choices){
-  const ni=norm(input); if(!ni)return null;
-  let best=null,bs=0;
-  for(const c of choices){
-    const nc=norm(c); let sc=0;
-    if(nc===ni)sc=100;
-    else if(ni.includes(nc))sc=95;
-    else if(nc.includes(ni))sc=90;
-    else{
-      const parts=c.split(/[·,\s\/()]/).map(norm).filter(x=>x.length>=1);
-      for(const p of parts){if(p&&(ni.includes(p)||p.includes(ni)))sc=Math.max(sc,85);}
-      if(sc===0){
-        let hit=0;const st=new Set(nc);
-        for(const ch of st)if(ni.includes(ch))hit++;
-        const r=hit/st.size;
-        if(nc[0]===ni[0]&&r>=0.5)sc=70; else if(r>=0.7)sc=60;
-      }
-    }
-    if(sc>bs){bs=sc;best=c;}
-  }
-  return bs>=60?best:null;
-}
-function matchMulti(input,choices){
-  const out=[]; const ni=norm(input);
-  for(const c of choices){
-    const nc=norm(c);
-    const parts=c.split(/[·,\s\/()]/).map(norm).filter(x=>x.length>=2);
-    if(ni.includes(nc)||parts.some(p=>ni.includes(p)))out.push(c);
-  }
-  return out;
-}
-
-// ══════════ TTS + 자동 마이크 ══════════
-function initVoices(){
-  if(!window.speechSynthesis)return;
-  const vs=window.speechSynthesis.getVoices();
-  synthVoice=vs.find(v=>v.lang&&v.lang.startsWith("ko")&&/male|남|man|injoon|준/i.test(v.name))
-          ||vs.find(v=>v.lang&&v.lang.startsWith("ko"))||null;
-}
-if(window.speechSynthesis){initVoices();window.speechSynthesis.onvoiceschanged=initVoices;}
-
-// 브라우저 TTS 발음 교정 사전 (표시 텍스트는 그대로, 음성만 치환)
-const TTS_FIX=[
-  ["여쭤볼게요","여쭈어 보겠습니다"],
-  ["여쭐게요","여쭙겠습니다"],
-  ["볼게요","보겠습니다"],
-  ["드릴게요","드리겠습니다"],
-  ["할게요","하겠습니다"],
-  ["들려주세요","말씀해 주세요"],
+// 통증 세부 부위(6 카테고리)
+const PAIN_AREAS = [
+  "두통 · 경추부 통증 · 어지럼증",
+  "어깨 · 가슴 · 등 통증",
+  "팔 · 팔꿈치 · 손 · 손목 통증",
+  "복부 · 허리 · 골반 · 고관절",
+  "허벅지 · 무릎",
+  "다리 · 발목 · 발",
 ];
-function ttsFix(t){ let s=t; for(const[a,b]of TTS_FIX) s=s.split(a).join(b); return s; }
 
-function speak(text){
-  if(!ttsOn){autoStartMic();return;}
-  if(W_TTS){speakEleven(text);return;}
-  if(!window.speechSynthesis){autoStartMic();return;}
-  try{
-    window.speechSynthesis.cancel();
-    const clean=ttsFix(text).replace(/[\n·→()😊🙏]/g," ").replace(/\s+/g," ").trim();
-    const u=new SpeechSynthesisUtterance(clean);
-    u.lang="ko-KR";
-    u.rate=parseFloat(document.getElementById("speed-sel").value)||1;
-    u.pitch=0.85;
-    if(synthVoice)u.voice=synthVoice;
-    u.onstart=()=>setStatus("speaking");
-    u.onend=()=>{setStatus("idle");autoStartMic();};   // ★ 질문 읽기가 끝나면 마이크 자동 시작
-    u.onerror=()=>{setStatus("idle");autoStartMic();};
-    window.speechSynthesis.speak(u);
-  }catch(e){setStatus("idle");autoStartMic();}
-}
-async function speakEleven(text){
-  try{
-    stopSpeak(); setStatus("speaking");
-    const res=await fetch(W_TTS,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({text:text.replace(/\n/g," ")})});
-    if(!res.ok)throw 0;
-    const blob=await res.blob(); const url=URL.createObjectURL(blob);
-    currentAudio=new Audio(url);
-    currentAudio.playbackRate=parseFloat(document.getElementById("speed-sel").value)||1;
-    const done=()=>{setStatus("idle");URL.revokeObjectURL(url);autoStartMic();};
-    currentAudio.onended=done; currentAudio.onerror=done;
-    await currentAudio.play().catch(done);
-  }catch(e){setStatus("idle");autoStartMic();}
-}
-function stopSpeak(){
-  try{
-    if(window.speechSynthesis)window.speechSynthesis.cancel();
-    if(currentAudio){currentAudio.pause();currentAudio=null;}
-  }catch(e){}
-  setStatus("idle");
-}
+const PAIN = [
+  {sec:"주요 증상", ask:"먼저, 어느 부위가 불편하신가요?\n가장 가까운 곳을 골라 주세요.", type:"single", key:"pain_area", ch:PAIN_AREAS},
+  {ask:"통증은 주로 어느 쪽인가요?", type:"single", key:"pain_side", ch:["왼쪽","오른쪽","양쪽","가운데(중앙)"]},
+  {ask:"통증이 얼마나 심한지 알려 주세요.\n0은 통증 없음, 10은 상상할 수 있는 가장 심한 통증입니다.", type:"vas2", key:"vas", lblA:"가장 심할 때", lblB:"평상시(가장 약할 때)"},
+  {ask:"통증은 언제부터 시작되었나요?", type:"text", key:"onset", ph:"예: 2주 전부터 / 3개월쯤 되었어요", short:true},
+  {ask:"최근 들어 갑자기 더 심해진 적이 있나요?", type:"single", key:"worse", ch:["네, 갑자기 심해졌어요","아니요, 비슷해요"],
+   fu:{ask:"그때 어떤 상황이었나요? 기억나는 대로 편하게 적어 주세요.", type:"text", key:"worse_situation", ph:"예: 무거운 짐을 든 뒤부터…"}, fuIf:"네"},
+  {ask:"혹시 다쳐서 아프기 시작했나요? (외상 여부)", type:"single", key:"trauma", ch:["네, 다쳤어요","아니요"]},
+  {ask:"밤에 잘 때도 아파서 깨거나 불편한가요? (야간통)", type:"single", key:"night", ch:["네, 밤에도 아파요","아니요"]},
+  {ask:"통증이 다른 곳으로 뻗어 나가는 느낌이 있나요? (방사통)", type:"single", key:"radiation", ch:["네, 뻗어 나가요","아니요"]},
+  {sec:"통증 특성", ask:"통증이 어떤 느낌에 가까운가요?\n해당하는 것을 모두 골라 주세요.", type:"multi", key:"quality", ch:["묵직하고 뻐근함","찌르거나 날카로움","저리거나 전기 오는 느낌","화끈거림","감각이 둔함","조이는 느낌"]},
+  {ask:"그 밖에 표현하고 싶은 느낌이 있다면 자유롭게 적어 주세요.", type:"text", key:"quality_free", ph:"예: 가끔 바늘로 찌르는 느낌", optional:true, short:true},
+  {ask:"가만히 있을 때도 아픈가요, 움직일 때만 아픈가요?", type:"single", key:"rest_pain", ch:["가만히 있어도 아파요","움직일 때만 아파요","둘 다 있어요"]},
+  {ask:"어떤 동작이나 자세에서 더 아픈가요? (악화 요인)", type:"text", key:"aggravate", ph:"예: 고개를 숙일 때, 오래 앉아 있을 때", short:true},
+  {ask:"반대로, 어떻게 하면 통증이 좀 줄어드나요? (완화 요인)", type:"text", key:"relieve", ph:"예: 누워서 쉬면 좀 나아요", optional:true, short:true},
+  {ask:"아픈 부위의 넓이는 어느 정도인가요?", type:"single", key:"area", ch:["500원 동전보다 작음","동전 정도","손바닥 크기","손바닥보다 넓음"]},
+  {ask:"통증이 느껴지는 깊이는 어느 정도인가요?", type:"single", key:"depth", ch:["뼈 깊숙한 곳","근육 부위","피부 바깥쪽","피부 안쪽","잘 모르겠음"]},
+  {ask:"통증이 얼마나 자주 나타나나요?", type:"single", key:"freq", ch:["계속 아픔","하루에 여러 번","하루 1회 정도","일주일에 여러 번","한 달에 여러 번"]},
+  {ask:"통증은 보통 얼마나 오래 지속되나요?", type:"single", key:"duration", ch:["몇 초","몇 분","몇 시간","반나절 이상","계속 지속"]},
+  {sec:"과거력 · 생활", ask:"지금까지 이 통증으로 받은 치료가 있나요?\n모두 골라 주세요.", type:"multi", key:"past_tx", ch:["수술","신경차단술","인대증식주사","체외충격파","도수치료","물리치료","약물 복용","한방 치료","받은 적 없음"]},
+  {ask:"현재 진단받았거나 약을 드시는 질환이 있나요?", type:"multi", key:"comorbid", ch:COMORBID},
+  {ask:"드시는 약 이름이나 복용 기간을 아시면 적어 주세요.", type:"text", key:"meds", ph:"예: 혈압약 5년째 복용 중", optional:true, short:true},
+  {ask:"지금까지 수술을 받으신 적이 있나요?", type:"single", key:"surgery", ch:["네, 있어요","아니요"],
+   fu:{ask:"어떤 수술을 언제 받으셨나요?", type:"text", key:"surgery_detail", ph:"예: 2020년 허리 디스크 수술", short:true}, fuIf:"네"},
+  {ask:"가족 중에 아래 질환을 앓으신 분이 있나요? (가족력)", type:"multi", key:"family", ch:FAMILY},
+  {ask:"알레르기가 있으신가요? (약물·음식 모두)", type:"text", key:"allergy", ph:"예: 없음 / 페니실린 알레르기", optional:true, short:true},
+  {ask:"평소 정기적으로 하는 운동이 있나요?", type:"single", key:"exercise", ch:["규칙적으로 함","가끔 함","거의 안 함"]},
+  {ask:"평소 생활·직업에서 많이 하는 자세나 동작을 알려 주세요.", type:"text", key:"posture", ph:"예: 앉아서 4시간 이상 컴퓨터 사용", short:true},
+  {ask:"다른 병원에서 진단받은 내용이 있다면 적어 주세요.", type:"text", key:"prev_dx", ph:"예: 목 디스크, 협착증 등", optional:true, short:true},
+  {ask:"가지고 계신 검사 자료가 있나요?\n내원 시 가져오시면 진료가 훨씬 정확해집니다.", type:"multi", key:"records", ch:["MRI CD","CT CD","X-ray 자료","수술기록지","진단서·소견서","약 처방전·복약 목록","혈액검사 결과지","조직검사 결과지","가진 자료 없음"]},
+  {sec:"회복 목표", ask:"가장 빨리 회복되고 싶은 점은 무엇인가요?", type:"text", key:"goal", ph:"예: 오래 앉아 있어도 통증이 없으면 좋겠어요", short:true},
+  {ask:"다 나으면 꼭 하고 싶은 일이 있다면 들려주세요. 😊", type:"text", key:"wish", ph:"예: 손주와 여행 가기", optional:true, short:true},
+  {ask:"치료 방법에 대해 선호하거나 피하고 싶은 것이 있나요?", type:"text", key:"tx_pref", ph:"예: 주사는 피하고 싶어요", optional:true, short:true},
+];
 
-// ══════════ STT ══════════
-function initSTT(){
-  const R=window.SpeechRecognition||window.webkitSpeechRecognition;
-  if(!R)return null;
-  const r=new R();
-  r.lang="ko-KR"; r.continuous=false; r.interimResults=true;
-  r.onstart=()=>{isListening=true;setStatus("listening");micUI(true);};
-  // ── 진단용 단계별 상태 표시 ──
-  r.onaudiostart=()=>{document.getElementById("mic-hint").textContent="① 오디오 채널 열림 — 말씀해 주세요";};
-  r.onsoundstart=()=>{document.getElementById("mic-hint").textContent="② 소리 감지됨...";};
-  r.onspeechstart=()=>{document.getElementById("mic-hint").textContent="③ 음성 감지! 인식 중...";};
-  r.onresult=(e)=>{
-    sttGotResult=true; sttDeadSessions=0;
-    let interim="",fin="";
-    for(let i=e.resultIndex;i<e.results.length;i++){
-      if(e.results[i].isFinal)fin+=e.results[i][0].transcript;
-      else interim+=e.results[i][0].transcript;
-    }
-    document.getElementById("mic-live").textContent=fin||interim;
-    if(fin)document.getElementById("txt").value=fin;
-  };
-  r.onend=()=>{
-    isListening=false;setStatus("idle");micUI(false);
-    // 무응답 세션 추적: 결과 없이 끝난 세션이 3회 누적되면 환경 문제 안내
-    if(!sttGotResult){
-      sttDeadSessions++;
-      if(sttDeadSessions>=3){
-        sttGotResult=false;
-        if(W_STT){
-          serverSTT=true;   // ★ 브라우저 인식 포기 → 서버 인식으로 자동 전환
-          document.getElementById("mic-hint").textContent="🌐 브라우저 인식 무응답 — 서버 음성인식으로 전환합니다";
-          if(autoListen&&currentQ)setTimeout(startServerListen,700);
-        }else{
-          document.getElementById("mic-hint").innerHTML="⚠ <b>브라우저 음성인식 무응답.</b> Worker 연동(WORKER_URL) 시 서버 인식으로 자동 전환됩니다. 지금은 버튼·키보드로 진행하세요.";
-        }
-        return;
-      }
-    }
-    sttGotResult=false;
-    const v=document.getElementById("txt").value.trim();
-    if(v&&currentQ){setTimeout(handleSend,300);return;}
-    if(!autoListen||!currentQ)return;
-    // 침묵으로 종료된 경우 자동 재시작: freetalk은 무제한, 그 외 질문은 3회까지
-    if(currentQ.type==="freetalk"){
-      setTimeout(()=>{if(currentQ&&currentQ.type==="freetalk"&&!isListening)tryStartMic();},700);
-    }else if(silenceRestarts<3){
-      silenceRestarts++;
-      setTimeout(()=>{if(currentQ&&!isListening)tryStartMic();},700);
-    }else{
-      document.getElementById("mic-hint").textContent="마이크 대기 종료 — 버튼을 누르거나 화면에서 선택·입력하세요";
-    }
-  };
-  r.onerror=(e)=>{
-    isListening=false;setStatus("idle");micUI(false);
-    const h=document.getElementById("mic-hint");
-    if(e.error==="not-allowed"||e.error==="service-not-allowed"){
-      micPermission=false;
-      h.textContent="⚠ 마이크 차단됨 — 주소창 왼쪽 아이콘에서 허용해 주세요";
-    }else if(e.error==="network"){
-      h.textContent="⚠ 음성인식 서버 연결 실패 (network) — 인터넷 연결 또는 방화벽을 확인하세요";
-    }else if(e.error==="audio-capture"){
-      h.textContent="⚠ 마이크 점유/장치 오류 (audio-capture) — 다른 탭·프로그램을 닫고 재시도하세요";
-    }else if(e.error==="no-speech"){
-      // 침묵 — onend에서 자동 재시작 처리
-    }else if(e.error!=="aborted"){
-      h.textContent="⚠ 인식 오류: "+e.error+" — 아래 '마이크 테스트'로 입력을 확인해 보세요";
-    }
-  };
-  return r;
-}
-// ══════════ 서버 음성인식 (브라우저 독립) — 변수 선언을 먼저 배치 ══════════
-let serverSTT=false, mediaStream=null, mediaRecorder=null, sttCtx=null, sttAnalyser=null;
-let recChunks=[], recActive=false, vadTimer=null, skipSend=false;
+const COMPASS = [
+  {key:"c_ortho", name:"기립성 불내성", items:["앉거나 누웠다 일어설 때 어지럽다","오래 서 있으면 정신이 아득해진다","급하게 일어서면 두근거리거나 숨이 찬다","어지러워 다시 앉거나 누워야 한다"]},
+  {key:"c_gi", name:"위장관 기능", items:["조금만 먹어도 금방 배부르다","식후 배가 심하게 부풀고 팽만하다","메스껍거나 토할 것 같다","변비 또는 설사가 있다","갑자기 급하게 화장실에 가야 한다"]},
+  {key:"c_secre", name:"분비 기능", items:["더워도 땀이 잘 나지 않는다","식은땀이 지나치게 많이 난다","눈이 건조하다","입이 마른다"]},
+  {key:"c_vaso", name:"혈관 기능", items:["추울 때 손발 색이 변한다(창백·파랗게)","이유 없이 발이 화끈거린다"]},
+  {key:"c_blad", name:"방광 기능", items:["소변이 급하게 마렵다","소변볼 때 힘을 줘야 한다","소변 후에도 잔뇨감이 있다"]},
+  {key:"c_pupil", name:"동공 기능", items:["밝은 빛에 유난히 눈부시다","밝고 어두움 적응이 느리다","시야가 흐릿하게 보인다"]},
+];
 
-recognition=initSTT();
+const AUTO = [
+  {sec:"전신 증상 체크", ask:"먼저, 전신·체온과 관련해 겪는 증상을 모두 골라 주세요.", type:"multi", key:"sx_body", optional:true,
+   ch:["신체 열감(얼굴·손·발)","3개월 새 3kg 이상 체중 변화","땀 내면 몹시 지침","땀이 잘 안 남","더위를 못 참음","추위를 못 참음","머리 위로 열이 오름","한열이 왕복함"]},
+  {ask:"뇌신경·감각과 관련한 증상을 모두 골라 주세요.", type:"multi", key:"sx_neuro", optional:true,
+   ch:["불면","자주 깸","두통","어지럼증","이명","안면홍조","눈 피로","눈 떨림"]},
+  {ask:"심혈관·정서와 관련한 증상을 모두 골라 주세요.", type:"multi", key:"sx_cardio", optional:true,
+   ch:["두근거림","흉통·답답함","과호흡","기립성 저혈압","불안장애","공황장애","우울증","조금만 움직여도 숨참"]},
+  {ask:"소화기·비뇨·사지와 관련한 증상을 모두 골라 주세요.", type:"multi", key:"sx_gi", optional:true,
+   ch:["잦은 복통","명치 막힘","과민성 대장(설사)","위장운동장애","빈뇨","야간뇨","월경전증후군","생리통","수족냉증","저림","하체 힘없음","다리 부종"]},
 
-// ── iOS Safari 감지: 애플 네이티브 연속 음성인식은 다회 세션에서 불안정 ──
-// iOS에서는 처음부터 서버 인식(Worker STT)만 사용하도록 고정
-const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-if(isIOS){ serverSTT = true; }
+  {sec:"COMPASS-31 자율신경", compass:true},
 
-// ── 브라우저 호환성 감지: 크로미움 계열(웨일·브레이브·오페라)은 STT API가 있어도 작동 안 함 ──
-function checkBrowserSTT(){
-  const ua=navigator.userAgent;
-  const isWhale=/Whale/.test(ua);
-  const isOpera=/OPR\//.test(ua);
-  const isEdge=/Edg\//.test(ua);
-  if(isIOS){
-    if(!W_STT){
-      const bar=document.createElement("div");
-      bar.style.cssText="background:#faeeda;border:1px solid #efc27b;border-radius:8px;padding:10px 14px;font-size:13px;color:#633806;margin-bottom:.75rem;line-height:1.6";
-      bar.innerHTML="ℹ <b>아이폰에서는 서버 음성인식이 필요합니다.</b> 지금은 Worker가 연결되지 않아 음성 입력을 쓸 수 없으니, 버튼과 키보드로 편하게 진행해 주세요. 답변 내용은 동일하게 저장됩니다.";
-      document.getElementById("app").insertBefore(bar,document.getElementById("app").firstChild);
-    }
-    return true;
-  }
-  const isRealChrome=/Chrome\//.test(ua)&&!isWhale&&!isOpera&&!isEdge&&navigator.vendor==="Google Inc.";
-  if(isWhale||isOpera){
-    const name=isWhale?"네이버 웨일":"오페라";
-    const bar=document.createElement("div");
-    bar.style.cssText="background:#fce8e6;border:1px solid #e8a49c;border-radius:8px;padding:10px 14px;font-size:13px;color:#8c2f22;margin-bottom:.75rem;line-height:1.6";
-    bar.innerHTML="⚠ <b>"+name+" 브라우저는 음성인식이 작동하지 않습니다.</b><br>마이크는 정상이지만 이 브라우저는 음성인식 서버에 연결할 수 없습니다.<br>👉 <b>구글 크롬(Chrome)</b> 또는 <b>엣지(Edge)</b>로 이 파일을 열어주세요. 버튼·키보드 입력은 지금도 사용 가능합니다.";
-    document.getElementById("app").insertBefore(bar,document.getElementById("app").firstChild);
-    return false;
-  }
-  if(!isRealChrome&&!isEdge&&recognition){
-    const bar=document.createElement("div");
-    bar.style.cssText="background:#faeeda;border:1px solid #efc27b;border-radius:8px;padding:10px 14px;font-size:13px;color:#633806;margin-bottom:.75rem;line-height:1.6";
-    bar.innerHTML="ℹ 음성인식은 <b>구글 크롬</b> 또는 <b>엣지</b>에서 가장 안정적으로 작동합니다. 인식이 안 되면 크롬으로 열어주세요.";
-    document.getElementById("app").insertBefore(bar,document.getElementById("app").firstChild);
-  }
-  return true;
-}
-checkBrowserSTT();
+  {sec:"피로도 평가(BFI)", ask:"지금부터 최근 피로 상태를 여쭤볼게요.\n0은 피로 없음, 10은 상상 못 할 만큼 심한 피로입니다.", type:"sliders", key:"bfi_level",
+   items:[["지금 이 순간의 피로","now"],["지난 24시간 평균 피로","avg"],["지난 24시간 가장 심했던 피로","worst"]]},
+  {ask:"피로 때문에 아래 활동에 얼마나 지장이 있었나요?\n(지난 24시간 기준, 0=지장 없음 ~ 10=완전히 지장)", type:"sliders", key:"bfi_interf",
+   items:[["일반적인 활동","general"],["기분","mood"],["일(집안일 포함)","work"],["대인관계","relation"],["걷는 능력","walk"],["인생을 즐기는 정도","enjoy"]]},
 
-// ── STT 무응답 감시: 오디오는 열리는데 결과가 계속 없으면 안내 ──
-let sttDeadSessions=0, sttGotResult=false;
+  {sec:"생활 · 수면", ask:"하루 평균 상태를 적어 주세요. (모르시면 비워 두어도 됩니다)", type:"fields", key:"daily", optional:true,
+   items:[["식사 횟수","meal","회"],["수면 시간","sleep","시간"],["대변 횟수","stool","회"],["소변 횟수","urine","회"]]},
+  {ask:"수면 상태는 어떠신가요? 해당하는 것을 모두 골라 주세요.", type:"multi", key:"sleep", ch:["잠들기 어려움","자주 깸","새벽에 일찍 깸","자도 피로가 안 풀림","꿈을 많이 꿈","야간뇨가 잦음","수면에 문제 없음"]},
+  {ask:"요즘 스트레스는 어느 정도인가요? (0=없음 ~ 10=극심)", type:"vas", key:"stress", lbl:"스트레스 강도"},
+  {ask:"증상이 심해지는 상황이 있나요? 모두 골라 주세요.", type:"multi", key:"trigger", ch:["스트레스 받을 때","과로 후","기상 변화 때","식사 후","특정 음식 후","사람 많은 곳","특별한 패턴 없음"]},
+  {ask:"다른 병원에서 자율신경 관련 검사를 받아 보셨나요?", type:"single", key:"exam", ch:["검사했으나 이상 없음","검사에서 이상 발견됨","아직 검사 못 함"]},
 
-// ── 마이크 권한 선확보 (사용자 제스처 시점에 호출) ──
-let micPermission=false;
-async function ensureMicPermission(){
-  if(micPermission)return true;
-  if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia)return true; // 구형 브라우저는 recognition이 직접 요청
-  try{
-    const s=await navigator.mediaDevices.getUserMedia({audio:true});
-    s.getTracks().forEach(t=>t.stop());   // 스트림은 즉시 닫고 권한만 유지
-    micPermission=true;
-    return true;
-  }catch(e){
-    document.getElementById("mic-hint").textContent="⚠ 마이크 권한이 필요합니다 — 주소창 왼쪽 아이콘에서 허용해 주세요";
-    return false;
-  }
-}
+  {sec:"과거력 · 목표", ask:"현재 진단받았거나 약을 드시는 질환이 있나요?", type:"multi", key:"comorbid", ch:["고혈압","당뇨","공황장애","불안장애","우울증","갑상선질환","갱년기 증후군","과민성 장 증후군","만성피로증후군","없음"]},
+  {ask:"드시는 약 이름이나 복용 기간을 아시면 적어 주세요.", type:"text", key:"meds", ph:"예: 항불안제 3개월째", optional:true, short:true},
+  {ask:"다른 병원에서 진단받은 내용이 있다면 적어 주세요.", type:"text", key:"prev_dx", ph:"예: 자율신경실조증 의심 소견", optional:true, short:true},
+  {ask:"가족 중에 아래 질환을 앓으신 분이 있나요? (가족력)", type:"multi", key:"family", ch:FAMILY},
+  {ask:"가지고 계신 검사 자료가 있나요?", type:"multi", key:"records", ch:["혈액검사 결과지","심전도·홀터 결과","뇌 MRI CD","내시경 결과지","진단서·소견서","약 처방전","가진 자료 없음"]},
+  {ask:"가장 빨리 회복되고 싶은 점은 무엇인가요?", type:"text", key:"goal", ph:"예: 불안하지 않고 평온했으면 좋겠어요", short:true},
+  {ask:"좋아지면 꼭 하고 싶은 일이 있다면 들려주세요. 😊", type:"text", key:"wish", ph:"예: 다시 운동을 시작하고 싶어요", optional:true, short:true},
+];
 
-let micRetried=false, silenceRestarts=0;
-function tryStartMic(){
-  if(serverSTT){startServerListen();return;}   // ★ 서버 인식 모드로 전환된 경우
-  if(!recognition||isListening)return;
-  try{
-    document.getElementById("mic-live").textContent="";
-    recognition.start();
-    micRetried=false;
-  }catch(e){
-    if(!micRetried){ micRetried=true; setTimeout(tryStartMic,600); }
-  }
-}
-function autoStartMic(){                       // ★ 자동 마이크: v4 방식 복원 — 인식 엔진이 직접 마이크를 소유
-  if(!autoListen||!currentQ)return;
-  setTimeout(tryStartMic,400);                 // TTS 종료 후 장치 안정화 여유
-}
-function micUI(rec){
-  document.getElementById("mic-btn").className="mic-btn "+(rec?"rec":"idle");
-  document.getElementById("mic-hint").textContent=rec?"듣고 있습니다 — 말씀하세요":"자동 마이크 대기 중 (버튼으로 수동 시작 가능)";
-  document.getElementById("wave").classList.toggle("hidden",!rec);
-}
-// ══════════ 서버 음성인식 (브라우저 독립) ══════════
-// 브라우저 내장 인식이 3회 무응답이면 자동으로 이 방식으로 전환.
-// MediaRecorder로 녹음 → Worker /stt → ElevenLabs Scribe → 텍스트
-// (서버 인식 변수는 상단에서 선언됨)
+const CANCER = [
+  {sec:"암 정보", ask:"어떤 암으로 치료받고 계신가요?", type:"single", key:"cancer_type", ch:["폐암","위암","대장암","유방암","간암","췌장암","갑상선암","전립선암","혈액암","기타"]},
+  {ask:"병기(Stage)를 알고 계신가요?", type:"single", key:"stage", ch:["1기","2기","3기","4기","모르겠음","확진 전"]},
+  {ask:"현재 치료 상황을 모두 골라 주세요.", type:"multi", key:"tx_status", ch:["수술 후 회복 중","항암치료 중","방사선치료 중","치료 종료 후 관리","대학병원 치료 중단","표준치료 외 대안 탐색 중"]},
+  {ask:"마지막 치료는 언제였나요?", type:"single", key:"last_tx", ch:["1개월 이내","1~3개월","3~6개월","6개월~1년","1년 이상","아직 치료 전"]},
+  {sec:"현재 상태", ask:"현재 겪고 있는 주요 증상을 모두 골라 주세요.", type:"multi", key:"symptoms", ch:["통증","극심한 피로","식욕부진·체중감소","수면장애","구역·구토","부종","호흡곤란","불안·우울","집중력 저하","림프부종","기타"]},
+  {ask:"피로 정도를 알려 주세요. (0=없음 ~ 10=극심)", type:"sliders", key:"bfi_level",
+   items:[["지금 이 순간의 피로","now"],["지난 24시간 평균 피로","avg"],["지난 24시간 가장 심했던 피로","worst"]]},
+  {ask:"통증이 있다면 그 강도를 알려 주세요. (없으면 0)", type:"vas", key:"pain_vas", lbl:"통증 강도"},
+  {ask:"현재 일상생활 수행 능력은 어느 정도인가요?", type:"single", key:"ecog", ch:["완전히 정상적으로 활동 가능","힘든 일은 어렵지만 가벼운 활동은 가능","하루의 절반 이상 앉거나 누워 있음","대부분 누워 있고 스스로 돌보기 어려움","완전히 누워서 지냄"]},
+  {sec:"치료 이력 · 기대", ask:"이전에 입원·치료받으신 병원 유형은?", type:"single", key:"prev_hosp", ch:["대학병원","종합병원","암 전문병원","요양병원","없음"]},
+  {ask:"행복한H병원에 기대하는 것을 모두 골라 주세요.", type:"multi", key:"expect", ch:["면역력 강화","통증 조절","암 직접치료(온열·광면역 등)","자율신경 회복","심리적 안정·상담","영양·수액 치료","빠른 체력 회복","대안 치료 탐색"]},
+  {ask:"내원 시 보호자 동반이 가능하신가요?", type:"single", key:"guardian", ch:["항상 가능","가끔 가능","혼자 내원"]},
+  {sec:"과거력 · 자료", ask:"현재 진단받았거나 약을 드시는 다른 질환이 있나요?", type:"multi", key:"comorbid", ch:COMORBID},
+  {ask:"드시는 약 이름이나 복용 기간을 아시면 적어 주세요.", type:"text", key:"meds", ph:"예: 표적항암제 복용 중", optional:true, short:true},
+  {ask:"가족 중에 아래 질환을 앓으신 분이 있나요? (가족력)", type:"multi", key:"family", ch:FAMILY},
+  {ask:"가지고 계신 검사 자료가 있나요?\n내원 시 가져오시면 진료가 훨씬 정확해집니다.", type:"multi", key:"records", ch:["조직검사 결과지","영상 CD(CT·MRI·PET)","수술기록지","항암치료 기록지","진단서·소견서","약 처방전","없음"]},
+  {sec:"회복 목표", ask:"가장 원하시는 것은 무엇인가요?", type:"text", key:"goal", ph:"예: 체력을 회복해 일상으로 돌아가고 싶어요", short:true},
+  {ask:"좋아지면 꼭 하고 싶은 일이 있다면 들려주세요. 😊", type:"text", key:"wish", ph:"예: 가족과 여행 가기", optional:true, short:true},
+];
 
-async function startServerListen(){
-  if(!W_STT){
-    document.getElementById("mic-hint").textContent="서버 음성인식을 쓰려면 파일 상단 WORKER_URL 설정이 필요합니다 — 버튼·키보드로 진행하세요";
-    return;
-  }
-  if(recActive)return;
-  try{
-    if(!mediaStream)mediaStream=await navigator.mediaDevices.getUserMedia({audio:true});
-    if(!sttCtx){
-      sttCtx=new (window.AudioContext||window.webkitAudioContext)();
-      sttAnalyser=sttCtx.createAnalyser();sttAnalyser.fftSize=256;
-      sttCtx.createMediaStreamSource(mediaStream).connect(sttAnalyser);
-    }
-    if(sttCtx.state==="suspended")await sttCtx.resume();
-    recChunks=[];
-    const mime=MediaRecorder.isTypeSupported("audio/webm")?"audio/webm":"";
-    mediaRecorder=new MediaRecorder(mediaStream,mime?{mimeType:mime}:{});
-    mediaRecorder.ondataavailable=e=>{if(e.data&&e.data.size)recChunks.push(e.data);};
-    mediaRecorder.onstop=sendToServerSTT;
-    mediaRecorder.start();
-    recActive=true;isListening=true;setStatus("listening");micUI(true);
-    document.getElementById("mic-hint").textContent="🌐 서버 인식 — 말씀하세요 (말이 끝나면 자동 전송)";
-
-    // 간이 VAD: 발화 후 1.4초 침묵 시 종료 / 발화 없으면 7초 / 최대 15초
-    let spoke=false,lastLoud=Date.now();const t0=Date.now();
-    const buf=new Uint8Array(sttAnalyser.frequencyBinCount);
-    vadTimer=setInterval(()=>{
-      sttAnalyser.getByteFrequencyData(buf);
-      let lvl=0;for(let i=0;i<buf.length;i++)if(buf[i]>lvl)lvl=buf[i];
-      if(lvl>55){spoke=true;lastLoud=Date.now();document.getElementById("mic-hint").textContent="🌐 음성 감지 — 녹음 중...";}
-      const sil=Date.now()-lastLoud;
-      if((spoke&&sil>1400)||(!spoke&&Date.now()-t0>7000)||(Date.now()-t0>15000)){
-        clearInterval(vadTimer);vadTimer=null;
-        stopServerListen(!spoke);   // 발화 없었으면 전송 생략
-      }
-    },100);
-  }catch(e){
-    recActive=false;isListening=false;micUI(false);setStatus("idle");
-    document.getElementById("mic-hint").textContent="⚠ 녹음 시작 실패: "+(e.name||e)+" — 버튼·키보드로 진행하세요";
-  }
-}
-// (skipSend는 상단에서 선언됨)
-function stopServerListen(noSpeech){
-  skipSend=!!noSpeech;
-  if(vadTimer){clearInterval(vadTimer);vadTimer=null;}
-  if(mediaRecorder&&recActive){recActive=false;try{mediaRecorder.stop();}catch(e){}}
-  isListening=false;micUI(false);setStatus("idle");
-}
-async function sendToServerSTT(){
-  const blob=new Blob(recChunks,{type:"audio/webm"});recChunks=[];
-  if(skipSend||blob.size<2500){
-    skipSend=false;
-    // 침묵 — 질문 활성 시 재시작 (제한 적용)
-    if(autoListen&&currentQ){
-      if(currentQ.type==="freetalk"||silenceRestarts<3){silenceRestarts++;setTimeout(startServerListen,600);}
-      else document.getElementById("mic-hint").textContent="마이크 대기 종료 — 버튼을 누르거나 선택·입력하세요";
-    }
-    return;
-  }
-  document.getElementById("mic-hint").textContent="🌐 인식 중...";
-  try{
-    const fd=new FormData();fd.append("file",blob,"audio.webm");
-    const res=await fetch(W_STT,{method:"POST",body:fd});
-    const j=await res.json();
-    const text=(j.text||"").trim();
-    if(text){
-      document.getElementById("mic-live").textContent=text;
-      document.getElementById("txt").value=text;
-      if(currentQ)setTimeout(handleSend,250);
-    }else{
-      document.getElementById("mic-hint").textContent="인식 결과 없음 — 다시 말씀해 주세요";
-      if(autoListen&&currentQ)setTimeout(startServerListen,700);
-    }
-  }catch(e){
-    document.getElementById("mic-hint").textContent="⚠ 인식 서버 오류 — 버튼·키보드로 진행하세요";
-  }
-}
-
-function toggleMic(){
-  if(serverSTT){ if(recActive)stopServerListen(false); else {stopSpeak();startServerListen();} return; }
-  if(!recognition){
-    if(W_STT){serverSTT=true;stopSpeak();startServerListen();}
-    else document.getElementById("mic-hint").textContent="이 브라우저는 음성 인식 미지원 — Worker 연동 시 사용 가능";
-    return;
-  }
-  if(isListening)recognition.stop();
-  else{stopSpeak();tryStartMic();}
-}
-
-// ── 마이크 입력 레벨 테스트 (5초) ──
-// 소리가 그래프에 나타나면: 마이크는 정상 → 크롬 음성인식 서버 문제
-// 그래프가 안 움직이면: 윈도우 입력 장치 문제 (다른 마이크 선택됨/음소거)
-async function micTest(){
-  if(isListening&&recognition)try{recognition.stop();}catch(e){}
-  const wrap=document.getElementById("mic-meter-wrap");
-  const meter=document.getElementById("mic-meter");
-  const lbl=document.getElementById("mic-meter-lbl");
-  wrap.style.display="block";
-  lbl.textContent="소리를 내 보세요 (박수, 아~) — 5초 측정 중...";
-  try{
-    const s=await navigator.mediaDevices.getUserMedia({audio:true});
-    const ctx=new (window.AudioContext||window.webkitAudioContext)();
-    const src=ctx.createMediaStreamSource(s);
-    const an=ctx.createAnalyser(); an.fftSize=256; src.connect(an);
-    const buf=new Uint8Array(an.frequencyBinCount);
-    let peak=0; const t0=Date.now();
-    const iv=setInterval(()=>{
-      an.getByteFrequencyData(buf);
-      let lvl=0; for(let i=0;i<buf.length;i++)if(buf[i]>lvl)lvl=buf[i];
-      peak=Math.max(peak,lvl);
-      meter.style.width=Math.min(100,Math.round(lvl/255*100))+"%";
-      meter.style.background=lvl>60?"#1D9E75":"#EF9F27";
-      if(Date.now()-t0>5000){
-        clearInterval(iv);
-        s.getTracks().forEach(t=>t.stop()); ctx.close();
-        meter.style.width="0%";
-        if(peak>50){
-          lbl.textContent="✅ 마이크 입력 정상 (최대 "+Math.round(peak/255*100)+"%) — 테스트 후에는 🎤 버튼을 눌러 인식을 다시 시작하세요";
-        }else if(peak>15){
-          lbl.textContent="⚠ 입력이 약합니다 — 마이크에 더 가까이서 말씀하시거나 윈도우 소리 설정에서 마이크 볼륨을 올려주세요";
-        }else{
-          lbl.textContent="❌ 입력 신호 없음 — 윈도우 설정 > 시스템 > 소리 > 입력에서 올바른 마이크가 선택되어 있는지, 음소거 상태가 아닌지 확인하세요";
-        }
-        // 테스트 직후 자동 재시작 제거: 장치 재초기화 충돌 방지 (수동 🎤 버튼 사용)
-      }
-    },100);
-  }catch(e){
-    lbl.textContent="❌ 마이크 접근 실패: "+e.name+" — 권한 또는 장치 연결을 확인하세요";
-  }
-}
-function toggleTTS(){ttsOn=!ttsOn;document.getElementById("tts-tgl").classList.toggle("on",ttsOn);if(!ttsOn)stopSpeak();}
-function toggleAuto(){autoListen=!autoListen;document.getElementById("auto-tgl").classList.toggle("on",autoListen);
-  document.getElementById("mic-hint").textContent=autoListen?"자동 마이크가 켜져 있습니다":"자동 마이크 꺼짐 — 버튼을 눌러 말씀하세요";}
-
-function setStatus(s){
-  const dot=document.getElementById("vdot"),badge=document.getElementById("vbadge");
-  dot.className="v-dot";
-  if(s==="speaking"){dot.classList.add("speaking");badge.textContent="말하는 중";}
-  else if(s==="listening"){dot.classList.add("listening");badge.textContent="듣는 중";}
-  else badge.textContent="대기 중";
-}
-
-// ══════════ UI 공통 ══════════
-const msgs=()=>document.getElementById("msgs");
-function setProgress(i,t){
-  document.getElementById("prog").style.width=(t?Math.round(i/t*100):0)+"%";
-  document.getElementById("prog-lbl").textContent=i===0?"시작 전":`${Math.min(i,t)} / ${t} 완료`;
-}
-function scrollBot(){setTimeout(()=>window.scrollTo(0,document.body.scrollHeight),80);}
-function ava(){const a=document.createElement("div");a.className="b-ava";a.textContent="🩺";return a;}
-function addBot(text,extra){
-  const w=document.createElement("div");w.className="msg-bot";
-  const b=document.createElement("div");b.className="bub-bot";b.textContent=text;
-  w.appendChild(ava());w.appendChild(b);msgs().appendChild(w);
-  if(extra)msgs().appendChild(extra);
-  scrollBot();
-}
-function addUser(v){
-  const d=document.createElement("div");d.className="bub-user";d.textContent=v;
-  msgs().appendChild(d);document.getElementById("mic-live").textContent="";scrollBot();
-}
-function addTyping(){
-  const w=document.createElement("div");w.className="msg-bot";w.id="ty";
-  const b=document.createElement("div");b.className="bub-bot";
-  b.innerHTML='<div class="typing"><span></span><span></span><span></span></div>';
-  w.appendChild(ava());w.appendChild(b);msgs().appendChild(w);scrollBot();
-}
-function removeTyping(){const t=document.getElementById("ty");if(t)t.remove();}
-
-// ══════════ 위젯 ══════════
-function mkChoices(q){
-  const w=document.createElement("div");w.className="choices";lastChoicesEl=w;
-  if(q.type==="multi")multiSel=[];
-  q.ch.forEach(c=>{
-    const btn=document.createElement("button");btn.className="cbtn";btn.textContent=c;btn.type="button";
-    if(q.type==="multi"){
-      btn.addEventListener("click",()=>{
-        if(btn.classList.contains("sel")){btn.classList.remove("sel");multiSel=multiSel.filter(x=>x!==c);}
-        else{btn.classList.add("sel");multiSel.push(c);}
-      });
-    }else{
-      btn.addEventListener("click",()=>{btn.classList.add("sel");submitAnswer(c);});
-    }
-    w.appendChild(btn);
-  });
-  if(q.type==="multi"){
-    const nx=document.createElement("button");nx.className="cbtn nxt";nx.textContent="다음 →";nx.type="button";
-    nx.addEventListener("click",()=>submitAnswer(multiSel.length?multiSel.join(", "):"해당없음"));
-    w.appendChild(nx);
-  }
-  return w;
-}
-
-function mkVAS2(q){
-  const w=document.createElement("div");w.className="vas-wrap";lastChoicesEl=w;
-  const uid="v"+Date.now();
-  let html=`<div class="vas-scale"><span>0 없음</span><span>10 극심</span></div>
-  <div class="vas-row"><span class="vas-lbl">${q.lblA}</span><input type="range" min="0" max="10" value="5" id="${uid}a"><span class="vas-num" id="${uid}an">5</span></div>`;
-  if(!q.single) html+=`<div class="vas-row"><span class="vas-lbl">${q.lblB}</span><input type="range" min="0" max="10" value="2" id="${uid}b"><span class="vas-num" id="${uid}bn">2</span></div>`;
-  html+=`<button class="cbtn nxt" id="${uid}ok" type="button" style="margin-top:4px">확인 →</button>`;
-  w.innerHTML=html;
-  setTimeout(()=>{
-    const a=document.getElementById(uid+"a"),an=document.getElementById(uid+"an");
-    const b=document.getElementById(uid+"b"),bn=document.getElementById(uid+"bn");
-    const ok=document.getElementById(uid+"ok");
-    if(!a)return;
-    a.addEventListener("input",()=>an.textContent=a.value);
-    if(b)b.addEventListener("input",()=>bn.textContent=b.value);
-    ok.addEventListener("click",()=>{
-      const val=q.single?`${a.value}점`:`최고 ${a.value}점 / 최저 ${b.value}점`;
-      submitAnswer(val);
-    });
-  },60);
-  return w;
-}
-
-// ══════════ 인체도 (전면/후면/손/발 확대, 좌우 구분) ══════════
-const BM_VIEWS={
- front:{label:"앞면",mid:100,centerBand:13,regions:[
-  {n:"머리(앞)",y:[0,44]},{n:"목(앞)",y:[44,60]},
-  {n:"어깨",y:[60,80],side:true},
-  {n:"가슴",y:[80,118],x:[64,136],side:true},
-  {n:"팔(위)",y:[62,130],xOut:true,side:true},
-  {n:"팔꿈치·아래팔",y:[130,185],xOut:true,side:true},
-  {n:"손",y:[185,215],xOut:true,side:true},
-  {n:"복부",y:[118,152],x:[64,136],side:true},
-  {n:"골반·서혜부",y:[152,178],side:true},
-  {n:"허벅지(앞)",y:[178,238],side:true},
-  {n:"무릎(앞)",y:[238,262],side:true},
-  {n:"정강이",y:[262,316],side:true},
-  {n:"발(앞)",y:[316,352],side:true},
- ]},
- back:{label:"뒷면",mid:100,centerBand:13,regions:[
-  {n:"뒤통수",y:[0,44]},{n:"목(뒤)",y:[44,60]},
-  {n:"어깨(뒤)",y:[60,80],side:true},
-  {n:"등 위쪽",y:[80,120],x:[64,136],side:true},
-  {n:"팔(뒤,위)",y:[62,130],xOut:true,side:true},
-  {n:"팔꿈치·아래팔(뒤)",y:[130,185],xOut:true,side:true},
-  {n:"손(뒤)",y:[185,215],xOut:true,side:true},
-  {n:"허리",y:[120,155],x:[64,136],side:true},
-  {n:"엉덩이",y:[155,185],side:true},
-  {n:"허벅지(뒤)",y:[185,238],side:true},
-  {n:"오금(무릎 뒤)",y:[238,262],side:true},
-  {n:"종아리",y:[262,316],side:true},
-  {n:"발뒤꿈치",y:[316,352],side:true},
- ]},
- hands:{label:"손 확대",mid:100,centerBand:0,regions:[
-  {n:"손목",y:[40,90],side:true,handed:true},
-  {n:"손바닥",y:[90,170],side:true,handed:true},
-  {n:"엄지",y:[100,180],xr:[[8,40],[160,192]],side:true,handed:true},
-  {n:"손가락",y:[170,260],side:true,handed:true},
- ]},
- feet:{label:"발 확대",mid:100,centerBand:0,regions:[
-  {n:"발목",y:[30,90],side:true,handed:true},
-  {n:"발등",y:[90,170],side:true,handed:true},
-  {n:"발가락",y:[170,240],side:true,handed:true},
-  {n:"발바닥·뒤꿈치",y:[240,300],side:true,handed:true},
- ]},
+const BRANCHES = {
+  pain:   {label:"통증",        flow:PAIN},
+  auto:   {label:"자율신경실조증", flow:AUTO},
+  cancer: {label:"암재활",       flow:CANCER},
 };
 
-function bodySVG(view){
-  const common='fill="#dedbd0" stroke="#8a887f" stroke-width="1.2"';
-  if(view==="front"||view==="back"){
-    const face = view==="front"
-      ? '<circle cx="93" cy="24" r="1.8" fill="#8a887f"/><circle cx="107" cy="24" r="1.8" fill="#8a887f"/><path d="M94 34 Q100 38 106 34" stroke="#8a887f" fill="none" stroke-width="1.2"/>'
-      : '';
-    return `<svg id="bm-svg" viewBox="0 0 200 360" width="210" height="378" xmlns="http://www.w3.org/2000/svg">
-      <rect width="200" height="360" fill="transparent"/>
-      <ellipse cx="100" cy="26" rx="19" ry="23" ${common}/>${face}
-      <rect x="88" y="47" width="24" height="14" rx="5" ${common}/>
-      <path d="M64 62 Q100 54 136 62 L138 152 Q100 162 62 152 Z" ${common}/>
-      <rect x="42" y="64" width="22" height="70" rx="10" ${common}/>
-      <rect x="136" y="64" width="22" height="70" rx="10" ${common}/>
-      <rect x="40" y="134" width="18" height="54" rx="8" ${common}/>
-      <rect x="142" y="134" width="18" height="54" rx="8" ${common}/>
-      <ellipse cx="48" cy="200" rx="11" ry="14" ${common}/>
-      <ellipse cx="152" cy="200" rx="11" ry="14" ${common}/>
-      <path d="M62 152 Q100 162 138 152 L134 182 L66 182 Z" ${common}/>
-      <rect x="68" y="180" width="26" height="60" rx="11" ${common}/>
-      <rect x="106" y="180" width="26" height="60" rx="11" ${common}/>
-      <rect x="70" y="240" width="22" height="76" rx="9" ${common}/>
-      <rect x="108" y="240" width="22" height="76" rx="9" ${common}/>
-      <ellipse cx="80" cy="330" rx="15" ry="12" ${common}/>
-      <ellipse cx="120" cy="330" rx="15" ry="12" ${common}/>
-      <text x="30" y="352" font-size="10" fill="#8a887f">${view==="front"?"환자 오른쪽":"환자 왼쪽"}</text>
-      <text x="132" y="352" font-size="10" fill="#8a887f">${view==="front"?"환자 왼쪽":"환자 오른쪽"}</text>
-    </svg>`;
-  }
-  if(view==="hands"){
-    return `<svg id="bm-svg" viewBox="0 0 200 280" width="210" height="294" xmlns="http://www.w3.org/2000/svg">
-      <rect width="200" height="280" fill="transparent"/>
-      <rect x="28" y="46" width="40" height="44" rx="10" ${common}/>
-      <rect x="20" y="88" width="56" height="82" rx="14" ${common}/>
-      <rect x="24" y="168" width="9" height="70" rx="4" ${common}/><rect x="36" y="168" width="9" height="82" rx="4" ${common}/>
-      <rect x="48" y="168" width="9" height="76" rx="4" ${common}/><rect x="60" y="168" width="9" height="62" rx="4" ${common}/>
-      <rect x="6" y="104" width="14" height="52" rx="6" transform="rotate(-18 13 130)" ${common}/>
-      <rect x="132" y="46" width="40" height="44" rx="10" ${common}/>
-      <rect x="124" y="88" width="56" height="82" rx="14" ${common}/>
-      <rect x="131" y="168" width="9" height="62" rx="4" ${common}/><rect x="143" y="168" width="9" height="76" rx="4" ${common}/>
-      <rect x="155" y="168" width="9" height="82" rx="4" ${common}/><rect x="167" y="168" width="9" height="70" rx="4" ${common}/>
-      <rect x="180" y="104" width="14" height="52" rx="6" transform="rotate(18 187 130)" ${common}/>
-      <text x="30" y="24" font-size="11" fill="#5f5e5a">왼손 (손바닥)</text>
-      <text x="128" y="24" font-size="11" fill="#5f5e5a">오른손 (손바닥)</text>
-    </svg>`;
-  }
-  return `<svg id="bm-svg" viewBox="0 0 200 320" width="210" height="336" xmlns="http://www.w3.org/2000/svg">
-    <rect width="200" height="320" fill="transparent"/>
-    <rect x="34" y="34" width="28" height="52" rx="10" ${common}/>
-    <path d="M30 86 Q30 160 34 168 L78 168 Q84 130 66 92 Q52 82 30 86 Z" ${common}/>
-    <rect x="30" y="168" width="52" height="58" rx="10" ${common}/>
-    <rect x="30" y="226" width="52" height="60" rx="14" ${common}/>
-    <rect x="138" y="34" width="28" height="52" rx="10" ${common}/>
-    <path d="M170 86 Q170 160 166 168 L122 168 Q116 130 134 92 Q148 82 170 86 Z" ${common}/>
-    <rect x="118" y="168" width="52" height="58" rx="10" ${common}/>
-    <rect x="118" y="226" width="52" height="60" rx="14" ${common}/>
-    <text x="34" y="20" font-size="11" fill="#5f5e5a">왼발</text>
-    <text x="140" y="20" font-size="11" fill="#5f5e5a">오른발</text>
-  </svg>`;
+/* 기본 정보(공통) */
+const BASIC = [
+  {sec:"기본 정보", ask:"성함을 알려 주세요.", type:"text", key:"name", ph:"예: 홍길동", short:true},
+  {ask:"생년월일을 알려 주세요.", type:"text", key:"birth", ph:"예: 1968년 11월 21일", short:true},
+  {ask:"성별을 선택해 주세요.", type:"single", key:"gender", ch:["남성","여성"]},
+  {ask:"연락처를 알려 주세요. (선택)", type:"text", key:"phone", ph:"예: 010-1234-5678", optional:true, short:true},
+];
+
+/* 자유 발언(공통 마무리) */
+const FREETALK = {sec:"자유 발언", ask:"마지막으로, 선생님께 하고 싶은 말씀을 충분히 들려주세요.\n걱정되는 점, 궁금한 점 등 어떤 이야기든 좋습니다.", type:"freetalk", key:"free_talk"};
+
+/* 요약 라벨/섹션 매핑 */
+const LABELS = {
+  pain_area:"불편 부위", pain_side:"통증 방향", vas:"통증 강도", onset:"발병 시점", worse:"급성 악화",
+  worse_situation:"악화 상황", trauma:"외상 여부", night:"야간통", radiation:"방사통", quality:"통증 양상",
+  quality_free:"양상(자유)", rest_pain:"안정 시 통증", aggravate:"악화 요인", relieve:"완화 요인",
+  area:"통증 넓이", depth:"통증 깊이", freq:"통증 빈도", duration:"지속 시간", past_tx:"기존 치료",
+  comorbid:"동반 질환", meds:"복용약", surgery:"수술력", surgery_detail:"수술 상세", family:"가족력",
+  allergy:"알레르기", exercise:"운동 습관", posture:"생활·자세", prev_dx:"기존 진단", records:"보유 자료",
+  goal:"회복 목표", wish:"회복 후 희망", tx_pref:"치료 선호",
+  sx_body:"전신·체온", sx_neuro:"뇌신경·감각", sx_cardio:"심혈관·정서", sx_gi:"소화기·비뇨·사지",
+  daily:"하루 기록", sleep:"수면 상태", stress:"스트레스", trigger:"악화 상황", exam:"타원 검사",
+  cancer_type:"암 종류", stage:"병기", tx_status:"치료 상황", last_tx:"마지막 치료", symptoms:"주요 증상",
+  pain_vas:"통증 강도", ecog:"일상 수행능력", prev_hosp:"이전 병원", expect:"기대사항", guardian:"보호자 동반",
+  free_talk:"자유 발언",
+};
+
+/* ============================================================
+   상태 & 렌더 엔진
+   ============================================================ */
+const answers = {};       // 누적 답변
+let branch = null;        // 'pain'|'auto'|'cancer'
+let steps = [];           // 실행할 스텝 배열(basic + flow + freetalk)
+let idx = 0;              // 현재 스텝 인덱스
+let draft = {};           // 현재 스텝 임시 입력값
+const SKEY = "happyh_predx_v1";
+
+const $ = id => document.getElementById(id);
+const stage = $("stage");
+
+/* ---------- 자동 저장/복원 ---------- */
+function save(){
+  try{ localStorage.setItem(SKEY, JSON.stringify({branch,idx,answers,t:Date.now()})); }catch(e){}
+}
+function clearSave(){ try{ localStorage.removeItem(SKEY); }catch(e){} }
+function loadSave(){
+  try{
+    const raw = localStorage.getItem(SKEY);
+    if(!raw) return null;
+    const d = JSON.parse(raw);
+    if(!d || !d.branch || typeof d.idx!=="number") return null;
+    // 완료본은 복원 대상 아님
+    if(d.done) return null;
+    return d;
+  }catch(e){ return null; }
 }
 
-function sideLabel(view,x,mid,centerBand){
-  if(centerBand&&Math.abs(x-mid)<centerBand)return "";
-  if(view==="front")return x<mid?"우측 ":"좌측 ";
-  if(view==="back")return x<mid?"좌측 ":"우측 ";
-  return x<mid?"좌측 ":"우측 ";   // 손/발 확대 뷰는 화면 표기 그대로 (왼손이 화면 왼쪽)
-}
-
-function findRegion(view,x,y){
-  const V=BM_VIEWS[view];
-  for(const r of V.regions){
-    if(y<r.y[0]||y>r.y[1])continue;
-    if(r.x && (x<r.x[0]||x>r.x[1]))continue;
-    if(r.xOut && (x>=64&&x<=136))continue;  // 몸통 바깥(팔)만
-    if(r.xr){ let hit=false; for(const [a,b] of r.xr){if(x>=a&&x<=b)hit=true;} if(!hit)continue; }
-    const side=r.side?sideLabel(view,x,V.mid,V.centerBand):"";
-    const viewTag = view==="front"?"":view==="back"?"":"";
-    return side+r.n;
+/* ---------- 스텝 배열 구성(후속 질문은 실행 중 삽입) ---------- */
+function buildSteps(b){
+  let flow = BRANCHES[b].flow.map(s => Object.assign({}, s));
+  // COMPASS-31 자리표시를 6개 도메인 스텝으로 치환
+  const pos = flow.findIndex(x=>x.compass);
+  if(pos>-1){
+    const domainSteps = COMPASS.map((d,i)=>({
+      sec: i===0 ? "COMPASS-31 자율신경" : null,
+      ask: `[${d.name}] 아래 항목이 얼마나 자주 있나요?\n0=전혀없음 · 1=가끔 · 2=자주 · 3=항상`,
+      type:"scale03", key:d.key, items:d.items,
+    }));
+    flow.splice(pos, 1, ...domainSteps);
   }
-  return null;
+  return BASIC.map(s=>Object.assign({},s)).concat(flow, [Object.assign({},FREETALK)]);
 }
 
-function mkBodyMap(q){
-  const wrap=document.createElement("div");wrap.className="bodymap-wrap";lastChoicesEl=wrap;
-  const marks=[];   // {view,x,y,label}
-  let curView="front";
+/* 실제 진행 스텝 수(진행률 표시용, 후속 질문 제외한 근사치) */
+function totalSteps(){ return steps.length; }
 
-  const tabs=document.createElement("div");tabs.className="bm-tabs";
-  const svgBox=document.createElement("div");svgBox.className="bm-svg-box";
-  const hint=document.createElement("div");hint.className="bm-hint";
-  hint.textContent="아픈 곳을 손가락이나 마우스로 눌러 표시하세요. 여러 곳 가능하며, 태그의 ×로 지울 수 있습니다.";
-  const tags=document.createElement("div");tags.className="bm-tags";
+function esc(s){ return String(s).replace(/[&<>"]/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
 
-  function redraw(){
-    svgBox.innerHTML=bodySVG(curView);
-    const svg=svgBox.querySelector("svg");
-    // 기존 마크 다시 그림
-    marks.filter(m=>m.view===curView).forEach(m=>drawDot(svg,m.x,m.y));
-    svg.addEventListener("click",e=>{
-      const rect=svg.getBoundingClientRect();
-      const vb=svg.viewBox.baseVal;
-      const x=(e.clientX-rect.left)*(vb.width/rect.width);
-      const y=(e.clientY-rect.top)*(vb.height/rect.height);
-      const label=findRegion(curView,x,y);
-      if(!label)return;
-      const full=(curView==="back"?"뒷면 ":"")+label;
-      if(marks.some(m=>m.label===full))return;
-      marks.push({view:curView,x,y,label:full});
-      drawDot(svg,x,y);
-      addTag(full);
+/* ============================================================
+   화면 1: 시작(분기 선택)
+   ============================================================ */
+function renderIntro(){
+  $("badge").classList.add("hide");
+  $("progWrap").classList.add("hide");
+  $("progLbl").classList.add("hide");
+  const resume = loadSave();
+  const resumeHtml = resume ? `
+    <div class="resume-bar">
+      <span>작성하던 내용이 있어요. 이어서 하시겠어요?</span>
+      <button class="resume-yes" onclick="doResume()">이어서 작성</button>
+      <button class="resume-no" onclick="discardResume()">새로 시작</button>
+    </div>` : "";
+  stage.innerHTML = resumeHtml + `
+    <div class="card">
+      <div class="intro-greet">안녕하세요, 행복한H병원 사전문진입니다. 😊
+내원 전 증상을 미리 정리해 주시면 진료 시간을 더욱 알차게 활용하실 수 있어요.
+편하게, 전문의에게 이야기하듯 답해 주시면 됩니다.</div>
+      <div class="sec-t">어떤 분야로 진료를 원하시나요?</div>
+      <div class="opts">
+        <button class="opt" onclick="pickBranch('pain')">통증</button>
+        <button class="opt" onclick="pickBranch('auto')">자율신경실조증</button>
+        <button class="opt" onclick="pickBranch('cancer')">암재활</button>
+      </div>
+      <div class="foot-note">입력하신 내용은 이 기기(브라우저) 안에만 임시 저장되며, 외부로 전송되지 않습니다.</div>
+    </div>`;
+  window.scrollTo(0,0);
+}
+
+function doResume(){
+  const d = loadSave();
+  if(!d){ renderIntro(); return; }
+  branch = d.branch;
+  Object.assign(answers, d.answers||{});
+  steps = buildSteps(branch);
+  idx = Math.min(d.idx, steps.length-1);
+  renderStep();
+}
+function discardResume(){ clearSave(); renderIntro(); }
+
+function pickBranch(b){
+  branch = b;
+  steps = buildSteps(b);
+  idx = 0;
+  renderStep();
+}
+
+/* ============================================================
+   화면 2: 스텝 렌더
+   ============================================================ */
+function renderStep(){
+  save();
+  const s = steps[idx];
+  draft = {};
+
+  // 헤더 뱃지 + 진행률
+  const bd = $("badge");
+  bd.textContent = BRANCHES[branch].label + " 문진";
+  bd.classList.remove("hide");
+  $("progWrap").classList.remove("hide");
+  $("progLbl").classList.remove("hide");
+  const pct = Math.round((idx/(totalSteps()))*100);
+  $("progFill").style.width = pct + "%";
+  $("progLbl").textContent = `${idx+1} / ${totalSteps()} 완료`;
+
+  const secHtml = s.sec ? `<div class="sec-t">${esc(s.sec)}</div>` : "";
+  let body = "";
+
+  if(s.type==="single")       body = renderSingle(s);
+  else if(s.type==="multi")   body = renderMulti(s);
+  else if(s.type==="text")    body = renderText(s);
+  else if(s.type==="vas")     body = renderVas(s,[[s.lbl||"강도","v"]],true);
+  else if(s.type==="vas2")    body = renderVas(s,[[s.lblA,"a"],[s.lblB,"b"]]);
+  else if(s.type==="sliders") body = renderSliders(s);
+  else if(s.type==="fields")  body = renderFields(s);
+  else if(s.type==="scale03") body = renderScale03(s);
+  else if(s.type==="freetalk")body = renderFreetalk(s);
+
+  const backBtn = idx>0 ? `<button class="btn-back" onclick="goBack()">← 이전 질문</button>` : "";
+
+  stage.innerHTML = `<div class="card">
+      ${secHtml}
+      <div class="q-ask">${esc(s.ask)}</div>
+      ${body}
+    </div>${backBtn}`;
+
+  wireStep(s);
+  window.scrollTo(0,0);
+}
+
+/* ---------- single ---------- */
+function renderSingle(s){
+  const cur = answers[s.key];
+  const opts = s.ch.map(c=>`<button class="opt${cur===c?' sel':''}" data-v="${esc(c)}">${esc(c)}</button>`).join("");
+  return `<div class="opts" id="opts">${opts}</div>`;
+}
+
+/* ---------- multi ---------- */
+function renderMulti(s){
+  const cur = Array.isArray(answers[s.key]) ? answers[s.key].slice() : [];
+  draft.multi = cur;
+  const one = s.ch.length<=4 ? " one" : "";
+  const items = s.ch.map(c=>{
+    const on = cur.includes(c);
+    return `<div class="chk${on?' sel':''}" data-v="${esc(c)}"><span class="box">${on?'✓':''}</span><span>${esc(c)}</span></div>`;
+  }).join("");
+  return `<div class="multi${one}" id="multi">${items}</div>
+    <div class="actions">
+      ${s.optional?`<button class="btn btn-ghost" onclick="skipStep()">해당 없음 / 건너뛰기</button>`:""}
+      <button class="btn btn-primary" id="nextBtn" onclick="submitMulti()">다음</button>
+    </div>`;
+}
+
+/* ---------- text ---------- */
+function renderText(s){
+  const cur = answers[s.key]!=null ? answers[s.key] : "";
+  const cls = "txt-inp" + (s.short?" short-inp":"");
+  return `<textarea class="${cls}" id="txt" placeholder="${esc(s.ph||'여기에 입력해 주세요')}">${esc(cur)}</textarea>
+    <div class="actions">
+      ${s.optional?`<button class="btn btn-ghost" onclick="skipStep()">건너뛰기</button>`:""}
+      <button class="btn btn-primary" id="nextBtn" onclick="submitText()">다음</button>
+    </div>`;
+}
+
+/* ---------- vas (1 or 2 sliders) ---------- */
+function renderVas(s, rows, isSingle){
+  const cur = answers[s.key] || {};
+  const block = rows.map(([name,k])=>{
+    const val = cur[k]!=null ? cur[k] : 0;
+    return `<div class="vas-item">
+      <div class="vas-head"><span class="vas-name">${esc(name)}</span><span class="vas-num" id="vn-${k}">${val}</span></div>
+      <input type="range" min="0" max="10" step="1" value="${val}" data-k="${k}" oninput="vasIn(this)">
+      <div class="vas-scale"><span>0 없음</span><span>10 극심</span></div>
+    </div>`;
+  }).join("");
+  return `<div class="vas-block">${block}</div>
+    <div class="actions"><button class="btn btn-primary" onclick="submitVas('${s.key}')">다음</button></div>`;
+}
+
+/* ---------- sliders group (BFI 등) ---------- */
+function renderSliders(s){
+  const cur = answers[s.key] || {};
+  const block = s.items.map(([name,k])=>{
+    const val = cur[k]!=null ? cur[k] : 0;
+    return `<div class="vas-item">
+      <div class="vas-head"><span class="vas-name">${esc(name)}</span><span class="vas-num" id="vn-${k}">${val}</span></div>
+      <input type="range" min="0" max="10" step="1" value="${val}" data-k="${k}" oninput="vasIn(this)">
+      <div class="vas-scale"><span>0</span><span>10</span></div>
+    </div>`;
+  }).join("");
+  return `<div class="vas-block">${block}</div>
+    <div class="actions"><button class="btn btn-primary" onclick="submitVas('${s.key}')">다음</button></div>`;
+}
+
+/* ---------- fields (짧은 입력 여러 개) ---------- */
+function renderFields(s){
+  const cur = answers[s.key] || {};
+  const rows = s.items.map(([name,k,unit])=>{
+    const val = cur[k]!=null ? cur[k] : "";
+    return `<div class="field-row">
+      <span class="field-lbl">${esc(name)}</span>
+      <input class="field-inp" inputmode="numeric" data-k="${k}" value="${esc(val)}" placeholder="${esc(unit||'')}">
+      ${unit?`<span class="field-lbl" style="min-width:auto">${esc(unit)}</span>`:""}
+    </div>`;
+  }).join("");
+  return `<div class="fields" id="fields">${rows}</div>
+    <div class="actions">
+      ${s.optional?`<button class="btn btn-ghost" onclick="skipStep()">건너뛰기</button>`:""}
+      <button class="btn btn-primary" onclick="submitFields('${s.key}')">다음</button>
+    </div>`;
+}
+
+/* ---------- scale03 (COMPASS 도메인 1개) ---------- */
+function renderScale03(s){
+  const cur = answers[s.key] || {};
+  const LB = ["전혀없음","가끔","자주","항상"];
+  const rows = s.items.map((it,i)=>{
+    const v = cur[i];
+    const opts = [0,1,2,3].map(n=>`<button class="sg-opt${v===n?' sel':''}" data-i="${i}" data-n="${n}"><b>${n}</b>${LB[n]}</button>`).join("");
+    return `<div class="sg-item"><div class="sg-name">${esc(it)}</div><div class="sg-opts">${opts}</div></div>`;
+  }).join("");
+  draft.scale = Object.assign({}, cur);
+  return `<div id="scale">${rows}</div>
+    <div class="actions"><button class="btn btn-primary" onclick="submitScale('${s.key}',${s.items.length})">다음</button></div>`;
+}
+
+/* ---------- freetalk ---------- */
+function renderFreetalk(s){
+  const cur = answers[s.key]!=null ? answers[s.key] : "";
+  return `<textarea class="txt-inp" id="txt" style="min-height:130px" placeholder="여러 번 나눠 적으셔도 됩니다. 없으시면 비워 두고 완료해 주세요.">${esc(cur)}</textarea>
+    <div class="actions"><button class="btn btn-primary" onclick="submitFreetalk()">작성 완료</button></div>`;
+}
+
+/* ============================================================
+   상호작용 배선
+   ============================================================ */
+function wireStep(s){
+  if(s.type==="single"){
+    $("opts").querySelectorAll(".opt").forEach(b=>{
+      b.onclick = ()=>{ answers[s.key]=b.dataset.v; advance(s, b.dataset.v); };
     });
   }
-  function drawDot(svg,x,y){
-    const d=document.createElementNS("http://www.w3.org/2000/svg","circle");
-    d.setAttribute("cx",x);d.setAttribute("cy",y);d.setAttribute("r",6.5);
-    d.setAttribute("fill","#d64533");d.setAttribute("stroke","#fff");d.setAttribute("stroke-width","1.8");
-    svg.appendChild(d);
-  }
-  function addTag(label){
-    const t=document.createElement("div");t.className="bm-tag";
-    const s=document.createElement("span");s.textContent=label;
-    const x=document.createElement("button");x.type="button";x.textContent="×";
-    x.addEventListener("click",()=>{
-      const i=marks.findIndex(m=>m.label===label);
-      if(i>=0)marks.splice(i,1);
-      t.remove();redraw();
+  if(s.type==="multi"){
+    $("multi").querySelectorAll(".chk").forEach(el=>{
+      el.onclick = ()=>{
+        const v = el.dataset.v;
+        const noneLike = /없|없음|없어요|문제 없음|특별한 패턴|없다/.test(v);
+        let arr = draft.multi;
+        if(el.classList.contains("sel")){
+          arr = arr.filter(x=>x!==v); el.classList.remove("sel"); el.querySelector(".box").textContent="";
+        }else{
+          if(noneLike){ // '없음'류 선택 시 나머지 해제
+            arr = [v];
+            $("multi").querySelectorAll(".chk").forEach(o=>{o.classList.remove("sel");o.querySelector(".box").textContent="";});
+          }else{
+            arr = arr.filter(x=>!/없|없음|없어요|문제 없음|특별한 패턴|없다/.test(x));
+            $("multi").querySelectorAll(".chk").forEach(o=>{ if(/없|없음|없어요|문제 없음|특별한 패턴|없다/.test(o.dataset.v)){o.classList.remove("sel");o.querySelector(".box").textContent="";} });
+            arr.push(v);
+          }
+          el.classList.add("sel"); el.querySelector(".box").textContent="✓";
+        }
+        draft.multi = arr;
+      };
     });
-    t.appendChild(s);t.appendChild(x);tags.appendChild(t);
   }
-
-  Object.entries(BM_VIEWS).forEach(([k,v])=>{
-    const b=document.createElement("button");b.className="bm-tab"+(k==="front"?" act":"");b.type="button";b.textContent=v.label;
-    b.addEventListener("click",()=>{
-      curView=k;
-      tabs.querySelectorAll(".bm-tab").forEach(x=>x.classList.remove("act"));
-      b.classList.add("act");redraw();
+  if(s.type==="scale03"){
+    $("scale").querySelectorAll(".sg-opt").forEach(b=>{
+      b.onclick = ()=>{
+        const i=Number(b.dataset.i), n=Number(b.dataset.n);
+        b.parentNode.querySelectorAll(".sg-opt").forEach(o=>o.classList.remove("sel"));
+        b.classList.add("sel");
+        draft.scale[i]=n;
+      };
     });
-    tabs.appendChild(b);
-  });
-
-  const btnRow=document.createElement("div");btnRow.style.marginTop="8px";
-  const ok=document.createElement("button");ok.className="cbtn nxt";ok.type="button";ok.textContent="표시 완료 →";
-  ok.addEventListener("click",()=>{
-    submitAnswer(marks.length?marks.map(m=>m.label).join(", "):"표시 안 함");
-  });
-  btnRow.appendChild(ok);
-  if(q.optional){
-    const sk=document.createElement("button");sk.className="cbtn";sk.type="button";sk.textContent="건너뛰기";sk.style.marginLeft="6px";
-    sk.addEventListener("click",()=>submitAnswer("(생략)"));
-    btnRow.appendChild(sk);
   }
-
-  wrap.appendChild(tabs);wrap.appendChild(svgBox);wrap.appendChild(hint);wrap.appendChild(tags);wrap.appendChild(btnRow);
-  redraw();
-  return wrap;
+  const t = $("txt");
+  if(t && (s.type==="text")){
+    t.focus();
+    t.onkeydown = e=>{ if(e.key==="Enter" && (e.metaKey||e.ctrlKey)){ e.preventDefault(); submitText(); } };
+  }
 }
 
-// ══════════ 자유 발언 (freetalk) ══════════
-function mkFreetalk(q){
-  freetalkBuf=[];
-  const w=document.createElement("div");w.className="freetalk-done";lastChoicesEl=w;
-  const done=document.createElement("button");done.className="cbtn nxt";done.type="button";done.textContent="말씀 완료 ✔";
-  done.addEventListener("click",()=>{
-    if(isListening&&recognition)recognition.stop();
-    submitAnswer(freetalkBuf.length?freetalkBuf.join(" / "):"(없음)");
-  });
-  w.appendChild(done);
-  const hint=document.createElement("span");
-  hint.style.cssText="font-size:11.5px;color:#999;margin-left:10px";
-  hint.textContent="여러 번 말씀하셔도 됩니다";
-  w.appendChild(hint);
-  return w;
+/* single: 후속 질문 있으면 삽입 */
+function advance(s, val){
+  handleFollowup(s, val);
+  next();
 }
-
-// ══════════ 흐름 제어 ══════════
-function askQuestion(q,isFU){
-  currentQ=q; inFollowup=!!isFU;
-  silenceRestarts=0;               // 질문마다 자동 재시작 횟수 리셋
-  addTyping();
-  setTimeout(()=>{
-    removeTyping();
-    let extra=null;
-    if(q.type==="single"||q.type==="multi")extra=mkChoices(q);
-    else if(q.type==="vas2")extra=mkVAS2(q);
-    else if(q.type==="bodymap")extra=mkBodyMap(q);
-    else if(q.type==="freetalk")extra=mkFreetalk(q);
-    addBot(q.bot,extra);
-    if(q.type==="text"){
-      document.getElementById("txt").placeholder=q.ph||"말씀하시거나 입력하세요";
-      if(q.optional){
-        const sw=document.createElement("div");sw.style.cssText="margin-left:42px;margin-top:5px";
-        const sk=document.createElement("button");sk.className="cbtn";sk.type="button";sk.style.fontSize="12px";sk.textContent="건너뛰기";
-        sk.addEventListener("click",()=>submitAnswer("(생략)"));
-        sw.appendChild(sk);msgs().appendChild(sw);
-      }
+function handleFollowup(s, val){
+  if(s.fu){
+    const trigger = (val||"").indexOf(s.fuIf)===0 || (val||"").indexOf(s.fuIf)>-1;
+    // 후속 삽입 여부: 다음 스텝이 이미 후속인지 확인 후 재구성
+    const already = steps[idx+1] && steps[idx+1].__fuOf===s.key;
+    if(trigger && !already){
+      const f = Object.assign({}, s.fu, {__fuOf:s.key});
+      steps.splice(idx+1, 0, f);
+    }else if(!trigger && already){
+      steps.splice(idx+1, 1);
+      if(answers[s.fu.key]!=null) delete answers[s.fu.key];
     }
-    speak(q.bot);   // 읽기 끝나면 autoStartMic() 자동 호출
-    scrollBot();
-  },420);
+  }
 }
 
-function submitAnswer(val){
-  if(!currentQ)return;
-  const q=currentQ; currentQ=null;
-  stopSpeak();
-  if(isListening&&recognition)try{recognition.stop();}catch(e){}
-  if(lastChoicesEl){lastChoicesEl.querySelectorAll("button,input").forEach(el=>el.disabled=true);lastChoicesEl=null;}
-  answers[q.key]=val;
-  addUser(val);
-  document.getElementById("txt").value="";
-
-  const wasFU=inFollowup; inFollowup=false;
-  const mainStep=steps[stepIdx];
-
-  if(!wasFU && mainStep && mainStep.fu){
-    const need = !mainStep.fuIf || String(val).includes(mainStep.fuIf);
-    if(need){setTimeout(()=>askQuestion(mainStep.fu,true),300);return;}
-  }
-  stepIdx++;
-  setProgress(stepIdx,steps.length);
-  if(stepIdx>=steps.length){setTimeout(showSummary,400);return;}
-  setTimeout(()=>askQuestion(steps[stepIdx],false),300);
+function submitMulti(){
+  const s = steps[idx];
+  answers[s.key] = draft.multi.slice();
+  next();
+}
+function submitText(){
+  const s = steps[idx];
+  const v = ($("txt").value||"").trim();
+  if(!v && !s.optional){ flashRequired(); return; }
+  answers[s.key] = v;
+  next();
+}
+function submitFreetalk(){
+  const s = steps[idx];
+  answers[s.key] = ($("txt").value||"").trim();
+  finish();
+}
+function submitVas(key){
+  const s = steps[idx];
+  const obj = {};
+  stage.querySelectorAll('input[type=range]').forEach(r=>{ obj[r.dataset.k]=Number(r.value); });
+  answers[key] = obj;
+  next();
+}
+function submitFields(key){
+  const obj = {};
+  $("fields").querySelectorAll(".field-inp").forEach(i=>{ const v=i.value.trim(); if(v) obj[i.dataset.k]=v; });
+  answers[key] = obj;
+  next();
+}
+function submitScale(key, n){
+  const obj = draft.scale || {};
+  answers[key] = obj;
+  next();
+}
+function skipStep(){
+  const s = steps[idx];
+  if(s.type==="multi") answers[s.key]=[];
+  else if(s.type==="fields") answers[s.key]={};
+  else answers[s.key]="";
+  next();
 }
 
-function handleSend(){
-  const v=document.getElementById("txt").value.trim();
-  if(!v||!currentQ)return;
-  const q=currentQ;
+function vasIn(r){ $("vn-"+r.dataset.k).textContent = r.value; }
 
-  if(q.type==="freetalk"){
-    // 누적: 제출하지 않고 버퍼에 추가, 계속 듣기
-    freetalkBuf.push(v);
-    addUser(v);
-    document.getElementById("txt").value="";
-    if(autoListen)setTimeout(tryStartMic,400);
-    return;
-  }
-  if(q.type==="text"){submitAnswer(v);return;}
-  if(q.type==="vas2"){
-    const nums=v.match(/\d+/g);
-    if(nums&&nums.length>=2)submitAnswer(`최고 ${nums[0]}점 / 최저 ${nums[1]}점`);
-    else if(nums&&nums.length===1)submitAnswer(q.single?nums[0]+"점":`최고 ${nums[0]}점 / 최저 ${nums[0]}점`);
-    else submitAnswer(v);
-    return;
-  }
-  if(q.type==="single"){const m=matchChoice(v,q.ch);submitAnswer(m||v);return;}
-  if(q.type==="multi"){const ms=matchMulti(v,q.ch);submitAnswer(ms.length?ms.join(", "):v);return;}
-  if(q.type==="bodymap"){submitAnswer(v);return;}   // 음성으로 부위 말해도 수용
-  submitAnswer(v);
+function flashRequired(){
+  const t = $("txt");
+  if(t){ t.style.borderColor="#d1584f"; t.focus(); setTimeout(()=>{t.style.borderColor="";},1200); }
 }
-document.getElementById("txt").addEventListener("keydown",e=>{
-  if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();handleSend();}
-});
 
-// ══════════ 요약 ══════════
-function showSummary(){
-  setProgress(steps.length,steps.length);
-  currentQ=null;
-  const msg=`${answers.name||""}님, 끝까지 답해 주셔서 진심으로 감사합니다. 😊\n작성해 주신 내용을 아래와 같이 정리했어요.\n진료 시 의료진이 빠르게 확인하고, 30분 진료를 더욱 알차게 준비하겠습니다.`;
-  addTyping();
-  setTimeout(()=>{
-    removeTyping();
-    addBot(msg,buildSummary());
-    speak(msg);
-    document.getElementById("txt").disabled=true;
-    document.getElementById("txt").placeholder="문진이 완료되었습니다. 감사합니다.";
-    document.getElementById("sbtn").disabled=true;
-    document.getElementById("mic-bar").style.display="none";
-    scrollBot();
-  },420);
+/* ---------- 진행 ---------- */
+function next(){
+  save();
+  idx++;
+  if(idx>=steps.length){ finish(); return; }
+  renderStep();
+}
+function goBack(){
+  if(idx<=0) return;
+  // 후속 질문 스킵 처리를 위해 단순 감소
+  idx--;
+  renderStep();
+}
+
+/* ============================================================
+   화면 3: 요약
+   ============================================================ */
+const SEVERITY = v => v.map ? v : v; // placeholder
+
+function finish(){
+  save2done();
+  $("badge").classList.add("hide");
+  $("progFill").style.width="100%";
+  $("progLbl").textContent = "작성 완료";
+  const name = (answers.name||"").trim();
+  const html = buildSummary();
+  stage.innerHTML = `
+    <div class="card">
+      <div class="q-ask" style="margin-bottom:8px">${name?esc(name)+"님, ":""}끝까지 답해 주셔서 진심으로 감사합니다. 😊</div>
+      <div class="q-note">작성해 주신 내용을 아래와 같이 정리했어요. 진료 시 의료진이 빠르게 확인합니다.</div>
+    </div>
+    <div class="card" id="sumCard">${html}</div>
+    <button class="copy-btn" id="copyBtn" onclick="copySummary()">📋 요약 복사 (예약·EMR 붙여넣기용)</button>
+    <button class="print-btn" onclick="window.print()">🖨️ 인쇄 / PDF 저장</button>
+    <div class="foot-note">작성이 완료되었습니다. 이 화면을 그대로 진료 시 보여주셔도 됩니다.</div>`;
+  window.scrollTo(0,0);
+}
+function save2done(){
+  try{ localStorage.setItem(SKEY, JSON.stringify({branch,idx,answers,done:true,t:Date.now()})); }catch(e){}
+}
+
+/* 값 → 표시 문자열 */
+function fmt(v){
+  if(v==null) return "";
+  if(Array.isArray(v)) return v.length? v.join(", ") : "";
+  if(typeof v==="object") return "";
+  return String(v);
 }
 
 function buildSummary(){
-  const card=document.createElement("div");card.className="sum-card";
-  const today=new Date();
-  card.innerHTML=`<div class="sum-title">🩺 ${branch==="pain"?"통증":"자율신경"} 히스토리 요약</div>
-  <div class="sum-date">행복한H병원 · 작성일 ${today.getFullYear()}. ${today.getMonth()+1}. ${today.getDate()}.</div>`;
-  const SECS={
-    "기본 정보":["name","birth","gender"],
-    "주요 증상":["sx","pain_loc","sx_loc","vas","stress","onset","worse","worse_situation","trauma","hosp"],
-    "통증 특성":["quality","quality_free","night","radiation","rest_pain","aggravate","relieve","area","depth","freq","duration"],
-    "수면·생활":["sleep","trigger","exercise","posture","allergy"],
-    "과거력·자료":["past_tx","comorbid","meds","surgery","surgery_detail","family","prev_dx","records"],
-    "회복 목표":["goal","wish","tx_pref","free_talk"]
-  };
-  Object.entries(SECS).forEach(([sec,keys])=>{
-    if(!keys.some(k=>answers[k]&&answers[k]!=="(생략)"))return;
-    const sh=document.createElement("div");sh.className="sum-sec";sh.textContent=sec;card.appendChild(sh);
-    keys.forEach(k=>{
-      if(!answers[k]||answers[k]==="(생략)")return;
-      const r=document.createElement("div");r.className="sum-row";
-      r.innerHTML=`<span class="sum-lbl">${LABELS[k]||k}</span><span>${answers[k]}</span>`;
-      card.appendChild(r);
-    });
-  });
-  const cp=document.createElement("button");cp.className="act-btn";cp.type="button";cp.textContent="📋 요약 복사";
-  cp.addEventListener("click",()=>{
-    const txt=["=== 행복한H병원 사전문진 요약 ==="]
-      .concat(Object.entries(answers).filter(([,v])=>v&&v!=="(생략)").map(([k,v])=>`[${LABELS[k]||k}] ${v}`)).join("\n");
-    navigator.clipboard.writeText(txt).then(()=>{cp.textContent="✓ 복사 완료";setTimeout(()=>cp.textContent="📋 요약 복사",2000);});
-  });
-  card.appendChild(cp);
-  return card;
+  const a = answers;
+  const now = new Date();
+  const dateStr = `${now.getFullYear()}년 ${now.getMonth()+1}월 ${now.getDate()}일`;
+  const bcls = branch;
+  let h = `<span class="sum-badge ${bcls}">${BRANCHES[branch].label}</span>
+    <div class="sum-date">작성일 · ${dateStr}</div>`;
+
+  // 기본정보
+  h += secBlock("기본 정보", [
+    row("성함", a.name), row("생년월일", a.birth), row("성별", a.gender),
+    a.phone?row("연락처", a.phone):"",
+  ]);
+
+  if(branch==="pain") h += summaryPain(a);
+  else if(branch==="auto") h += summaryAuto(a);
+  else h += summaryCancer(a);
+
+  // 자유발언
+  if(fmt(a.free_talk)) h += `<div class="sum-sec">자유 발언</div><div class="sum-val free">${esc(a.free_talk)}</div>`;
+
+  return h;
 }
 
-// ══════════ 시작 ══════════
-function startBranch(b){
-  branch=b;stepIdx=0;inFollowup=false;steps=STEPS[b];answers={};
-  document.getElementById("hdr-sub").textContent=b==="pain"?"통증 문진 · 편하게, 전문의에게 이야기하듯":"자율신경 문진 · 편하게, 전문의에게 이야기하듯";
-  if(recognition||serverSTT)document.getElementById("mic-bar").style.display="flex";
-  if(isIOS)document.getElementById("mic-hint").textContent=W_STT?"🌐 서버 음성인식 — 자동으로 켜집니다":"음성 입력 준비 중 — 버튼·키보드로 진행하세요";
-  setProgress(0,steps.length);
-  askQuestion(steps[0],false);
+function row(lbl, val){
+  const v = fmt(val);
+  if(!v) return "";
+  return `<div class="sum-row"><span class="sum-lbl">${esc(lbl)}</span><span class="sum-val">${esc(v)}</span></div>`;
+}
+function rowKey(k){ return row(LABELS[k]||k, answers[k]); }
+function secBlock(title, rows){
+  const r = rows.filter(Boolean).join("");
+  if(!r) return "";
+  return `<div class="sum-sec">${esc(title)}</div>${r}`;
+}
+function vasText(obj, rows){
+  if(!obj) return "";
+  return rows.map(([n,k])=>obj[k]!=null?`${n} ${obj[k]}/10`:"").filter(Boolean).join(" · ");
 }
 
-function init(){
-  const intro="안녕하세요, 행복한H병원 사전문진입니다. 😊\n편하게, 전문의에게 이야기하듯 답해 주시면 됩니다.\n어떤 증상으로 내원하시나요?";
-  currentQ={type:"single",key:"_branch",ch:["통증 (목·허리·어깨 등)","자율신경실조증 (어지럼·두근거림·피로 등)"]};
-  addTyping();
-  setTimeout(()=>{
-    removeTyping();
-    const w=document.createElement("div");w.className="choices";lastChoicesEl=w;
-    [{lbl:"통증 (목·허리·어깨 등)",b:"pain"},{lbl:"자율신경실조증 (어지럼·두근거림·피로 등)",b:"ans"}].forEach(({lbl,b})=>{
-      const btn=document.createElement("button");btn.className="cbtn";btn.type="button";btn.textContent=lbl;
-      btn.addEventListener("click",()=>{
-        currentQ=null;
-        w.querySelectorAll("button").forEach(x=>x.disabled=true);
-        btn.classList.add("sel");addUser(lbl);stopSpeak();
-        setTimeout(()=>startBranch(b),300);
-      });
-      w.appendChild(btn);
-    });
-    addBot(intro,w);
-    speak(intro);
-  },600);
+/* ----- 통증 요약 ----- */
+function summaryPain(a){
+  let h = secBlock("주요 증상", [
+    rowKey("pain_area"), rowKey("pain_side"),
+    row("통증 강도", vasText(a.vas,[["가장 심할 때","a"],["평상시","b"]])),
+    rowKey("onset"), rowKey("worse"), a.worse_situation?rowKey("worse_situation"):"",
+    rowKey("trauma"), rowKey("night"), rowKey("radiation"),
+  ]);
+  h += secBlock("통증 특성", [
+    rowKey("quality"), rowKey("quality_free"), rowKey("rest_pain"),
+    rowKey("aggravate"), rowKey("relieve"), rowKey("area"), rowKey("depth"),
+    rowKey("freq"), rowKey("duration"),
+  ]);
+  h += secBlock("과거력 · 생활", [
+    rowKey("past_tx"), rowKey("comorbid"), rowKey("meds"),
+    rowKey("surgery"), a.surgery_detail?rowKey("surgery_detail"):"",
+    rowKey("family"), rowKey("allergy"), rowKey("exercise"), rowKey("posture"),
+    rowKey("prev_dx"), rowKey("records"),
+  ]);
+  h += secBlock("회복 목표", [ rowKey("goal"), rowKey("wish"), rowKey("tx_pref") ]);
+  return h;
 }
 
-const origSubmit=submitAnswer;
-submitAnswer=function(val){
-  if(currentQ&&currentQ.key==="_branch"){
-    currentQ=null;
-    if(lastChoicesEl){lastChoicesEl.querySelectorAll("button").forEach(x=>x.disabled=true);lastChoicesEl=null;}
-    addUser(val);stopSpeak();
-    const b=norm(val).includes("자율")||norm(val).includes("신경")||norm(val).includes("어지")||norm(val).includes("두근")?"ans":"pain";
-    document.getElementById("txt").value="";
-    setTimeout(()=>startBranch(b),300);
-    return;
+/* ----- 자율신경 요약 (COMPASS 막대 + BFI) ----- */
+function summaryAuto(a){
+  let h = secBlock("전신 증상", [
+    rowKey("sx_body"), rowKey("sx_neuro"), rowKey("sx_cardio"), rowKey("sx_gi"),
+  ]);
+
+  // COMPASS-31 막대
+  const maxByDomain = {}; COMPASS.forEach(d=> maxByDomain[d.key]=d.items.length*3);
+  let total=0, totalMax=0, hasCompass=false;
+  const bars = COMPASS.map(d=>{
+    const obj = a[d.key]||{};
+    let sum=0; for(const k in obj) sum+=Number(obj[k])||0;
+    const mx = maxByDomain[d.key];
+    total+=sum; totalMax+=mx;
+    if(Object.keys(obj).length) hasCompass=true;
+    const pct = mx? Math.round(sum/mx*100):0;
+    return `<div class="bar-row"><span class="bar-name">${esc(d.name)}</span>
+      <span class="bar-track"><span class="bar-fill" style="width:${pct}%"></span></span>
+      <span class="bar-num">${sum}/${mx}</span></div>`;
+  }).join("");
+  if(hasCompass){
+    const ratio = totalMax? total/totalMax : 0;
+    let sev="경미", sc="#2e8b78";
+    if(ratio>=0.66){sev="중증";sc="#d1584f";}
+    else if(ratio>=0.33){sev="중등도";sc="#d99a2b";}
+    h += `<div class="sum-sec">COMPASS-31 자율신경 점수</div>${bars}
+      <div class="score-total"><span>전체 합계 <b>${total}</b> / ${totalMax}점</span>
+      <span class="sev" style="background:${sc}">${sev}</span></div>`;
   }
-  origSubmit(val);
-};
 
-init();
+  // BFI
+  const lvl = vasText(a.bfi_level,[["현재","now"],["24h 평균","avg"],["24h 최악","worst"]]);
+  const intf = vasText(a.bfi_interf,[["일반활동","general"],["기분","mood"],["일","work"],["대인관계","relation"],["보행","walk"],["삶의 즐거움","enjoy"]]);
+  if(lvl||intf){
+    h += `<div class="sum-sec">피로도 (BFI)</div>`;
+    if(lvl) h += row("피로 강도", lvl);
+    if(intf) h += row("피로로 인한 지장", intf);
+  }
+
+  // 생활·수면
+  const daily = a.daily||{};
+  const dailyStr = [["식사","meal","회"],["수면","sleep","시간"],["대변","stool","회"],["소변","urine","회"]]
+    .map(([n,k,u])=>daily[k]?`${n} ${daily[k]}${u}`:"").filter(Boolean).join(" · ");
+  h += secBlock("생활 · 수면", [
+    dailyStr?row("하루 기록", dailyStr):"",
+    rowKey("sleep"),
+    a.stress&&a.stress.v!=null?row("스트레스", a.stress.v+"/10"):"",
+    rowKey("trigger"), rowKey("exam"),
+  ]);
+  h += secBlock("과거력 · 목표", [
+    rowKey("comorbid"), rowKey("meds"), rowKey("prev_dx"),
+    rowKey("family"), rowKey("records"), rowKey("goal"), rowKey("wish"),
+  ]);
+  return h;
+}
+
+/* ----- 암재활 요약 ----- */
+function summaryCancer(a){
+  let h = secBlock("암 정보", [
+    rowKey("cancer_type"), rowKey("stage"), rowKey("tx_status"), rowKey("last_tx"),
+  ]);
+  const lvl = vasText(a.bfi_level,[["현재","now"],["24h 평균","avg"],["24h 최악","worst"]]);
+  h += secBlock("현재 상태", [
+    rowKey("symptoms"),
+    lvl?row("피로도", lvl):"",
+    a.pain_vas&&a.pain_vas.v!=null?row("통증 강도", a.pain_vas.v+"/10"):"",
+    rowKey("ecog"),
+  ]);
+  h += secBlock("치료 이력 · 기대", [
+    rowKey("prev_hosp"), rowKey("expect"), rowKey("guardian"),
+  ]);
+  h += secBlock("과거력 · 자료", [
+    rowKey("comorbid"), rowKey("meds"), rowKey("family"), rowKey("records"),
+  ]);
+  h += secBlock("회복 목표", [ rowKey("goal"), rowKey("wish") ]);
+  return h;
+}
+
+/* ---------- 요약 복사(텍스트) ---------- */
+function copySummary(){
+  const text = plainSummary();
+  const btn = $("copyBtn");
+  const done = ()=>{ btn.textContent="✓ 복사되었습니다"; btn.classList.add("done"); setTimeout(()=>{btn.textContent="📋 요약 복사 (예약·EMR 붙여넣기용)";btn.classList.remove("done");},2000); };
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(text).then(done).catch(()=>fallbackCopy(text,done));
+  }else fallbackCopy(text,done);
+}
+function fallbackCopy(text, cb){
+  const ta=document.createElement("textarea");
+  ta.value=text; ta.style.position="fixed"; ta.style.opacity="0";
+  document.body.appendChild(ta); ta.focus(); ta.select();
+  try{ document.execCommand("copy"); cb(); }catch(e){ alert("복사에 실패했습니다. 화면 내용을 직접 선택해 복사해 주세요."); }
+  document.body.removeChild(ta);
+}
+
+function plainSummary(){
+  const a = answers;
+  const now=new Date();
+  const L=[];
+  L.push(`■ 행복한H병원 사전문진 [${BRANCHES[branch].label}]`);
+  L.push(`작성일 ${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,"0")}-${String(now.getDate()).padStart(2,"0")}`);
+  L.push("");
+  const line=(l,v)=>{ const s=fmt(v); if(s) L.push(`- ${l}: ${s}`); };
+  const lineK=k=>line(LABELS[k]||k, a[k]);
+
+  L.push("[기본정보]");
+  line("성함",a.name); line("생년월일",a.birth); line("성별",a.gender); if(a.phone)line("연락처",a.phone);
+  L.push("");
+
+  if(branch==="pain"){
+    L.push("[주요 증상]");
+    lineK("pain_area"); lineK("pain_side");
+    line("통증 강도", vasText(a.vas,[["가장 심할 때","a"],["평상시","b"]]));
+    lineK("onset"); lineK("worse"); if(a.worse_situation)lineK("worse_situation");
+    lineK("trauma"); lineK("night"); lineK("radiation");
+    L.push(""); L.push("[통증 특성]");
+    ["quality","quality_free","rest_pain","aggravate","relieve","area","depth","freq","duration"].forEach(lineK);
+    L.push(""); L.push("[과거력·생활]");
+    ["past_tx","comorbid","meds","surgery","surgery_detail","family","allergy","exercise","posture","prev_dx","records"].forEach(lineK);
+    L.push(""); L.push("[회복 목표]");
+    ["goal","wish","tx_pref"].forEach(lineK);
+  }else if(branch==="auto"){
+    L.push("[전신 증상]");
+    ["sx_body","sx_neuro","sx_cardio","sx_gi"].forEach(lineK);
+    L.push(""); L.push("[COMPASS-31]");
+    let total=0,totalMax=0;
+    COMPASS.forEach(d=>{ const o=a[d.key]||{}; let s=0; for(const k in o)s+=Number(o[k])||0; const mx=d.items.length*3; total+=s; totalMax+=mx; if(Object.keys(o).length)L.push(`- ${d.name}: ${s}/${mx}`); });
+    if(totalMax) L.push(`- 전체 합계: ${total}/${totalMax}`);
+    L.push(""); L.push("[피로도 BFI]");
+    line("피로 강도", vasText(a.bfi_level,[["현재","now"],["24h평균","avg"],["24h최악","worst"]]));
+    line("지장", vasText(a.bfi_interf,[["일반활동","general"],["기분","mood"],["일","work"],["대인관계","relation"],["보행","walk"],["삶의즐거움","enjoy"]]));
+    L.push(""); L.push("[생활·수면]");
+    const d=a.daily||{}; const ds=[["식사","meal","회"],["수면","sleep","시간"],["대변","stool","회"],["소변","urine","회"]].map(([n,k,u])=>d[k]?`${n} ${d[k]}${u}`:"").filter(Boolean).join(" · ");
+    if(ds)line("하루 기록",ds); lineK("sleep"); if(a.stress&&a.stress.v!=null)line("스트레스",a.stress.v+"/10"); lineK("trigger"); lineK("exam");
+    L.push(""); L.push("[과거력·목표]");
+    ["comorbid","meds","prev_dx","family","records","goal","wish"].forEach(lineK);
+  }else{
+    L.push("[암 정보]");
+    ["cancer_type","stage","tx_status","last_tx"].forEach(lineK);
+    L.push(""); L.push("[현재 상태]");
+    lineK("symptoms");
+    line("피로도", vasText(a.bfi_level,[["현재","now"],["24h평균","avg"],["24h최악","worst"]]));
+    if(a.pain_vas&&a.pain_vas.v!=null)line("통증 강도",a.pain_vas.v+"/10"); lineK("ecog");
+    L.push(""); L.push("[치료 이력·기대]");
+    ["prev_hosp","expect","guardian"].forEach(lineK);
+    L.push(""); L.push("[과거력·자료]");
+    ["comorbid","meds","family","records"].forEach(lineK);
+    L.push(""); L.push("[회복 목표]");
+    ["goal","wish"].forEach(lineK);
+  }
+  if(fmt(a.free_talk)){ L.push(""); L.push("[자유 발언]"); L.push(a.free_talk); }
+  return L.join("\n");
+}
+
+/* ---------- 부팅 ---------- */
+renderIntro();
 </script>
 </body>
 </html>

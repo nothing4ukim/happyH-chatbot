@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="theme-color" content="#185FA5">
+<meta name="theme-color" content="#215D4C">
 <title>행복한H병원 사전문진</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
@@ -13,15 +13,16 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Malgun Gothic','Ap
 
 /* header */
 .hdr{background:#fff;border:1px solid #dcdacf;border-radius:14px;padding:16px 18px;margin-bottom:12px;display:flex;align-items:center;gap:13px}
-.hdr-ava{width:46px;height:46px;border-radius:50%;background:#16324b;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:22px}
+.hdr-ava{width:46px;height:46px;border-radius:50%;background:#e6efe9;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:22px;overflow:hidden;border:1.5px solid #d3e2d9}
+.hdr-ava img{width:100%;height:100%;object-fit:cover;object-position:top center}
 .hdr-t{font-size:15.5px;font-weight:700}
 .hdr-s{font-size:12px;color:#6b6a64;margin-top:2px}
-.hdr-badge{margin-left:auto;padding:4px 12px;border-radius:99px;font-size:11.5px;font-weight:600;white-space:nowrap;border:1px solid #185FA5;color:#185FA5;background:#eef5fc}
+.hdr-badge{margin-left:auto;padding:4px 12px;border-radius:99px;font-size:11.5px;font-weight:600;white-space:nowrap;border:1px solid #215D4C;color:#215D4C;background:#E9F1EC}
 .hdr-badge.hide{display:none}
 
 /* progress */
 .prog-wrap{height:5px;background:#dcdacf;border-radius:99px;margin-bottom:5px;overflow:hidden}
-.prog-fill{height:100%;background:#185FA5;border-radius:99px;transition:width .4s ease;width:0}
+.prog-fill{height:100%;background:#215D4C;border-radius:99px;transition:width .4s ease;width:0}
 .prog-lbl{font-size:11.5px;color:#6b6a64;text-align:right;margin-bottom:12px}
 .prog-lbl.hide,.prog-wrap.hide{display:none}
 
@@ -32,28 +33,28 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Malgun Gothic','Ap
 
 /* intro */
 .intro-greet{font-size:14.5px;line-height:1.85;white-space:pre-wrap;color:#3a3a37;margin-bottom:18px}
-.sec-t{font-size:12px;font-weight:700;color:#185FA5;letter-spacing:.4px;margin:2px 0 12px}
+.sec-t{font-size:12px;font-weight:700;color:#215D4C;letter-spacing:.4px;margin:2px 0 12px}
 
 /* choices */
 .opts{display:flex;flex-direction:column;gap:9px;margin-top:16px}
 .opt{width:100%;text-align:left;background:#fff;border:1.5px solid #cbc9be;border-radius:10px;padding:13px 16px;font-size:14.5px;cursor:pointer;font-family:inherit;transition:all .12s;color:#1a1a1a;line-height:1.45}
-.opt:hover{background:#eef5fc;border-color:#7aabdc}
+.opt:hover{background:#E9F1EC;border-color:#7FAE9C}
 .opt:active{transform:scale(.995)}
-.opt.sel{background:#eef5fc;border-color:#185FA5;font-weight:600;color:#0c447c}
-.opt.sel::before{content:"✓ ";color:#185FA5;font-weight:700}
+.opt.sel{background:#E9F1EC;border-color:#215D4C;font-weight:600;color:#163F31}
+.opt.sel::before{content:"✓ ";color:#215D4C;font-weight:700}
 
 /* multi checkbox grid */
 .multi{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:16px}
 .multi.one{grid-template-columns:1fr}
 .chk{display:flex;align-items:center;gap:9px;padding:12px 13px;border:1.5px solid #cbc9be;border-radius:10px;cursor:pointer;font-size:14px;background:#fff;transition:all .12s;user-select:none;line-height:1.35}
-.chk:hover{background:#eef5fc;border-color:#7aabdc}
-.chk.sel{background:#eef5fc;border-color:#185FA5;color:#0c447c;font-weight:600}
+.chk:hover{background:#E9F1EC;border-color:#7FAE9C}
+.chk.sel{background:#E9F1EC;border-color:#215D4C;color:#163F31;font-weight:600}
 .chk .box{width:19px;height:19px;border-radius:5px;border:2px solid #b4b2a9;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:13px;color:#fff;transition:all .12s}
-.chk.sel .box{background:#185FA5;border-color:#185FA5}
+.chk.sel .box{background:#215D4C;border-color:#215D4C}
 
 /* text */
 .txt-inp{width:100%;border:1.5px solid #cbc9be;border-radius:10px;padding:13px 15px;font-size:15px;resize:vertical;min-height:100px;line-height:1.6;font-family:inherit;background:#fdfdfc;margin-top:16px}
-.txt-inp:focus{outline:none;border-color:#185FA5;background:#fff}
+.txt-inp:focus{outline:none;border-color:#215D4C;background:#fff}
 .short-inp{min-height:auto;height:52px;resize:none}
 
 /* fields */
@@ -61,15 +62,15 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Malgun Gothic','Ap
 .field-row{display:flex;align-items:center;gap:12px}
 .field-lbl{font-size:14px;color:#4a4a46;min-width:96px;flex-shrink:0}
 .field-inp{flex:1;border:1.5px solid #cbc9be;border-radius:9px;padding:11px 13px;font-size:15px;font-family:inherit;background:#fdfdfc}
-.field-inp:focus{outline:none;border-color:#185FA5;background:#fff}
+.field-inp:focus{outline:none;border-color:#215D4C;background:#fff}
 
 /* vas / sliders */
 .vas-block{margin-top:16px;display:flex;flex-direction:column;gap:18px}
 .vas-item{background:#f7f5ef;border:1px solid #e3e1d7;border-radius:11px;padding:14px 16px}
 .vas-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
 .vas-name{font-size:14px;color:#3a3a37;font-weight:500}
-.vas-num{font-size:22px;font-weight:800;color:#185FA5;min-width:34px;text-align:right;line-height:1}
-.vas-item input[type=range]{width:100%;accent-color:#185FA5;height:26px}
+.vas-num{font-size:22px;font-weight:800;color:#215D4C;min-width:34px;text-align:right;line-height:1}
+.vas-item input[type=range]{width:100%;accent-color:#215D4C;height:26px}
 .vas-scale{display:flex;justify-content:space-between;font-size:11px;color:#8a887f;margin-top:3px}
 
 /* scale 0-3 group */
@@ -78,28 +79,28 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Malgun Gothic','Ap
 .sg-name{font-size:14px;color:#3a3a37;margin-bottom:9px;line-height:1.45}
 .sg-opts{display:flex;gap:6px}
 .sg-opt{flex:1;text-align:center;border:1.5px solid #cbc9be;border-radius:8px;padding:8px 2px;font-size:12.5px;cursor:pointer;background:#fff;transition:all .12s;font-family:inherit;color:#4a4a46;line-height:1.25}
-.sg-opt:hover{background:#eef5fc}
-.sg-opt.sel{background:#185FA5;border-color:#185FA5;color:#fff;font-weight:700}
+.sg-opt:hover{background:#E9F1EC}
+.sg-opt.sel{background:#215D4C;border-color:#215D4C;color:#fff;font-weight:700}
 .sg-opt b{display:block;font-size:15px}
 
 /* actions */
 .actions{display:flex;gap:10px;margin-top:20px}
 .btn{border:none;border-radius:10px;padding:14px 18px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .12s}
 .btn:active{transform:scale(.99)}
-.btn-primary{background:#185FA5;color:#fff;flex:1}
-.btn-primary:hover{background:#0c447c}
+.btn-primary{background:#215D4C;color:#fff;flex:1}
+.btn-primary:hover{background:#163F31}
 .btn-primary:disabled{background:#c3c1b8;cursor:default}
 .btn-ghost{background:#f0eee6;color:#5f5e58;border:1px solid #dcdacf}
 .btn-ghost:hover{background:#e6e4da}
 .btn-back{background:none;border:none;color:#8a887f;font-size:13px;cursor:pointer;padding:8px 4px;font-family:inherit;margin-top:2px}
-.btn-back:hover{color:#185FA5;text-decoration:underline}
+.btn-back:hover{color:#215D4C;text-decoration:underline}
 
 /* summary */
 .sum-badge{display:inline-block;padding:5px 14px;border-radius:99px;font-size:12.5px;font-weight:700;color:#fff;margin-bottom:4px}
-.sum-badge.pain{background:#d1584f}.sum-badge.auto{background:#7d5ba6}.sum-badge.cancer{background:#2e8b78}
+.sum-badge.pain{background:#d1584f}.sum-badge.auto{background:#4F8F76}.sum-badge.cancer{background:#2e8b78}
 .sum-date{font-size:11.5px;color:#999;margin:6px 0 4px}
 .sum-hi{font-size:15px;line-height:1.7;margin-bottom:6px}
-.sum-sec{font-size:11px;font-weight:700;color:#185FA5;letter-spacing:.5px;margin:20px 0 8px;border-bottom:1.5px solid #ebe9df;padding-bottom:5px}
+.sum-sec{font-size:11px;font-weight:700;color:#215D4C;letter-spacing:.5px;margin:20px 0 8px;border-bottom:1.5px solid #ebe9df;padding-bottom:5px}
 .sum-row{display:flex;gap:10px;margin-bottom:7px;font-size:13.5px;line-height:1.55}
 .sum-lbl{color:#7a786f;min-width:112px;flex-shrink:0;font-weight:500}
 .sum-val{color:#1a1a1a;flex:1;white-space:pre-wrap;word-break:break-word}
@@ -109,14 +110,14 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Malgun Gothic','Ap
 .bar-row{display:flex;align-items:center;gap:10px;margin-bottom:9px;font-size:13px}
 .bar-name{min-width:110px;color:#4a4a46;flex-shrink:0}
 .bar-track{flex:1;height:16px;background:#ece9df;border-radius:99px;overflow:hidden;display:block}
-.bar-fill{display:block;height:100%;min-width:2px;background:#7d5ba6;border-radius:99px;transition:width .5s}
-.bar-num{min-width:46px;text-align:right;font-weight:700;color:#7d5ba6;font-size:12.5px}
-.score-total{background:#f4effa;border:1px solid #e0d4ee;border-radius:10px;padding:12px 14px;margin-top:12px;font-size:13.5px;display:flex;justify-content:space-between;align-items:center}
-.score-total b{font-size:17px;color:#7d5ba6}
+.bar-fill{display:block;height:100%;min-width:2px;background:#4F8F76;border-radius:99px;transition:width .5s}
+.bar-num{min-width:46px;text-align:right;font-weight:700;color:#4F8F76;font-size:12.5px}
+.score-total{background:#EDF4F0;border:1px solid #CFE2D8;border-radius:10px;padding:12px 14px;margin-top:12px;font-size:13.5px;display:flex;justify-content:space-between;align-items:center}
+.score-total b{font-size:17px;color:#4F8F76}
 .sev{padding:3px 10px;border-radius:99px;font-size:11.5px;font-weight:700;color:#fff}
 
-.copy-btn{width:100%;padding:14px;border-radius:10px;font-size:14.5px;font-weight:700;cursor:pointer;margin-top:20px;border:none;background:#16324b;color:#fff;font-family:inherit}
-.copy-btn:hover{background:#0f2436}
+.copy-btn{width:100%;padding:14px;border-radius:10px;font-size:14.5px;font-weight:700;cursor:pointer;margin-top:20px;border:none;background:#17453A;color:#fff;font-family:inherit}
+.copy-btn:hover{background:#0D2C24}
 .copy-btn.done{background:#2e8b78}
 .print-btn{width:100%;padding:12px;border-radius:10px;font-size:13.5px;cursor:pointer;margin-top:9px;border:1px solid #dcdacf;background:#fff;color:#5f5e58;font-family:inherit}
 .print-btn:hover{background:#f4f2ec}
@@ -124,7 +125,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Malgun Gothic','Ap
 
 .resume-bar{background:#fff8e6;border:1px solid #eddca0;border-radius:11px;padding:12px 15px;margin-bottom:12px;font-size:13px;color:#7a5c12;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
 .resume-bar button{border:none;border-radius:7px;padding:7px 13px;font-size:12.5px;font-weight:600;cursor:pointer;font-family:inherit}
-.resume-yes{background:#185FA5;color:#fff}
+.resume-yes{background:#215D4C;color:#fff}
 .resume-no{background:#efe6c8;color:#7a5c12}
 
 @media(max-width:420px){
@@ -132,19 +133,51 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Malgun Gothic','Ap
   .field-lbl{min-width:80px}
   .sum-lbl{min-width:92px}
 }
+/* ===== branding ===== */
+.brand-logo{display:block;max-width:230px;width:70%;margin:6px auto 16px;height:auto}
+.brand-logo-fallback{text-align:center;font-size:20px;font-weight:800;color:#215D4C;margin:8px 0 16px;letter-spacing:-.5px}
+.greet-row{display:flex;gap:12px;align-items:flex-start;margin-bottom:16px}
+.greet-char{width:72px;height:82px;flex-shrink:0;object-fit:contain;object-position:bottom}
+.greet-char.gone{display:none}
+.doc-card{display:flex;gap:14px;align-items:center;background:#f2f7f4;border:1px solid #d9e6df;border-radius:12px;padding:14px 16px;margin:4px 0 18px}
+.doc-photo{width:62px;height:62px;border-radius:50%;object-fit:cover;object-position:top center;flex-shrink:0;border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.12)}
+.doc-photo.gone{display:none}
+.doc-name{font-size:15px;font-weight:700;color:#1b2a24}
+.doc-name b{color:#215D4C}
+.doc-title{font-size:12.5px;color:#5f6b64;margin-top:2px}
+.doc-slogan{font-size:13px;color:#215D4C;font-weight:600;margin-top:5px}
+.doc-slogan::before{content:"“";opacity:.5}
+.doc-slogan::after{content:"”";opacity:.5}
+/* trust links (완료 화면) */
+.trust-wrap{margin-top:8px;display:flex;flex-direction:column;gap:9px}
+.trust-link{display:flex;align-items:center;gap:12px;padding:13px 15px;border:1px solid #d9e6df;border-radius:11px;background:#fff;text-decoration:none;color:#1b2a24;transition:all .12s}
+.trust-link:hover{background:#f2f7f4;border-color:#7FAE9C}
+.trust-ico{width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0;color:#fff}
+.ti-news{background:#1a3a5c}.ti-yt{background:#e23b2e}.ti-tv{background:#215D4C}.ti-web{background:#4F8F76}.ti-tel{background:#17453A}
+.trust-tx{flex:1;min-width:0}
+.trust-t{display:block;font-size:14px;font-weight:600;line-height:1.35}
+.trust-s{display:block;font-size:11.5px;color:#5f6b64;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.trust-go{color:#9aa39d;font-size:16px;flex-shrink:0}
+.doc-sign{display:flex;align-items:center;gap:13px;background:#f2f7f4;border:1px solid #d9e6df;border-radius:12px;padding:14px 16px;margin-top:4px}
+.doc-sign img{width:54px;height:54px;border-radius:50%;object-fit:cover;object-position:top center;flex-shrink:0;border:2px solid #fff}
+.doc-sign img.gone{display:none}
+.doc-sign .s-tx{font-size:13px;line-height:1.55;color:#33413a}
+.doc-sign .s-tx b{color:#215D4C}
+.sec-head{font-size:12.5px;font-weight:700;color:#215D4C;margin:22px 0 10px;display:flex;align-items:center;gap:7px}
+
 @media print{
   body{background:#fff;padding:0}
-  .copy-btn,.print-btn,.foot-note,.btn-back{display:none}
+  .copy-btn,.print-btn,.foot-note,.btn-back,.trust-wrap,.trust-link{display:none}
 }
 </style>
 </head>
 <body>
 <div id="app">
   <div class="hdr">
-    <div class="hdr-ava">🩺</div>
+    <div class="hdr-ava"><img src="character.png.webp" alt="" onerror="var p=this.parentNode;this.remove();p.textContent='🩺'"></div>
     <div>
       <div class="hdr-t">행복한H병원 사전문진</div>
-      <div class="hdr-s">다정한 사람들의 따스한 치유</div>
+      <div class="hdr-s">정밀한 진단, 다정한 치료</div>
     </div>
     <div class="hdr-badge hide" id="badge"></div>
   </div>
@@ -162,6 +195,29 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Malgun Gothic','Ap
    · 서버/외부 요청 0건 · 순수 클라이언트 · 오프라인 동작
    · 정적 호스팅(CDN)에 올리면 동시 접속 수에 사실상 무제한
    ============================================================ */
+
+/* ---------- 병원 브랜드 설정 ---------- */
+/* 이미지 파일(logo.png · doctor.jpg · character.png)을 index.html과 같은 폴더에 올리면
+   자동으로 표시됩니다. 없으면 텍스트/이모지로 자연스럽게 대체됩니다. */
+const BRAND = {
+  logo: "logo.png.jpg",
+  doctor: "doctor.jpg.webp",
+  character: "character.png.webp",
+  docName: "김정훈",
+  docTitle: "재활의학과 전문의",
+  docYears: "재활의학 20년 · 올해 21년째",
+  slogan: "정밀한 진단, 다정한 치료",
+  tel: "1551-7582",
+  telLabel: "1551-7582 (치료빨리)",
+  links: {
+    press:     "https://www.hani.co.kr/arti/hanihealth/medical/1235631.html",
+    youtube:   "https://www.youtube.com/@happydoctor_kim",
+    broadcast: "https://youtu.be/nPOHPCDeirQ",
+    home:      "https://happyhhospital.com/",
+  },
+  pressTitle: "암 앞에서도 ‘행복한 웃음’ 지으면 회복은 시작된다",
+  pressDesc:  "건강한겨레 · 김정훈 원장 인터뷰",
+};
 
 /* ---------- 공통 선택지 조각 ---------- */
 const COMORBID = ["고혈압","당뇨","고지혈증","심장질환","갑상선질환","암","없음"];
@@ -378,11 +434,27 @@ function renderIntro(){
       <button class="resume-yes" onclick="doResume()">이어서 작성</button>
       <button class="resume-no" onclick="discardResume()">새로 시작</button>
     </div>` : "";
+  const logoImg = `<img class="brand-logo" src="${BRAND.logo}" alt="행복한H병원" onerror="this.outerHTML='<div class=\\'brand-logo-fallback\\'>행복한H병원</div>'">`;
+  const charImg = `<img class="greet-char" src="${BRAND.character}" alt="" onerror="this.classList.add('gone')">`;
+  const docImg  = `<img class="doc-photo" src="${BRAND.doctor}" alt="김정훈 원장" onerror="this.classList.add('gone')">`;
+
   stage.innerHTML = resumeHtml + `
     <div class="card">
-      <div class="intro-greet">안녕하세요, 행복한H병원 사전문진입니다. 😊
+      ${logoImg}
+      <div class="greet-row">
+        ${charImg}
+        <div class="intro-greet" style="margin-bottom:0">안녕하세요, 행복한H병원 사전문진입니다. 😊
 내원 전 증상을 미리 정리해 주시면 진료 시간을 더욱 알차게 활용하실 수 있어요.
-편하게, 전문의에게 이야기하듯 답해 주시면 됩니다.</div>
+편하게, 전문의에게 이야기하듯 답해 주세요.</div>
+      </div>
+      <div class="doc-card">
+        ${docImg}
+        <div>
+          <div class="doc-name"><b>${BRAND.docName}</b> 원장 · ${BRAND.docTitle}</div>
+          <div class="doc-title">${BRAND.docYears}</div>
+          <div class="doc-slogan">${BRAND.slogan}</div>
+        </div>
+      </div>
       <div class="sec-t">어떤 분야로 진료를 원하시나요?</div>
       <div class="opts">
         <button class="opt" onclick="pickBranch('pain')">통증</button>
@@ -707,12 +779,47 @@ function finish(){
     <div class="card">
       <div class="q-ask" style="margin-bottom:8px">${name?esc(name)+"님, ":""}끝까지 답해 주셔서 진심으로 감사합니다. 😊</div>
       <div class="q-note">작성해 주신 내용을 아래와 같이 정리했어요. 진료 시 의료진이 빠르게 확인합니다.</div>
+      <div class="doc-sign">
+        <img src="${BRAND.doctor}" alt="김정훈 원장" onerror="this.classList.add('gone')">
+        <div class="s-tx">작성해 주신 내용은 진료 전 <b>${BRAND.docName} 원장</b>이 직접 확인합니다.<br>편안한 마음으로 내원해 주세요.</div>
+      </div>
     </div>
     <div class="card" id="sumCard">${html}</div>
     <button class="copy-btn" id="copyBtn" onclick="copySummary()">📋 요약 복사 (예약·EMR 붙여넣기용)</button>
     <button class="print-btn" onclick="window.print()">🖨️ 인쇄 / PDF 저장</button>
+    ${trustSection()}
     <div class="foot-note">작성이 완료되었습니다. 이 화면을 그대로 진료 시 보여주셔도 됩니다.</div>`;
   window.scrollTo(0,0);
+}
+
+/* 완료 화면 하단 — 신뢰 콘텐츠 & 연락처 */
+function trustSection(){
+  const L = BRAND.links;
+  const tel = BRAND.tel.replace(/[^0-9]/g,"");
+  return `
+    <div class="sec-head">🌿 행복한H병원을 더 알아보세요</div>
+    <div class="trust-wrap">
+      <a class="trust-link" href="${L.press}" target="_blank" rel="noopener">
+        <span class="trust-ico ti-news">📰</span>
+        <span class="trust-tx"><span class="trust-t">${BRAND.pressTitle}</span><span class="trust-s">${BRAND.pressDesc}</span></span>
+        <span class="trust-go">›</span></a>
+      <a class="trust-link" href="${L.youtube}" target="_blank" rel="noopener">
+        <span class="trust-ico ti-yt">▶</span>
+        <span class="trust-tx"><span class="trust-t">유튜브 · 행복닥터 김정훈</span><span class="trust-s">재활·통증·자율신경 건강 이야기</span></span>
+        <span class="trust-go">›</span></a>
+      <a class="trust-link" href="${L.broadcast}" target="_blank" rel="noopener">
+        <span class="trust-ico ti-tv">📺</span>
+        <span class="trust-tx"><span class="trust-t">방송 출연 · MBC 약손</span><span class="trust-s">맨발걷기와 건강 이야기</span></span>
+        <span class="trust-go">›</span></a>
+      <a class="trust-link" href="${L.home}" target="_blank" rel="noopener">
+        <span class="trust-ico ti-web">🏥</span>
+        <span class="trust-tx"><span class="trust-t">병원 홈페이지</span><span class="trust-s">진료 안내 · 오시는 길</span></span>
+        <span class="trust-go">›</span></a>
+      <a class="trust-link" href="tel:${tel}">
+        <span class="trust-ico ti-tel">📞</span>
+        <span class="trust-tx"><span class="trust-t">대표번호 ${BRAND.telLabel}</span><span class="trust-s">전화 문의 · 예약</span></span>
+        <span class="trust-go">›</span></a>
+    </div>`;
 }
 function save2done(){
   try{ localStorage.setItem(SKEY, JSON.stringify({branch,idx,answers,done:true,t:Date.now()})); }catch(e){}

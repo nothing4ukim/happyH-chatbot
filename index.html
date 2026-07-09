@@ -288,11 +288,11 @@ const PAIN_AREAS = [
    fig_bodymap · fig_vas(그림1) · fig_area · fig_depth(그림2)
    fig_char_tendon(그림3-1) · fig_char_nerve(그림3-2) · fig_char_auto(그림3-3) */
 const IMG = {
-  bodymap:"fig_bodymap.webp",
-  vas:"fig_vas.webp",
-  area:"fig_area.webp",
-  depth:"fig_depth.webp",
-  char:["fig_char_tendon.webp","fig_char_nerve.webp","fig_char_auto.webp"],
+  bodymap:"fig_bodymap.webp",   // 미업로드 → 자동 숨김
+  vas:"그림1.png",              // 통증척도(VAS)
+  area:"fig_area.webp",         // 미업로드 → 자동 숨김
+  depth:"그림2.png",            // 해부학적 깊이 단면도
+  char:["그림3-1.png","그림3-2.png","그림3-3.png"], // 힘줄 · 신경 · 자율신경
 };
 
 const PAIN = [
@@ -611,7 +611,7 @@ function renderStep(){
 /* ---------- image block (질문 위 그림 + 확대) ---------- */
 function imgBlock(src, cap){
   return `<div class="q-img-wrap">
-    <img class="q-img" src="${esc(src)}" alt="" onclick="zoomImg('${esc(src)}')" onerror="this.classList.add('gone')">
+    <img class="q-img" src="${esc(src)}" alt="" onclick="zoomImg('${esc(src)}')" onerror="this.closest('.q-img-wrap').style.display='none'">
     ${cap?`<div class="q-img-cap">${esc(cap)}</div>`:""}
   </div>`;
 }

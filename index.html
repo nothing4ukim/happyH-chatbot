@@ -203,6 +203,18 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Malgun Gothic','Ap
 .zoom-ov{position:fixed;inset:0;background:rgba(15,25,20,.85);display:flex;align-items:center;justify-content:center;z-index:99;padding:16px}
 .zoom-ov img{max-width:100%;max-height:92vh;border-radius:8px}
 .zoom-ov .zx{position:absolute;top:14px;right:18px;color:#fff;font-size:30px;cursor:pointer;line-height:1}
+/* word chips (통증 특성) */
+.wchip-wrap{display:flex;flex-wrap:wrap;gap:7px;margin-top:14px}
+.wchip{border:1.5px solid #cbc9be;border-radius:99px;padding:8px 13px;font-size:13.5px;cursor:pointer;background:#fff;font-family:inherit;color:#1a1a1a;transition:all .12s;line-height:1.2}
+.wchip:hover{background:#f2f7f4;border-color:#7FAE9C}
+.wchip.sel{background:#215D4C;border-color:#215D4C;color:#fff;font-weight:600}
+/* single 2-column */
+.opts.cols2{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.opts.cols2 .opt{text-align:center}
+/* freq rows */
+.freq-row{margin-top:10px}
+.freq-row .plabel{min-width:72px}
+.freq-row .num-inp:disabled{background:#f0eee6;color:#b4b2a9}
 /* detail expand (통증 특성 자세히) */
 .detail-btn{display:inline-flex;align-items:center;gap:5px;background:#f0eee6;border:1px solid #dcdacf;border-radius:8px;padding:9px 14px;font-size:13px;cursor:pointer;font-family:inherit;color:#33413a;margin-top:14px}
 .detail-btn:hover{background:#e6e4da}
@@ -265,9 +277,63 @@ const BRAND = {
 
 /* ---------- 공통 선택지 조각 ---------- */
 const COMORBID = ["고혈압","당뇨","고지혈증","심장질환","갑상선질환","암","없음"];
+const COMORBID_ICONS = ["🩸","🍬","🥓","❤️","🦋","🎗️","🙆"];
 const FAMILY   = ["심장질환(심근경색 등)","뇌졸중(중풍)","고혈압","당뇨","고지혈증","암","없음"];
+const FAMILY_ICONS = ["❤️","🧠","🩸","🍬","🥓","🎗️","🙆"];
 /* 치료 방식 7종 (선호/기피 공통) */
 const TX_METHODS = ["주사치료","수액치료","도수치료","체외충격파","약물치료","고주파 온열치료","고압산소치료"];
+const TX_ICONS = ["💉","💧","🤲","〰️","💊","🔥","🫧"];
+/* 원하지 않는 검사 */
+const TESTS = ["엑스레이","소변검사","혈액검사","자율신경검사","적외선체열검사"];
+const TEST_ICONS = ["🩻","🧫","🧪","🌀","🌡️"];
+
+/* 통증 묘사 단어 (그림3-1·2·3 통합, 화면엔 전부 검은 버튼 · 색/점수는 내부 분석용) */
+const PAIN_WORDS = [
+  "뻑뻑하다","묵직하다","뻐근하다","조이듯 아프다","꽉 누르는 듯","외투가 무겁게 느껴진다","우리하다",
+  "아픈 곳을 손가락으로 짚을 수 있다","위치를 정확히 모르겠다","넓게 아프다","깊숙한 통증","겉이 아프다","피부가 아픈 듯",
+  "콕콕 쑤신다","날카로운 통증","쏘듯이 아프다","찌릿찌릿하다","뜨끔뜨끔하다","띠끔따끔하다","받히듯 아프다","담 결리듯 아프다",
+  "결린다","절린다","당긴다","욱씬거린다","지끈지끈하다","아리다","시리다","띠를 두른 듯 아프다",
+  "많이 아프지는 않지만 짜증난다",
+  "눈알이 아프다","눈이 빠질 듯","눈이 충혈된다","눈물이 난다","골이 흔들리는 느낌","뭔가 굴러다니듯","두근거리듯",
+  "어지럽다","속이 메슥거린다","속이 울렁거린다","콧물이 난다","코가 막힌다",
+];
+
+/* 보유 자료 목록(분기별) */
+const RECORDS_PAIN = ["MRI CD","CT CD","X-ray 자료","수술기록지","진단서·소견서","약 처방전·복약 목록","혈액검사 결과지","조직검사 결과지","가진 자료 없음"];
+const RECORDS_PAIN_ICONS = ["💿","💿","🩻","📄","📄","📄","🧪","🔬","🚫"];
+const RECORDS_AUTO = ["혈액검사 결과지","심전도·홀터 결과","뇌 MRI CD","내시경 결과지","진단서·소견서","약 처방전","가진 자료 없음"];
+const RECORDS_AUTO_ICONS = ["🧪","💓","💿","🔎","📄","📄","🚫"];
+const RECORDS_CANCER = ["조직검사 결과지","영상 CD(CT·MRI·PET)","수술기록지","항암치료 기록지","진단서·소견서","약 처방전","없음"];
+const RECORDS_CANCER_ICONS = ["🔬","💿","📄","📄","📄","📄","🚫"];
+
+/* 공통 꼬리 섹션(과거력·생활 / 치료 선호 / 회복 목표) — 3개 분기 공용 */
+function commonHistory(recordsCh, recordsIcons, firstSec){
+  return [
+    {sec:firstSec===undefined?"과거력 · 생활":firstSec, ask:"현재 진단받았거나 약을 드시는 질환이 있나요?", type:"multi", key:"comorbid", ch:COMORBID, chIcons:COMORBID_ICONS, other:true, otherPh:"예: 신장질환, 천식 등"},
+    {ask:"드시는 약이 있으면 알려 주세요.", type:"meds", key:"meds"},
+    {ask:"지금까지 수술을 받으신 적이 있나요?", type:"single", key:"surgery", ch:["네, 있어요","아니요"],
+     fu:{ask:"어떤 수술을 언제 받으셨나요?", type:"text", key:"surgery_detail", ph:"예: 2020년 담낭 절제술", short:true}, fuIf:"네"},
+    {ask:"가족 중에 아래 질환을 앓으신 분이 있나요? (가족력)", type:"multi", key:"family", ch:FAMILY, chIcons:FAMILY_ICONS},
+    {ask:"알레르기가 있으신가요? (약물·음식 모두)", type:"text", key:"allergy", ph:"예: 없음 / 페니실린 알레르기", optional:true, short:true},
+    {ask:"평소 정기적으로 하는 운동이 있나요?", type:"single", key:"exercise", ch:["규칙적으로 함","가끔 함","거의 안 함"], chIcons:["🏃","🚶","🛋️"]},
+    {ask:"평소 하루에 이런 자세로 얼마나 보내시나요?", type:"posture", key:"posture"},
+    {ask:"다른 병원에서 진단받은 내용이 있다면 적어 주세요.", type:"text", key:"prev_dx", ph:"예: 자율신경실조증 의심 소견", optional:true, short:true},
+    {ask:"가지고 계신 검사 자료가 있나요?\n내원 시 가져오시면 진료가 훨씬 정확해집니다.", type:"multi", key:"records", ch:recordsCh, chIcons:recordsIcons},
+  ];
+}
+function txPrefSteps(){
+  return [
+    {sec:"치료 선호", ask:"피하고 싶은 치료가 있다면 모두 골라 주세요.\n참고만 하니 편하게 선택해 주세요. (선택)", type:"multi", key:"tx_avoid", ch:TX_METHODS, chIcons:TX_ICONS, optional:true},
+    {ask:"평소 선호하는 치료가 있다면 모두 골라 주세요. (선택)", type:"multi", key:"tx_prefer", ch:TX_METHODS, chIcons:TX_ICONS, optional:true},
+    {ask:"원하지 않는 검사가 있다면 골라 주세요. (선택)", type:"multi", key:"test_avoid", ch:TESTS, chIcons:TEST_ICONS, optional:true},
+  ];
+}
+function goalSteps(goalPh){
+  return [
+    {sec:"회복 목표", ask:"가장 원하시는 것은 무엇인가요?", type:"text", key:"goal", ph:goalPh||"예: 통증 없이 일상생활을 하고 싶어요", short:true},
+    {ask:"좋아지면 꼭 하고 싶은 일이 있다면 들려주세요. 😊", type:"text", key:"wish", ph:"예: 가족과 여행 가기", optional:true, short:true},
+  ];
+}
 
 /* ---------- 분기별 문진 흐름 ---------- */
 /* type: single | multi | text | vas | vas2 | sliders | scale03 | fields | freetalk
@@ -307,44 +373,24 @@ const PAIN = [
   {ask:"혹시 다쳐서 아프기 시작했나요? (외상 여부)", type:"single", key:"trauma", ch:["네, 다쳤어요","아니요"]},
   {ask:"밤에 잘 때도 아파서 깨거나 불편한가요? (야간통)", type:"single", key:"night", ch:["네, 밤에도 아파요","아니요"]},
   {ask:"통증이 다른 곳으로 뻗어 나가는 느낌이 있나요? (방사통)", type:"single", key:"radiation", ch:["네, 뻗어 나가요","아니요"]},
-  {sec:"통증 특성", ask:"통증이 어떤 느낌에 가까운가요?\n해당하는 것을 모두 골라 주세요.", type:"multi", key:"quality",
-   ch:["묵직하고 뻐근함","찌르거나 날카로움","저리거나 전기 오는 느낌","화끈거림","감각이 둔함","조이는 느낌"],
-   detail:IMG.char, detailLabel:"통증 특성을 좀 더 자세히 보기"},
-  {ask:"그 밖에 표현하고 싶은 느낌이 있다면 자유롭게 적어 주세요.", type:"text", key:"quality_free", ph:"예: 가끔 바늘로 찌르는 느낌", optional:true, short:true},
+  {sec:"통증 특성", ask:"가장 많이 아플 때 통증의 특징을 알려 주세요.", type:"wordchips", key:"quality", words:PAIN_WORDS,
+   note:"통증의 특징을 자세히 적을수록 진단의 정확도가 높아집니다.", ph:"직접 쓰셔도 되고, 아래에서 골라도 됩니다"},
   {ask:"가만히 있을 때도 아픈가요, 움직일 때만 아픈가요?", type:"single", key:"rest_pain", ch:["가만히 있어도 아파요","움직일 때만 아파요","둘 다 있어요"]},
-  {ask:"어떤 동작이나 자세에서 더 아픈가요? (악화 요인)", type:"text", key:"aggravate", ph:"예: 고개를 숙일 때, 오래 앉아 있을 때", short:true},
-  {ask:"반대로, 어떻게 하면 통증이 좀 줄어드나요? (완화 요인)", type:"text", key:"relieve", ph:"예: 누워서 쉬면 좀 나아요", optional:true, short:true},
-  {ask:"아픈 부위의 넓이는 어느 정도인가요?", type:"single", key:"area", ch:["500원 동전보다 작음","500원 동전 정도","손바닥 크기","손바닥보다 넓음"],
+  {ask:"어떤 동작이나 자세에서 더 아픈가요? (악화 요인)", type:"text", key:"aggravate", ph:"예: 고개를 숙일 때, 오래 앉아 있을 때", short:true, optional:true, skipLabel:"악화 요인 없음"},
+  {ask:"반대로, 어떻게 하면 통증이 좀 줄어드나요? (완화 요인)", type:"text", key:"relieve", ph:"예: 누워서 쉬면 좀 나아요", optional:true, short:true, skipLabel:"완화 요인 없음"},
+  {ask:"아픈 부위의 넓이는 어느 정도인가요?", type:"single", key:"area",
+   ch:["500원 동전보다 작다","500원 동전보다 크다","손바닥보다 작다","손바닥보다 크다"],
    img:IMG.area, imgCap:"500원 동전과 펼친 손바닥을 기준으로 골라 주세요"},
   {ask:"통증이 느껴지는 깊이는 어느 정도인가요?", type:"single", key:"depth", ch:["피부 겉면","피부 바로 밑","근육 부위","뼛속 깊이","잘 모르겠음"],
    img:IMG.depth, imgCap:"단면 그림을 참고해 주세요 (그림을 누르면 확대)"},
-  {ask:"통증이 얼마나 자주 나타나나요?", type:"countfreq", key:"freq"},
+  {ask:"통증이 얼마나 자주 나타나나요?\n해당하는 칸에 횟수를 적어 주세요.", type:"freqmulti", key:"freq"},
   {ask:"통증은 한 번 시작되면 보통 얼마나 오래 지속되나요?", type:"single", key:"duration", ch:["몇 초","몇 분","몇 시간","반나절 이상","계속 지속"]},
   {sec:"과거력 · 생활", ask:"지금까지 이 통증으로 받은 치료가 있나요?\n모두 골라 주세요.", type:"multi", key:"past_tx",
    ch:["수술","신경차단술","인대증식주사","체외충격파","도수치료","물리치료","약물 복용","한방 치료","받은 적 없음"],
    chIcons:["🔪","💉","💉","〰️","🤲","🧑‍⚕️","💊","🌿","🚫"]},
-  {ask:"현재 진단받았거나 약을 드시는 질환이 있나요?", type:"multi", key:"comorbid", ch:COMORBID,
-   chIcons:["🩸","🍬","🥓","❤️","🦋","🎗️","🙆"], other:true, otherPh:"예: 신장질환, 천식 등"},
-  {ask:"드시는 약이 있으면 알려 주세요.", type:"meds", key:"meds"},
-  {ask:"지금까지 수술을 받으신 적이 있나요?", type:"single", key:"surgery", ch:["네, 있어요","아니요"],
-   fu:{ask:"어떤 수술을 언제 받으셨나요?", type:"text", key:"surgery_detail", ph:"예: 2020년 허리 디스크 수술", short:true}, fuIf:"네"},
-  {ask:"가족 중에 아래 질환을 앓으신 분이 있나요? (가족력)", type:"multi", key:"family", ch:FAMILY,
-   chIcons:["❤️","🧠","🩸","🍬","🥓","🎗️","🙆"]},
-  {ask:"알레르기가 있으신가요? (약물·음식 모두)", type:"text", key:"allergy", ph:"예: 없음 / 페니실린 알레르기", optional:true, short:true},
-  {ask:"평소 정기적으로 하는 운동이 있나요?", type:"single", key:"exercise", ch:["규칙적으로 함","가끔 함","거의 안 함"], chIcons:["🏃","🚶","🛋️"]},
-  {ask:"평소 하루에 이런 자세로 얼마나 보내시나요?", type:"posture", key:"posture"},
-  {ask:"다른 병원에서 진단받은 내용이 있다면 적어 주세요.", type:"text", key:"prev_dx", ph:"예: 목 디스크, 협착증 등", optional:true, short:true},
-  {ask:"가지고 계신 검사 자료가 있나요?\n내원 시 가져오시면 진료가 훨씬 정확해집니다.", type:"multi", key:"records",
-   ch:["MRI CD","CT CD","X-ray 자료","수술기록지","진단서·소견서","약 처방전·복약 목록","혈액검사 결과지","조직검사 결과지","가진 자료 없음"],
-   chIcons:["💿","💿","🩻","📄","📄","📄","🧪","🔬","🚫"]},
-  {sec:"치료 선호", ask:"피하고 싶은 치료가 있다면 모두 골라 주세요.\n참고만 하니 편하게 선택해 주세요. (선택)", type:"multi", key:"tx_avoid", ch:TX_METHODS, optional:true,
-   chIcons:["💉","💧","🤲","〰️","💊","🔥","🫧"]},
-  {ask:"평소 선호하는 치료가 있다면 모두 골라 주세요. (선택)", type:"multi", key:"tx_prefer", ch:TX_METHODS, optional:true,
-   chIcons:["💉","💧","🤲","〰️","💊","🔥","🫧"]},
-  {ask:"원하지 않는 검사가 있다면 골라 주세요. (선택)", type:"multi", key:"test_avoid", ch:["주사","엑스레이(X-ray)","혈액검사","도수치료"], optional:true,
-   chIcons:["💉","🩻","🧪","🤲"]},
-  {sec:"회복 목표", ask:"가장 빨리 회복되고 싶은 점은 무엇인가요?", type:"text", key:"goal", ph:"예: 오래 앉아 있어도 통증이 없으면 좋겠어요", short:true},
-  {ask:"다 나으면 꼭 하고 싶은 일이 있다면 들려주세요. 😊", type:"text", key:"wish", ph:"예: 손주와 여행 가기", optional:true, short:true},
+  ...commonHistory(RECORDS_PAIN, RECORDS_PAIN_ICONS, null),
+  ...txPrefSteps(),
+  ...goalSteps("예: 오래 앉아 있어도 통증이 없으면 좋겠어요"),
 ];
 
 const COMPASS = [
@@ -358,7 +404,7 @@ const COMPASS = [
 
 const AUTO = [
   {sec:"전신 증상 체크", ask:"먼저, 전신·체온과 관련해 겪는 증상을 모두 골라 주세요.", type:"multi", key:"sx_body", optional:true,
-   ch:["신체 열감(얼굴·손·발)","3개월 새 3kg 이상 체중 변화","땀 내면 몹시 지침","땀이 잘 안 남","더위를 못 참음","추위를 못 참음","머리 위로 열이 오름","한열이 왕복함"]},
+   ch:["신체 열감(얼굴·손·발)","3개월 새 3kg 이상 체중 증가","3개월 새 3kg 이상 체중 감소","땀이 나면 몹시 지침","땀이 잘 안 남","더위를 못 참음","추위를 못 참음","머리 위로 열이 오름","더웠다 추웠다 반복함","전신적으로 힘이 없음"]},
   {ask:"뇌신경·감각과 관련한 증상을 모두 골라 주세요.", type:"multi", key:"sx_neuro", optional:true,
    ch:["불면","자주 깸","두통","어지럼증","이명","안면홍조","눈 피로","눈 떨림"]},
   {ask:"심혈관·정서와 관련한 증상을 모두 골라 주세요.", type:"multi", key:"sx_cardio", optional:true,
@@ -380,17 +426,15 @@ const AUTO = [
   {ask:"증상이 심해지는 상황이 있나요? 모두 골라 주세요.", type:"multi", key:"trigger", ch:["스트레스 받을 때","과로 후","기상 변화 때","식사 후","특정 음식 후","사람 많은 곳","특별한 패턴 없음"]},
   {ask:"다른 병원에서 자율신경 관련 검사를 받아 보셨나요?", type:"single", key:"exam", ch:["검사했으나 이상 없음","검사에서 이상 발견됨","아직 검사 못 함"]},
 
-  {sec:"과거력 · 목표", ask:"현재 진단받았거나 약을 드시는 질환이 있나요?", type:"multi", key:"comorbid", ch:["고혈압","당뇨","공황장애","불안장애","우울증","갑상선질환","갱년기 증후군","과민성 장 증후군","만성피로증후군","없음"]},
-  {ask:"드시는 약 이름이나 복용 기간을 아시면 적어 주세요.", type:"text", key:"meds", ph:"예: 항불안제 3개월째", optional:true, short:true},
-  {ask:"다른 병원에서 진단받은 내용이 있다면 적어 주세요.", type:"text", key:"prev_dx", ph:"예: 자율신경실조증 의심 소견", optional:true, short:true},
-  {ask:"가족 중에 아래 질환을 앓으신 분이 있나요? (가족력)", type:"multi", key:"family", ch:FAMILY},
-  {ask:"가지고 계신 검사 자료가 있나요?", type:"multi", key:"records", ch:["혈액검사 결과지","심전도·홀터 결과","뇌 MRI CD","내시경 결과지","진단서·소견서","약 처방전","가진 자료 없음"]},
-  {ask:"가장 빨리 회복되고 싶은 점은 무엇인가요?", type:"text", key:"goal", ph:"예: 불안하지 않고 평온했으면 좋겠어요", short:true},
-  {ask:"좋아지면 꼭 하고 싶은 일이 있다면 들려주세요. 😊", type:"text", key:"wish", ph:"예: 다시 운동을 시작하고 싶어요", optional:true, short:true},
+  ...commonHistory(RECORDS_AUTO, RECORDS_AUTO_ICONS),
+  ...txPrefSteps(),
+  ...goalSteps("예: 불안하지 않고 평온했으면 좋겠어요"),
 ];
 
 const CANCER = [
-  {sec:"암 정보", ask:"어떤 암으로 치료받고 계신가요?", type:"single", key:"cancer_type", ch:["폐암","위암","대장암","유방암","간암","췌장암","갑상선암","전립선암","혈액암","기타"]},
+  {sec:"암 정보", ask:"어떤 암으로 치료받고 계신가요?", type:"single", key:"cancer_type", cols:2,
+   ch:["폐암","위암","대장암","유방암","간암","췌장암","갑상선암","전립선암","혈액암","기타"],
+   chIcons:["🫁","🍚","🌀","🎗️","🫀","🟡","🦋","🔷","🩸","➕"]},
   {ask:"병기(Stage)를 알고 계신가요?", type:"single", key:"stage", ch:["1기","2기","3기","4기","모르겠음","확진 전"]},
   {ask:"현재 치료 상황을 모두 골라 주세요.", type:"multi", key:"tx_status", ch:["수술 후 회복 중","항암치료 중","방사선치료 중","치료 종료 후 관리","대학병원 치료 중단","표준치료 외 대안 탐색 중"]},
   {ask:"마지막 치료는 언제였나요?", type:"single", key:"last_tx", ch:["1개월 이내","1~3개월","3~6개월","6개월~1년","1년 이상","아직 치료 전"]},
@@ -399,15 +443,14 @@ const CANCER = [
    items:[["지금 이 순간의 피로","now"],["지난 24시간 평균 피로","avg"],["지난 24시간 가장 심했던 피로","worst"]]},
   {ask:"통증이 있다면 그 강도를 알려 주세요. (없으면 0)", type:"vas", key:"pain_vas", lbl:"통증 강도"},
   {ask:"현재 일상생활 수행 능력은 어느 정도인가요?", type:"single", key:"ecog", ch:["완전히 정상적으로 활동 가능","힘든 일은 어렵지만 가벼운 활동은 가능","하루의 절반 이상 앉거나 누워 있음","대부분 누워 있고 스스로 돌보기 어려움","완전히 누워서 지냄"]},
-  {sec:"치료 이력 · 기대", ask:"이전에 입원·치료받으신 병원 유형은?", type:"single", key:"prev_hosp", ch:["대학병원","종합병원","암 전문병원","요양병원","없음"]},
+  {sec:"치료 이력 · 기대", ask:"이전에 입원·치료받으신 병원 유형은?", type:"single", key:"prev_hosp",
+   ch:["대학병원","종합병원","요양병원","한방병원","없음","기타"],
+   fu:{ask:"어떤 곳이었는지 적어 주세요.", type:"text", key:"prev_hosp_other", ph:"예: 통증클리닉 의원", short:true}, fuIf:"기타"},
   {ask:"행복한H병원에 기대하는 것을 모두 골라 주세요.", type:"multi", key:"expect", ch:["면역력 강화","통증 조절","암 직접치료(온열·광면역 등)","자율신경 회복","심리적 안정·상담","영양·수액 치료","빠른 체력 회복","대안 치료 탐색"]},
   {ask:"내원 시 보호자 동반이 가능하신가요?", type:"single", key:"guardian", ch:["항상 가능","가끔 가능","혼자 내원"]},
-  {sec:"과거력 · 자료", ask:"현재 진단받았거나 약을 드시는 다른 질환이 있나요?", type:"multi", key:"comorbid", ch:COMORBID},
-  {ask:"드시는 약 이름이나 복용 기간을 아시면 적어 주세요.", type:"text", key:"meds", ph:"예: 표적항암제 복용 중", optional:true, short:true},
-  {ask:"가족 중에 아래 질환을 앓으신 분이 있나요? (가족력)", type:"multi", key:"family", ch:FAMILY},
-  {ask:"가지고 계신 검사 자료가 있나요?\n내원 시 가져오시면 진료가 훨씬 정확해집니다.", type:"multi", key:"records", ch:["조직검사 결과지","영상 CD(CT·MRI·PET)","수술기록지","항암치료 기록지","진단서·소견서","약 처방전","없음"]},
-  {sec:"회복 목표", ask:"가장 원하시는 것은 무엇인가요?", type:"text", key:"goal", ph:"예: 체력을 회복해 일상으로 돌아가고 싶어요", short:true},
-  {ask:"좋아지면 꼭 하고 싶은 일이 있다면 들려주세요. 😊", type:"text", key:"wish", ph:"예: 가족과 여행 가기", optional:true, short:true},
+  ...commonHistory(RECORDS_CANCER, RECORDS_CANCER_ICONS, "과거력 · 자료"),
+  ...txPrefSteps(),
+  ...goalSteps("예: 체력을 회복해 일상으로 돌아가고 싶어요"),
 ];
 
 const BRANCHES = {
@@ -440,7 +483,7 @@ const LABELS = {
   sx_body:"전신·체온", sx_neuro:"뇌신경·감각", sx_cardio:"심혈관·정서", sx_gi:"소화기·비뇨·사지",
   daily:"하루 기록", sleep:"수면 상태", stress:"스트레스", trigger:"악화 상황", exam:"타원 검사",
   cancer_type:"암 종류", stage:"병기", tx_status:"치료 상황", last_tx:"마지막 치료", symptoms:"주요 증상",
-  pain_vas:"통증 강도", ecog:"일상 수행능력", prev_hosp:"이전 병원", expect:"기대사항", guardian:"보호자 동반",
+  pain_vas:"통증 강도", ecog:"일상 수행능력", prev_hosp:"이전 병원", prev_hosp_other:"이전 병원(기타)", expect:"기대사항", guardian:"보호자 동반",
   free_talk:"자유 발언",
 };
 
@@ -590,15 +633,19 @@ function renderStep(){
   else if(s.type==="countfreq")body = renderCountFreq(s);
   else if(s.type==="posture") body = renderPosture(s);
   else if(s.type==="meds")    body = renderMeds(s);
+  else if(s.type==="wordchips")body = renderWordchips(s);
+  else if(s.type==="freqmulti")body = renderFreqMulti(s);
   else if(s.type==="freetalk")body = renderFreetalk(s);
 
   const imgHtml = s.img ? imgBlock(s.img, s.imgCap) : "";
   const detailHtml = s.detail ? detailBlock(s.detail, s.detailLabel) : "";
+  const noteHtml = s.note ? `<div class="q-note">${esc(s.note)}</div>` : "";
   const backBtn = idx>0 ? `<button class="btn-back" onclick="goBack()">← 이전 질문</button>` : "";
 
   stage.innerHTML = `<div class="card">
       ${secHtml}
       <div class="q-ask">${esc(s.ask)}</div>
+      ${noteHtml}
       ${imgHtml}
       ${detailHtml}
       ${body}
@@ -642,7 +689,40 @@ function renderSingle(s){
     const ic = s.chIcons&&s.chIcons[i] ? `<span class="opt-ico">${s.chIcons[i]}</span>`:"";
     return `<button class="opt${cur===c?' sel':''}" data-v="${esc(c)}">${ic}${esc(c)}</button>`;
   }).join("");
-  return `<div class="opts" id="opts">${opts}</div>`;
+  return `<div class="opts${s.cols===2?' cols2':''}" id="opts">${opts}</div>`;
+}
+
+/* ---------- wordchips (통증 특성: 자유입력 + 검은 단어 다중선택) ---------- */
+function renderWordchips(s){
+  const cur = answers[s.key] || {};
+  const words = Array.isArray(cur.words) ? cur.words.slice() : [];
+  draft.words = words;
+  const chips = s.words.map(w=>{
+    const on = words.includes(w);
+    return `<button type="button" class="wchip${on?' sel':''}" data-w="${esc(w)}">${esc(w)}</button>`;
+  }).join("");
+  return `<textarea class="txt-inp short-inp" id="wcFree" placeholder="${esc(s.ph||'직접 쓰셔도 되고, 아래에서 골라도 됩니다')}">${esc(cur.free||"")}</textarea>
+    <div class="wchip-wrap" id="wchips">${chips}</div>
+    <div class="actions"><button class="btn btn-primary" onclick="submitWordchips('${s.key}')">다음</button></div>`;
+}
+
+/* ---------- freqmulti (통증 빈도: 항상 + 하루/주/월/년 횟수) ---------- */
+function renderFreqMulti(s){
+  const cur = answers[s.key] || {};
+  const always = !!cur.always;
+  const row = (lbl,k)=>`<div class="sel-row freq-row">
+      <span class="plabel">${lbl}</span>
+      <input class="num-inp fq-in" data-k="${k}" inputmode="numeric" value="${cur[k]!=null?cur[k]:''}" placeholder="횟수" ${always?'disabled':''}>
+      <span class="sel-unit">번</span>
+    </div>`;
+  return `<div id="freqm">
+      <div class="chk one${always?' sel':''}" id="fqAlways" style="margin-bottom:12px"><span class="box">${always?'✓':''}</span><span>항상 통증이 있다</span></div>
+      ${row("하루에","day")}
+      ${row("한 주에","week")}
+      ${row("한 달에","month")}
+      ${row("일 년에","year")}
+    </div>
+    <div class="actions"><button class="btn btn-primary" onclick="submitFreqMulti('${s.key}')">다음</button></div>`;
 }
 
 /* ---------- multi (아이콘 · "기타" 자유입력 지원) ---------- */
@@ -666,7 +746,7 @@ function renderMulti(s){
   return `<div class="multi${one}" id="multi">${items}${otherHtml}</div>
     ${otherInp}
     <div class="actions">
-      ${s.optional?`<button class="btn btn-ghost" onclick="skipStep()">해당 없음 / 건너뛰기</button>`:""}
+      ${s.optional?`<button class="btn btn-ghost" onclick="skipStep()">${esc(s.skipLabel||"해당 없음 / 건너뛰기")}</button>`:""}
       <button class="btn btn-primary" id="nextBtn" onclick="submitMulti()">다음</button>
     </div>`;
 }
@@ -677,7 +757,7 @@ function renderText(s){
   const cls = "txt-inp" + (s.short?" short-inp":"");
   return `<textarea class="${cls}" id="txt" placeholder="${esc(s.ph||'여기에 입력해 주세요')}">${esc(cur)}</textarea>
     <div class="actions">
-      ${s.optional?`<button class="btn btn-ghost" onclick="skipStep()">건너뛰기</button>`:""}
+      ${s.optional?`<button class="btn btn-ghost" onclick="skipStep()">${esc(s.skipLabel||"건너뛰기")}</button>`:""}
       <button class="btn btn-primary" id="nextBtn" onclick="submitText()">다음</button>
     </div>`;
 }
@@ -912,6 +992,23 @@ function wireStep(s){
       el.onclick = ()=>{ const on=!el.classList.contains("sel"); el.classList.toggle("sel",on); el.querySelector(".box").textContent=on?"✓":""; };
     });
   }
+  if(s.type==="wordchips"){
+    $("wchips").querySelectorAll(".wchip").forEach(b=>{
+      b.onclick = ()=>{
+        const w=b.dataset.w, on=!b.classList.contains("sel");
+        b.classList.toggle("sel",on);
+        if(on) draft.words.push(w); else draft.words = draft.words.filter(x=>x!==w);
+      };
+    });
+  }
+  if(s.type==="freqmulti"){
+    const al = $("fqAlways");
+    al.onclick = ()=>{
+      const on=!al.classList.contains("sel");
+      al.classList.toggle("sel",on); al.querySelector(".box").textContent=on?"✓":"";
+      $("freqm").querySelectorAll(".fq-in").forEach(i=>{ i.disabled=on; if(on) i.value=""; });
+    };
+  }
   if(s.type==="onset2"){
     $("onsetTabs").querySelectorAll(".mode-tab").forEach(t=>{
       t.onclick = ()=>{
@@ -1005,6 +1102,18 @@ function submitMeds(key){
   if(!o.name && !o.years && !o.months && !types.length){ answers[key]=""; }
   else answers[key]=o;
   next();
+}
+function submitWordchips(key){
+  const free = ($("wcFree").value||"").trim();
+  const words = draft.words.slice();
+  answers[key] = (free || words.length) ? {free, words} : "";
+  next();
+}
+function submitFreqMulti(key){
+  const o={};
+  if($("fqAlways").classList.contains("sel")) o.always=true;
+  else $("freqm").querySelectorAll(".fq-in").forEach(i=>{ const v=i.value.trim(); if(v) o[i.dataset.k]=Number(v); });
+  answers[key]=o; next();
 }
 function submitText(){
   const s = steps[idx];
@@ -1149,12 +1258,25 @@ function fmtMeds(v){
   if(v.types&&v.types.length) p.push(v.types.join("·"));
   return p.join(" · ");
 }
+function fmtWords(v){
+  const p=[];
+  if(v.words&&v.words.length) p.push(v.words.join(", "));
+  if(v.free) p.push("("+v.free+")");
+  return p.join(" ");
+}
+function fmtFreq(v){
+  if(v.always) return "항상 통증이 있다";
+  return [["day","하루"],["week","한 주"],["month","한 달"],["year","일 년"]]
+    .filter(([k])=>v[k]!=null).map(([k,l])=>`${l}에 ${v[k]}번`).join(" · ");
+}
 function fmt(v){
   if(v==null) return "";
   if(Array.isArray(v)) return v.length? v.join(", ") : "";
   if(typeof v==="object"){
+    if("words" in v) return fmtWords(v);                   // wordchips (통증 특성)
+    if("always" in v || "day" in v || "week" in v || "month" in v || "year" in v) return fmtFreq(v); // freqmulti
     if(v.mode) return fmtOnset(v);                         // onset2
-    if("period" in v) return (v.period&&v.n!=null)?`${v.period}에 ${v.n}번`:"";  // countfreq
+    if("period" in v) return (v.period&&v.n!=null)?`${v.period}에 ${v.n}번`:"";  // countfreq(구)
     if("years" in v || "months" in v || "types" in v || typeof v.name==="string") return fmtMeds(v); // meds
     if("sit" in v || "stand" in v || "drive" in v || "other" in v) return fmtPosture(v);  // posture
     if("y" in v || "m" in v || "d" in v) return fmtYMD(v); // date3
@@ -1212,12 +1334,19 @@ function summaryPain(a){
     rowKey("trauma"), rowKey("night"), rowKey("radiation"),
   ]);
   h += secBlock("통증 특성", [
-    rowKey("quality"), rowKey("quality_free"), rowKey("rest_pain"),
+    rowKey("quality"), rowKey("rest_pain"),
     rowKey("aggravate"), rowKey("relieve"), rowKey("area"), rowKey("depth"),
     rowKey("freq"), rowKey("duration"),
   ]);
-  h += secBlock("과거력 · 생활", [
-    rowKey("past_tx"), rowKey("comorbid"), rowKey("meds"),
+  h += commonTailSummary(a, true);
+  return h;
+}
+
+/* ----- 공통 꼬리 요약(과거력·생활 / 치료선호 / 회복목표) ----- */
+function commonTailSummary(a, withPastTx){
+  let h = secBlock("과거력 · 생활", [
+    withPastTx?rowKey("past_tx"):"",
+    rowKey("comorbid"), rowKey("meds"),
     rowKey("surgery"), a.surgery_detail?rowKey("surgery_detail"):"",
     rowKey("family"), rowKey("allergy"), rowKey("exercise"), rowKey("posture"),
     rowKey("prev_dx"), rowKey("records"),
@@ -1276,10 +1405,7 @@ function summaryAuto(a){
     a.stress&&a.stress.v!=null?row("스트레스", a.stress.v+"/10"):"",
     rowKey("trigger"), rowKey("exam"),
   ]);
-  h += secBlock("과거력 · 목표", [
-    rowKey("comorbid"), rowKey("meds"), rowKey("prev_dx"),
-    rowKey("family"), rowKey("records"), rowKey("goal"), rowKey("wish"),
-  ]);
+  h += commonTailSummary(a, false);
   return h;
 }
 
@@ -1296,12 +1422,9 @@ function summaryCancer(a){
     rowKey("ecog"),
   ]);
   h += secBlock("치료 이력 · 기대", [
-    rowKey("prev_hosp"), rowKey("expect"), rowKey("guardian"),
+    rowKey("prev_hosp"), a.prev_hosp_other?rowKey("prev_hosp_other"):"", rowKey("expect"), rowKey("guardian"),
   ]);
-  h += secBlock("과거력 · 자료", [
-    rowKey("comorbid"), rowKey("meds"), rowKey("family"), rowKey("records"),
-  ]);
-  h += secBlock("회복 목표", [ rowKey("goal"), rowKey("wish") ]);
+  h += commonTailSummary(a, false);
   return h;
 }
 
@@ -1343,13 +1466,8 @@ function plainSummary(){
     lineK("onset"); lineK("worse"); if(a.worse_situation)lineK("worse_situation");
     lineK("trauma"); lineK("night"); lineK("radiation");
     L.push(""); L.push("[통증 특성]");
-    ["quality","quality_free","rest_pain","aggravate","relieve","area","depth","freq","duration"].forEach(lineK);
-    L.push(""); L.push("[과거력·생활]");
-    ["past_tx","comorbid","meds","surgery","surgery_detail","family","allergy","exercise","posture","prev_dx","records"].forEach(lineK);
-    L.push(""); L.push("[치료 선호]");
-    ["tx_avoid","tx_prefer","test_avoid"].forEach(lineK);
-    L.push(""); L.push("[회복 목표]");
-    ["goal","wish"].forEach(lineK);
+    ["quality","rest_pain","aggravate","relieve","area","depth","freq","duration"].forEach(lineK);
+    commonTailPlain(L, lineK, true);
   }else if(branch==="auto"){
     L.push("[전신 증상]");
     ["sx_body","sx_neuro","sx_cardio","sx_gi"].forEach(lineK);
@@ -1363,8 +1481,7 @@ function plainSummary(){
     L.push(""); L.push("[생활·수면]");
     const d=a.daily||{}; const ds=[["식사","meal","회"],["수면","sleep","시간"],["대변","stool","회"],["소변","urine","회"]].map(([n,k,u])=>d[k]?`${n} ${d[k]}${u}`:"").filter(Boolean).join(" · ");
     if(ds)line("하루 기록",ds); lineK("sleep"); if(a.stress&&a.stress.v!=null)line("스트레스",a.stress.v+"/10"); lineK("trigger"); lineK("exam");
-    L.push(""); L.push("[과거력·목표]");
-    ["comorbid","meds","prev_dx","family","records","goal","wish"].forEach(lineK);
+    commonTailPlain(L, lineK, false);
   }else{
     L.push("[암 정보]");
     ["cancer_type","stage","tx_status","last_tx"].forEach(lineK);
@@ -1373,14 +1490,19 @@ function plainSummary(){
     line("피로도", vasText(a.bfi_level,[["현재","now"],["24h평균","avg"],["24h최악","worst"]]));
     if(a.pain_vas&&a.pain_vas.v!=null)line("통증 강도",a.pain_vas.v+"/10"); lineK("ecog");
     L.push(""); L.push("[치료 이력·기대]");
-    ["prev_hosp","expect","guardian"].forEach(lineK);
-    L.push(""); L.push("[과거력·자료]");
-    ["comorbid","meds","family","records"].forEach(lineK);
-    L.push(""); L.push("[회복 목표]");
-    ["goal","wish"].forEach(lineK);
+    ["prev_hosp","prev_hosp_other","expect","guardian"].forEach(lineK);
+    commonTailPlain(L, lineK, false);
   }
   if(fmt(a.free_talk)){ L.push(""); L.push("[자유 발언]"); L.push(a.free_talk); }
   return L.join("\n");
+}
+function commonTailPlain(L, lineK, withPastTx){
+  L.push(""); L.push("[과거력·생활]");
+  (withPastTx?["past_tx"]:[]).concat(["comorbid","meds","surgery","surgery_detail","family","allergy","exercise","posture","prev_dx","records"]).forEach(lineK);
+  L.push(""); L.push("[치료 선호]");
+  ["tx_avoid","tx_prefer","test_avoid"].forEach(lineK);
+  L.push(""); L.push("[회복 목표]");
+  ["goal","wish"].forEach(lineK);
 }
 
 /* ---------- 부팅 ---------- */

@@ -199,10 +199,22 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Malgun Gothic','Ap
 .q-img{max-width:100%;border:1px solid #e3e1d7;border-radius:12px;cursor:zoom-in;background:#fbfbf9}
 .q-img.gone{display:none}
 .q-img-cap{font-size:11.5px;color:#9aa39d;margin-top:4px}
-/* enlarge modal */
-.zoom-ov{position:fixed;inset:0;background:rgba(15,25,20,.85);display:flex;align-items:center;justify-content:center;z-index:99;padding:16px}
-.zoom-ov img{max-width:100%;max-height:92vh;border-radius:8px}
-.zoom-ov .zx{position:absolute;top:14px;right:18px;color:#fff;font-size:30px;cursor:pointer;line-height:1}
+/* enlarge modal (핀치줌) */
+.zoom-ov{position:fixed;inset:0;background:rgba(15,25,20,.88);display:flex;align-items:center;justify-content:center;z-index:99;padding:10px;overflow:hidden}
+.zoom-stage{max-width:100%;max-height:92vh;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.zoom-ov img{max-width:96vw;max-height:88vh;border-radius:8px;transform-origin:center center;will-change:transform;user-select:none;-webkit-user-drag:none;cursor:grab}
+.zoom-ov .zx{position:absolute;top:12px;right:16px;color:#fff;font-size:32px;cursor:pointer;line-height:1;z-index:2;padding:6px}
+.zoom-hint{position:absolute;bottom:14px;left:0;right:0;text-align:center;color:rgba(255,255,255,.75);font-size:12px;pointer-events:none}
+/* 동전·손바닥 비교 */
+.cp-wrap{display:flex;align-items:center;justify-content:center;gap:18px;margin:16px 0 4px;padding:18px 10px;background:#f7f5ef;border:1px solid #e3e1d7;border-radius:12px}
+.cp-item{text-align:center}
+.cp-coin{width:64px;height:64px;border-radius:50%;margin:0 auto;background:radial-gradient(circle at 34% 30%,#f4f2ec,#cfcdc2 65%,#a9a79c);border:3px solid #b8b6aa;box-shadow:inset 0 0 0 4px #d9d7cb,0 2px 5px rgba(0,0,0,.15);display:flex;flex-direction:column;align-items:center;justify-content:center;color:#77756a;font-weight:800}
+.cp-500{font-size:19px;line-height:1}
+.cp-won{font-size:10.5px;margin-top:1px}
+.cp-hand{font-size:78px;line-height:1}
+.cp-lbl{font-size:12.5px;color:#5f6b64;margin-top:8px;line-height:1.4}
+.cp-lbl small{color:#9aa39d}
+.cp-lt{font-size:30px;color:#b4b2a9;font-weight:700}
 /* word chips (통증 특성) */
 .wchip-wrap{display:flex;flex-wrap:wrap;gap:7px;margin-top:14px}
 .wchip{border:1.5px solid #cbc9be;border-radius:99px;padding:8px 13px;font-size:13.5px;cursor:pointer;background:#fff;font-family:inherit;color:#1a1a1a;transition:all .12s;line-height:1.2}
@@ -354,16 +366,16 @@ const PAIN_AREAS = [
    fig_bodymap · fig_vas(그림1) · fig_area · fig_depth(그림2)
    fig_char_tendon(그림3-1) · fig_char_nerve(그림3-2) · fig_char_auto(그림3-3) */
 const IMG = {
-  bodymap:"fig_bodymap.webp",   // 미업로드 → 자동 숨김
+  bodyM:"body_m.jpg",           // 남성 인체(앞·뒤)
+  bodyF:"body_f.jpg",           // 여성 인체(앞·뒤)
   vas:"그림1.png",              // 통증척도(VAS)
-  area:"fig_area.webp",         // 미업로드 → 자동 숨김
   depth:"그림2.png",            // 해부학적 깊이 단면도
-  char:["그림3-1.png","그림3-2.png","그림3-3.png"], // 힘줄 · 신경 · 자율신경
 };
 
 const PAIN = [
   {sec:"주요 증상", ask:"먼저, 어느 부위가 불편하신가요?\n가장 가까운 곳을 골라 주세요.", type:"single", key:"pain_area", ch:PAIN_AREAS,
-   img:IMG.bodymap, imgCap:"그림을 누르면 크게 볼 수 있어요"},
+   imgFn:()=> answers.gender==="여성" ? IMG.bodyF : IMG.bodyM,
+   imgCap:"그림을 누르면 크게 확대해 볼 수 있어요 (두 손가락으로 확대·축소)"},
   {ask:"통증은 주로 어느 쪽인가요?", type:"single", key:"pain_side", ch:["왼쪽","오른쪽","양쪽","가운데(중앙)"]},
   {ask:"통증이 얼마나 심한지 알려 주세요.\n0은 통증 없음, 10은 상상할 수 있는 가장 심한 통증입니다.", type:"vas2", key:"vas", lblA:"가장 심할 때", lblB:"평상시(가장 약할 때)",
    img:IMG.vas, imgCap:"아래 척도를 참고해 주세요 (그림을 누르면 확대)"},
@@ -380,7 +392,7 @@ const PAIN = [
   {ask:"반대로, 어떻게 하면 통증이 좀 줄어드나요? (완화 요인)", type:"text", key:"relieve", ph:"예: 누워서 쉬면 좀 나아요", optional:true, short:true, skipLabel:"완화 요인 없음"},
   {ask:"아픈 부위의 넓이는 어느 정도인가요?", type:"single", key:"area",
    ch:["500원 동전보다 작다","500원 동전보다 크다","손바닥보다 작다","손바닥보다 크다"],
-   img:IMG.area, imgCap:"500원 동전과 펼친 손바닥을 기준으로 골라 주세요"},
+   widget:"coinpalm", imgCap:"500원 동전과 펼친 손바닥을 기준으로 골라 주세요"},
   {ask:"통증이 느껴지는 깊이는 어느 정도인가요?", type:"single", key:"depth", ch:["피부 겉면","피부 바로 밑","근육 부위","뼛속 깊이","잘 모르겠음"],
    img:IMG.depth, imgCap:"단면 그림을 참고해 주세요 (그림을 누르면 확대)"},
   {ask:"통증이 얼마나 자주 나타나나요?\n해당하는 칸에 횟수를 적어 주세요.", type:"freqmulti", key:"freq"},
@@ -434,7 +446,8 @@ const AUTO = [
 const CANCER = [
   {sec:"암 정보", ask:"어떤 암으로 치료받고 계신가요?", type:"single", key:"cancer_type", cols:2,
    ch:["폐암","위암","대장암","유방암","간암","췌장암","갑상선암","전립선암","혈액암","기타"],
-   chIcons:["🫁","🍚","🌀","🎗️","🫀","🟡","🦋","🔷","🩸","➕"]},
+   chIcons:["🫁","🍚","🌀","🎗️","🫀","🟡","🦋","🔷","🩸","➕"],
+   fu:{ask:"어떤 암인지 적어 주세요.", type:"text", key:"cancer_type_other", ph:"예: 신장암, 방광암, 뇌종양 등", short:true}, fuIf:"기타"},
   {ask:"병기(Stage)를 알고 계신가요?", type:"single", key:"stage", ch:["1기","2기","3기","4기","모르겠음","확진 전"]},
   {ask:"현재 치료 상황을 모두 골라 주세요.", type:"multi", key:"tx_status", ch:["수술 후 회복 중","항암치료 중","방사선치료 중","치료 종료 후 관리","대학병원 치료 중단","표준치료 외 대안 탐색 중"]},
   {ask:"마지막 치료는 언제였나요?", type:"single", key:"last_tx", ch:["1개월 이내","1~3개월","3~6개월","6개월~1년","1년 이상","아직 치료 전"]},
@@ -482,7 +495,7 @@ const LABELS = {
   tx_avoid:"피하고 싶은 치료", tx_prefer:"선호 치료", test_avoid:"원치 않는 검사",
   sx_body:"전신·체온", sx_neuro:"뇌신경·감각", sx_cardio:"심혈관·정서", sx_gi:"소화기·비뇨·사지",
   daily:"하루 기록", sleep:"수면 상태", stress:"스트레스", trigger:"악화 상황", exam:"타원 검사",
-  cancer_type:"암 종류", stage:"병기", tx_status:"치료 상황", last_tx:"마지막 치료", symptoms:"주요 증상",
+  cancer_type:"암 종류", cancer_type_other:"암 종류(기타)", stage:"병기", tx_status:"치료 상황", last_tx:"마지막 치료", symptoms:"주요 증상",
   pain_vas:"통증 강도", ecog:"일상 수행능력", prev_hosp:"이전 병원", prev_hosp_other:"이전 병원(기타)", expect:"기대사항", guardian:"보호자 동반",
   free_talk:"자유 발언",
 };
@@ -637,7 +650,9 @@ function renderStep(){
   else if(s.type==="freqmulti")body = renderFreqMulti(s);
   else if(s.type==="freetalk")body = renderFreetalk(s);
 
-  const imgHtml = s.img ? imgBlock(s.img, s.imgCap) : "";
+  const imgSrc = s.imgFn ? s.imgFn() : s.img;
+  let imgHtml = imgSrc ? imgBlock(imgSrc, s.imgCap) : "";
+  if(s.widget==="coinpalm") imgHtml = coinPalmBlock(s.imgCap);
   const detailHtml = s.detail ? detailBlock(s.detail, s.detailLabel) : "";
   const noteHtml = s.note ? `<div class="q-note">${esc(s.note)}</div>` : "";
   const backBtn = idx>0 ? `<button class="btn-back" onclick="goBack()">← 이전 질문</button>` : "";
@@ -662,12 +677,76 @@ function imgBlock(src, cap){
     ${cap?`<div class="q-img-cap">${esc(cap)}</div>`:""}
   </div>`;
 }
+/* 확대 보기 — 두 손가락 확대·축소 + 끌기 + 더블탭 + 휠 지원 */
 function zoomImg(src){
   const ov=document.createElement("div");
   ov.className="zoom-ov";
-  ov.innerHTML=`<span class="zx">✕</span><img src="${esc(src)}" alt="">`;
-  ov.onclick=()=>ov.remove();
+  ov.innerHTML=`<span class="zx">✕</span><div class="zoom-stage"><img src="${esc(src)}" alt="" draggable="false"></div>
+    <div class="zoom-hint">두 손가락으로 확대·축소 · 끌어서 이동 · 두 번 탭하면 확대</div>`;
   document.body.appendChild(ov);
+  const stage=ov.querySelector(".zoom-stage"), img=ov.querySelector("img");
+  let scale=1, tx=0, ty=0;
+  const apply=()=>{ img.style.transform=`translate(${tx}px,${ty}px) scale(${scale})`; };
+  const clamp=()=>{ scale=Math.min(6,Math.max(1,scale)); if(scale===1){tx=0;ty=0;} };
+  // 닫기: X 버튼 또는 배경(이미지 밖) 탭
+  ov.querySelector(".zx").onclick=()=>ov.remove();
+  ov.addEventListener("click",e=>{ if(e.target===ov||e.target===stage) ov.remove(); });
+  // 포인터 기반 팬 + 핀치
+  const pts=new Map(); let lastDist=0, lastMid=null, lastTap=0;
+  img.style.touchAction="none";
+  img.addEventListener("pointerdown",e=>{
+    img.setPointerCapture(e.pointerId);
+    pts.set(e.pointerId,{x:e.clientX,y:e.clientY});
+    if(pts.size===1){
+      const now=Date.now();
+      if(now-lastTap<300){ // 더블탭: 확대/원위치 토글
+        if(scale>1){scale=1;tx=0;ty=0;} else {scale=2.4;}
+        clamp(); apply();
+      }
+      lastTap=now;
+    }
+    if(pts.size===2){
+      const [a,b]=[...pts.values()];
+      lastDist=Math.hypot(a.x-b.x,a.y-b.y);
+      lastMid={x:(a.x+b.x)/2,y:(a.y+b.y)/2};
+    }
+    e.preventDefault();
+  });
+  img.addEventListener("pointermove",e=>{
+    if(!pts.has(e.pointerId)) return;
+    const prev=pts.get(e.pointerId);
+    pts.set(e.pointerId,{x:e.clientX,y:e.clientY});
+    if(pts.size===1 && scale>1){ tx+=e.clientX-prev.x; ty+=e.clientY-prev.y; apply(); }
+    else if(pts.size===2){
+      const [a,b]=[...pts.values()];
+      const dist=Math.hypot(a.x-b.x,a.y-b.y);
+      const mid={x:(a.x+b.x)/2,y:(a.y+b.y)/2};
+      if(lastDist>0){ scale*=dist/lastDist; clamp(); }
+      tx+=mid.x-lastMid.x; ty+=mid.y-lastMid.y;
+      lastDist=dist; lastMid=mid; apply();
+    }
+    e.preventDefault();
+  });
+  const up=e=>{ pts.delete(e.pointerId); if(pts.size<2){lastDist=0;lastMid=null;} };
+  img.addEventListener("pointerup",up); img.addEventListener("pointercancel",up);
+  // 데스크톱 휠 줌
+  ov.addEventListener("wheel",e=>{ e.preventDefault(); scale*= e.deltaY<0?1.15:0.87; clamp(); apply(); },{passive:false});
+}
+
+/* 동전·손바닥 크기 비교(파일 없이 코드로 그림) */
+function coinPalmBlock(cap){
+  return `<div class="cp-wrap">
+      <div class="cp-item">
+        <div class="cp-coin"><span class="cp-500">500</span><span class="cp-won">원</span></div>
+        <div class="cp-lbl">500원 동전<br><small>(지름 약 2.7cm)</small></div>
+      </div>
+      <div class="cp-lt">&lt;</div>
+      <div class="cp-item">
+        <div class="cp-hand">🖐️</div>
+        <div class="cp-lbl">펼친 손바닥</div>
+      </div>
+    </div>
+    ${cap?`<div class="q-img-cap" style="text-align:center">${esc(cap)}</div>`:""}`;
 }
 
 /* ---------- detail expand (자세히 보기) ---------- */
@@ -947,6 +1026,13 @@ function renderFreetalk(s){
     <div class="actions"><button class="btn btn-primary" onclick="submitFreetalk()">작성 완료</button></div>`;
 }
 
+/* '해당 없음'류(배타 선택) 옵션 — 정확히 일치할 때만.
+   "전신적으로 힘이 없음"·"하체 힘없음" 같은 증상 문구는 제외됨 */
+const NONE_OPTIONS = new Set([
+  "없음","없어요","받은 적 없음","가진 자료 없음","특별한 패턴 없음","수면에 문제 없음",
+]);
+function isNoneOption(v){ return NONE_OPTIONS.has(v); }
+
 /* ============================================================
    상호작용 배선
    ============================================================ */
@@ -968,7 +1054,7 @@ function wireStep(s){
       }
       el.onclick = ()=>{
         const v = el.dataset.v;
-        const noneLike = /^없|없음|없어요|문제 없음|특별한 패턴|없다|받은 적 없|가진 자료 없/.test(v);
+        const noneLike = isNoneOption(v);
         let arr = draft.multi;
         if(el.classList.contains("sel")){
           arr = arr.filter(x=>x!==v); el.classList.remove("sel"); el.querySelector(".box").textContent="";
@@ -977,8 +1063,8 @@ function wireStep(s){
             arr = [v];
             $("multi").querySelectorAll(".chk").forEach(o=>{ if(o.id!=="otherChk"){o.classList.remove("sel");o.querySelector(".box").textContent="";} });
           }else{
-            arr = arr.filter(x=>!/^없|없음|없어요|문제 없음|특별한 패턴|없다|받은 적 없|가진 자료 없/.test(x));
-            $("multi").querySelectorAll(".chk").forEach(o=>{ if(o.id!=="otherChk" && /^없|없음|없어요|문제 없음|특별한 패턴|없다|받은 적 없|가진 자료 없/.test(o.dataset.v)){o.classList.remove("sel");o.querySelector(".box").textContent="";} });
+            arr = arr.filter(x=>!isNoneOption(x));
+            $("multi").querySelectorAll(".chk").forEach(o=>{ if(o.id!=="otherChk" && isNoneOption(o.dataset.v)){o.classList.remove("sel");o.querySelector(".box").textContent="";} });
             arr.push(v);
           }
           el.classList.add("sel"); el.querySelector(".box").textContent="✓";
@@ -1412,7 +1498,7 @@ function summaryAuto(a){
 /* ----- 암재활 요약 ----- */
 function summaryCancer(a){
   let h = secBlock("암 정보", [
-    rowKey("cancer_type"), rowKey("stage"), rowKey("tx_status"), rowKey("last_tx"),
+    rowKey("cancer_type"), answers.cancer_type_other?rowKey("cancer_type_other"):"", rowKey("stage"), rowKey("tx_status"), rowKey("last_tx"),
   ]);
   const lvl = vasText(a.bfi_level,[["현재","now"],["24h 평균","avg"],["24h 최악","worst"]]);
   h += secBlock("현재 상태", [
@@ -1484,7 +1570,7 @@ function plainSummary(){
     commonTailPlain(L, lineK, false);
   }else{
     L.push("[암 정보]");
-    ["cancer_type","stage","tx_status","last_tx"].forEach(lineK);
+    ["cancer_type","cancer_type_other","stage","tx_status","last_tx"].forEach(lineK);
     L.push(""); L.push("[현재 상태]");
     lineK("symptoms");
     line("피로도", vasText(a.bfi_level,[["현재","now"],["24h평균","avg"],["24h최악","worst"]]));

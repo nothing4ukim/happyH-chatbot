@@ -233,6 +233,20 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Malgun Gothic','Ap
 .detail-box{margin-top:12px;border:1px solid #d9e6df;border-radius:12px;padding:12px;background:#f7f9f7}
 .detail-box.hide{display:none}
 
+/* ===== 동의 화면 ===== */
+.consent-box{border:1px solid #e3e1d7;background:#f9f8f3;border-radius:12px;padding:16px 17px;margin:14px 0}
+.consent-box h4{font-size:13.5px;color:#163F31;margin-bottom:10px}
+.consent-box p{font-size:13px;color:#4a4a46;line-height:1.7;margin-bottom:8px}
+.consent-box p:last-child{margin-bottom:0}
+.consent-box b{color:#215D4C}
+.consent-note{font-size:11.5px;color:#9aa39d;margin-top:8px}
+.consent-chk-row{display:flex;align-items:flex-start;gap:10px;padding:13px 14px;border:1.5px solid #cbc9be;border-radius:10px;cursor:pointer;margin-top:14px;background:#fff;transition:all .12s}
+.consent-chk-row:hover{background:#E9F1EC;border-color:#7FAE9C}
+.consent-chk-row.sel{background:#E9F1EC;border-color:#215D4C}
+.consent-chk-row .box{width:20px;height:20px;border-radius:5px;border:2px solid #b4b2a9;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:13px;color:#fff;margin-top:1px}
+.consent-chk-row.sel .box{background:#215D4C;border-color:#215D4C}
+.consent-chk-row span.tx{font-size:14px;line-height:1.5;color:#1a1a1a}
+
 @media print{
   body{background:#fff;padding:0}
   .copy-btn,.print-btn,.foot-note,.btn-back,.trust-wrap,.trust-link{display:none}
@@ -260,13 +274,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Malgun Gothic','Ap
 "use strict";
 /* ============================================================
    행복한H병원 사전문진 — 텍스트 전용 정적 웹페이지
-   · 서버/외부 요청 0건 · 순수 클라이언트 · 오프라인 동작
-   · 정적 호스팅(CDN)에 올리면 동시 접속 수에 사실상 무제한
+   · 완료 시 Google Sheets로 답변 전송(옵션) · 그 외엔 순수 클라이언트
    ============================================================ */
 
 /* ---------- 병원 브랜드 설정 ---------- */
-/* 이미지 파일(logo.png · doctor.jpg · character.png)을 index.html과 같은 폴더에 올리면
-   자동으로 표시됩니다. 없으면 텍스트/이모지로 자연스럽게 대체됩니다. */
 const BRAND = {
   logo: "logo.png.jpg",
   doctor: "doctor.jpg.webp",
@@ -287,19 +298,21 @@ const BRAND = {
   pressDesc:  "건강한겨레 · 김정훈 원장 인터뷰",
 };
 
+/* ---------- 데이터 수집 설정 (Google Apps Script 웹앱 URL) ----------
+   비워두면 서버 전송을 시도하지 않고 로컬 완료 화면만 표시합니다.
+   설정 후에도 전송 실패 시 환자 화면은 절대 막히지 않습니다(완료 화면은 항상 정상 표시). */
+const SHEET_URL = "";
+
 /* ---------- 공통 선택지 조각 ---------- */
 const COMORBID = ["고혈압","당뇨","고지혈증","심장질환","갑상선질환","암","없음"];
 const COMORBID_ICONS = ["🩸","🍬","🥓","❤️","🦋","🎗️","🙆"];
 const FAMILY   = ["심장질환(심근경색 등)","뇌졸중(중풍)","고혈압","당뇨","고지혈증","암","없음"];
 const FAMILY_ICONS = ["❤️","🧠","🩸","🍬","🥓","🎗️","🙆"];
-/* 치료 방식 7종 (선호/기피 공통) */
 const TX_METHODS = ["주사치료","수액치료","도수치료","체외충격파","약물치료","고주파 온열치료","고압산소치료"];
 const TX_ICONS = ["💉","💧","🤲","〰️","💊","🔥","🫧"];
-/* 원하지 않는 검사 */
 const TESTS = ["엑스레이","소변검사","혈액검사","자율신경검사","적외선체열검사"];
 const TEST_ICONS = ["🩻","🧫","🧪","🌀","🌡️"];
 
-/* 통증 묘사 단어 (그림3-1·2·3 통합, 화면엔 전부 검은 버튼 · 색/점수는 내부 분석용) */
 const PAIN_WORDS = [
   "뻑뻑하다","묵직하다","뻐근하다","조이듯 아프다","꽉 누르는 듯","외투가 무겁게 느껴진다","우리하다",
   "아픈 곳을 손가락으로 짚을 수 있다","위치를 정확히 모르겠다","넓게 아프다","깊숙한 통증","겉이 아프다","피부가 아픈 듯",
@@ -310,7 +323,6 @@ const PAIN_WORDS = [
   "어지럽다","속이 메슥거린다","속이 울렁거린다","콧물이 난다","코가 막힌다",
 ];
 
-/* 보유 자료 목록(분기별) */
 const RECORDS_PAIN = ["MRI CD","CT CD","X-ray 자료","수술기록지","진단서·소견서","약 처방전·복약 목록","혈액검사 결과지","조직검사 결과지","가진 자료 없음"];
 const RECORDS_PAIN_ICONS = ["💿","💿","🩻","📄","📄","📄","🧪","🔬","🚫"];
 const RECORDS_AUTO = ["혈액검사 결과지","심전도·홀터 결과","뇌 MRI CD","내시경 결과지","진단서·소견서","약 처방전","가진 자료 없음"];
@@ -318,7 +330,6 @@ const RECORDS_AUTO_ICONS = ["🧪","💓","💿","🔎","📄","📄","🚫"];
 const RECORDS_CANCER = ["조직검사 결과지","영상 CD(CT·MRI·PET)","수술기록지","항암치료 기록지","진단서·소견서","약 처방전","없음"];
 const RECORDS_CANCER_ICONS = ["🔬","💿","📄","📄","📄","📄","🚫"];
 
-/* 공통 꼬리 섹션(과거력·생활 / 치료 선호 / 회복 목표) — 3개 분기 공용 */
 function commonHistory(recordsCh, recordsIcons, firstSec){
   return [
     {sec:firstSec===undefined?"과거력 · 생활":firstSec, ask:"현재 진단받았거나 약을 드시는 질환이 있나요?", type:"multi", key:"comorbid", ch:COMORBID, chIcons:COMORBID_ICONS, other:true, otherPh:"예: 신장질환, 천식 등"},
@@ -348,11 +359,6 @@ function goalSteps(goalPh){
 }
 
 /* ---------- 분기별 문진 흐름 ---------- */
-/* type: single | multi | text | vas | vas2 | sliders | scale03 | fields | freetalk
-   optional:true → "건너뛰기" 허용
-   fu / fuIf → 특정 답변일 때만 뒤따르는 후속 질문 */
-
-// 통증 세부 부위(6 카테고리)
 const PAIN_AREAS = [
   "두통 · 경추부 통증 · 어지럼증",
   "어깨 · 가슴 · 등 통증",
@@ -362,14 +368,11 @@ const PAIN_AREAS = [
   "다리 · 발목 · 발",
 ];
 
-/* 통증 그림 파일명(같은 폴더에 올리면 자동 표시, 없으면 자동 숨김)
-   fig_bodymap · fig_vas(그림1) · fig_area · fig_depth(그림2)
-   fig_char_tendon(그림3-1) · fig_char_nerve(그림3-2) · fig_char_auto(그림3-3) */
 const IMG = {
-  bodyM:"body_m.jpg.png",       // 남성 인체(앞·뒤)
-  bodyF:"body_f.jpg.png",       // 여성 인체(앞·뒤)
-  vas:"그림1.png",              // 통증척도(VAS)
-  depth:"그림2.png",            // 해부학적 깊이 단면도
+  bodyM:"body_m.jpg.png",
+  bodyF:"body_f.jpg.png",
+  vas:"그림1.png",
+  depth:"그림2.png",
 };
 
 const PAIN = [
@@ -508,6 +511,8 @@ let branch = null;        // 'pain'|'auto'|'cancer'
 let steps = [];           // 실행할 스텝 배열(basic + flow + freetalk)
 let idx = 0;              // 현재 스텝 인덱스
 let draft = {};           // 현재 스텝 임시 입력값
+let consented = false;    // 개인정보 수집 동의 여부
+let consentTime = null;
 const SKEY = "happyh_predx_v1";
 
 const $ = id => document.getElementById(id);
@@ -515,7 +520,7 @@ const stage = $("stage");
 
 /* ---------- 자동 저장/복원 ---------- */
 function save(){
-  try{ localStorage.setItem(SKEY, JSON.stringify({branch,idx,answers,t:Date.now()})); }catch(e){}
+  try{ localStorage.setItem(SKEY, JSON.stringify({branch,idx,answers,consented,consentTime,t:Date.now()})); }catch(e){}
 }
 function clearSave(){ try{ localStorage.removeItem(SKEY); }catch(e){} }
 function loadSave(){
@@ -524,7 +529,6 @@ function loadSave(){
     if(!raw) return null;
     const d = JSON.parse(raw);
     if(!d || !d.branch || typeof d.idx!=="number") return null;
-    // 완료본은 복원 대상 아님
     if(d.done) return null;
     return d;
   }catch(e){ return null; }
@@ -533,7 +537,6 @@ function loadSave(){
 /* ---------- 스텝 배열 구성(후속 질문은 실행 중 삽입) ---------- */
 function buildSteps(b){
   let flow = BRANCHES[b].flow.map(s => Object.assign({}, s));
-  // COMPASS-31 자리표시를 6개 도메인 스텝으로 치환
   const pos = flow.findIndex(x=>x.compass);
   if(pos>-1){
     const domainSteps = COMPASS.map((d,i)=>({
@@ -545,11 +548,50 @@ function buildSteps(b){
   }
   return BASIC.map(s=>Object.assign({},s)).concat(flow, [Object.assign({},FREETALK)]);
 }
-
-/* 실제 진행 스텝 수(진행률 표시용, 후속 질문 제외한 근사치) */
 function totalSteps(){ return steps.length; }
-
 function esc(s){ return String(s).replace(/[&<>"]/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
+
+/* ============================================================
+   화면 0: 개인정보 수집·이용 동의
+   ============================================================ */
+function renderConsent(){
+  $("badge").classList.add("hide");
+  $("progWrap").classList.add("hide");
+  $("progLbl").classList.add("hide");
+  stage.innerHTML = `
+    <div class="card">
+      <div class="q-ask">사전 문진을 시작하기 전에,<br>개인정보 수집·이용에 동의해 주세요.</div>
+      <div class="consent-box">
+        <h4>📋 개인정보 수집·이용 동의</h4>
+        <p><b>수집 항목</b> — 성명, 생년월일, 연락처, 통증·증상 정보, 병력, 복용약물, 가족력 등 건강에 관한 정보</p>
+        <p><b>수집 목적</b> — 내원 전 사전 문진을 통한 진료 준비 및 진단 정확도 향상</p>
+        <p><b>보유 기간</b> — 의료법에 따른 진료기록 보존기간(10년) 또는 관련 법령이 정한 기간까지 보관</p>
+        <p><b>제3자 제공</b> — 없음. 행복한H병원 진료 목적 외에는 사용되지 않습니다.</p>
+        <p><b>동의 거부 권리</b> — 동의하지 않으셔도 됩니다. 이 경우 사전 문진 없이 내원하시면 현장에서 직접 문진을 진행하며, 진료 자체를 거부하지 않습니다.</p>
+        <div class="consent-note">작성해 주신 내용은 병원 서버(구글 시트)로 안전하게 전송되어 담당 의료진만 확인합니다.</div>
+      </div>
+      <div class="consent-chk-row" id="consentRow">
+        <span class="box" id="consentBox"></span>
+        <span class="tx">위 내용을 확인했으며, 개인정보(건강정보 포함) 수집·이용에 동의합니다.</span>
+      </div>
+      <div class="actions">
+        <button class="btn btn-primary" id="consentBtn" disabled onclick="agreeAndStart()">동의하고 문진 시작하기</button>
+      </div>
+    </div>`;
+  const row = $("consentRow"), box = $("consentBox"), btn = $("consentBtn");
+  row.onclick = ()=>{
+    const on = !row.classList.contains("sel");
+    row.classList.toggle("sel", on);
+    box.textContent = on ? "✓" : "";
+    btn.disabled = !on;
+  };
+  window.scrollTo(0,0);
+}
+function agreeAndStart(){
+  consented = true;
+  consentTime = new Date().toISOString();
+  renderIntro();
+}
 
 /* ============================================================
    화면 1: 시작(분기 선택)
@@ -589,7 +631,7 @@ function renderIntro(){
         <button class="opt" onclick="pickBranch('auto')">자율신경실조증</button>
         <button class="opt" onclick="pickBranch('cancer')">암재활</button>
       </div>
-      <div class="foot-note">입력하신 내용은 이 기기(브라우저) 안에만 임시 저장되며, 외부로 전송되지 않습니다.</div>
+      <div class="foot-note">작성 중인 내용은 이 기기에 임시 저장되며, 완료 시에만 병원 서버로 전송됩니다.</div>
     </div>`;
   window.scrollTo(0,0);
 }
@@ -599,11 +641,12 @@ function doResume(){
   if(!d){ renderIntro(); return; }
   branch = d.branch;
   Object.assign(answers, d.answers||{});
+  consented = !!d.consented; consentTime = d.consentTime||null;
   steps = buildSteps(branch);
   idx = Math.min(d.idx, steps.length-1);
   renderStep();
 }
-function discardResume(){ clearSave(); renderIntro(); }
+function discardResume(){ clearSave(); renderConsent(); }
 
 function pickBranch(b){
   branch = b;
@@ -620,7 +663,6 @@ function renderStep(){
   const s = steps[idx];
   draft = {};
 
-  // 헤더 뱃지 + 진행률
   const bd = $("badge");
   bd.textContent = BRANCHES[branch].label + " 문진";
   bd.classList.remove("hide");
@@ -677,7 +719,6 @@ function imgBlock(src, cap){
     ${cap?`<div class="q-img-cap">${esc(cap)}</div>`:""}
   </div>`;
 }
-/* 확대 보기 — 두 손가락 확대·축소 + 끌기 + 더블탭 + 휠 지원 */
 function zoomImg(src){
   const ov=document.createElement("div");
   ov.className="zoom-ov";
@@ -688,10 +729,8 @@ function zoomImg(src){
   let scale=1, tx=0, ty=0;
   const apply=()=>{ img.style.transform=`translate(${tx}px,${ty}px) scale(${scale})`; };
   const clamp=()=>{ scale=Math.min(6,Math.max(1,scale)); if(scale===1){tx=0;ty=0;} };
-  // 닫기: X 버튼 또는 배경(이미지 밖) 탭
   ov.querySelector(".zx").onclick=()=>ov.remove();
   ov.addEventListener("click",e=>{ if(e.target===ov||e.target===stage) ov.remove(); });
-  // 포인터 기반 팬 + 핀치
   const pts=new Map(); let lastDist=0, lastMid=null, lastTap=0;
   img.style.touchAction="none";
   img.addEventListener("pointerdown",e=>{
@@ -699,7 +738,7 @@ function zoomImg(src){
     pts.set(e.pointerId,{x:e.clientX,y:e.clientY});
     if(pts.size===1){
       const now=Date.now();
-      if(now-lastTap<300){ // 더블탭: 확대/원위치 토글
+      if(now-lastTap<300){
         if(scale>1){scale=1;tx=0;ty=0;} else {scale=2.4;}
         clamp(); apply();
       }
@@ -729,11 +768,9 @@ function zoomImg(src){
   });
   const up=e=>{ pts.delete(e.pointerId); if(pts.size<2){lastDist=0;lastMid=null;} };
   img.addEventListener("pointerup",up); img.addEventListener("pointercancel",up);
-  // 데스크톱 휠 줌
   ov.addEventListener("wheel",e=>{ e.preventDefault(); scale*= e.deltaY<0?1.15:0.87; clamp(); apply(); },{passive:false});
 }
 
-/* 동전·손바닥 크기 비교(파일 없이 코드로 그림) */
 function coinPalmBlock(cap){
   return `<div class="cp-wrap">
       <div class="cp-item">
@@ -749,7 +786,6 @@ function coinPalmBlock(cap){
     ${cap?`<div class="q-img-cap" style="text-align:center">${esc(cap)}</div>`:""}`;
 }
 
-/* ---------- detail expand (자세히 보기) ---------- */
 function detailBlock(imgs, label){
   const list = Array.isArray(imgs)?imgs:[imgs];
   const inner = list.map(src=>`<img class="q-img" src="${esc(src)}" alt="" onclick="zoomImg('${esc(src)}')" onerror="this.classList.add('gone')" style="margin-bottom:8px">`).join("");
@@ -757,7 +793,6 @@ function detailBlock(imgs, label){
     <div class="detail-box hide">${inner}</div>`;
 }
 
-/* ---------- single (아이콘 · 큰 타일 지원) ---------- */
 function renderSingle(s){
   const cur = answers[s.key];
   if(s.tiles){
@@ -771,7 +806,6 @@ function renderSingle(s){
   return `<div class="opts${s.cols===2?' cols2':''}" id="opts">${opts}</div>`;
 }
 
-/* ---------- wordchips (통증 특성: 자유입력 + 검은 단어 다중선택) ---------- */
 function renderWordchips(s){
   const cur = answers[s.key] || {};
   const words = Array.isArray(cur.words) ? cur.words.slice() : [];
@@ -785,7 +819,6 @@ function renderWordchips(s){
     <div class="actions"><button class="btn btn-primary" onclick="submitWordchips('${s.key}')">다음</button></div>`;
 }
 
-/* ---------- freqmulti (통증 빈도: 항상 + 하루/주/월/년 횟수) ---------- */
 function renderFreqMulti(s){
   const cur = answers[s.key] || {};
   const always = !!cur.always;
@@ -804,10 +837,8 @@ function renderFreqMulti(s){
     <div class="actions"><button class="btn btn-primary" onclick="submitFreqMulti('${s.key}')">다음</button></div>`;
 }
 
-/* ---------- multi (아이콘 · "기타" 자유입력 지원) ---------- */
 function renderMulti(s){
   const cur = Array.isArray(answers[s.key]) ? answers[s.key].slice() : [];
-  // "기타: xxx" 형태가 저장돼 있으면 분리
   let otherText = "";
   const stdCur = cur.filter(v=>{ if(/^기타/.test(v)){ otherText = v.replace(/^기타[:：]?\s*/,""); return false;} return true; });
   draft.multi = stdCur;
@@ -830,7 +861,6 @@ function renderMulti(s){
     </div>`;
 }
 
-/* ---------- text ---------- */
 function renderText(s){
   const cur = answers[s.key]!=null ? answers[s.key] : "";
   const cls = "txt-inp" + (s.short?" short-inp":"");
@@ -841,7 +871,6 @@ function renderText(s){
     </div>`;
 }
 
-/* ---------- vas (1 or 2 sliders) ---------- */
 function renderVas(s, rows, isSingle){
   const cur = answers[s.key] || {};
   const block = rows.map(([name,k])=>{
@@ -856,7 +885,6 @@ function renderVas(s, rows, isSingle){
     <div class="actions"><button class="btn btn-primary" onclick="submitVas('${s.key}')">다음</button></div>`;
 }
 
-/* ---------- sliders group (BFI 등) ---------- */
 function renderSliders(s){
   const cur = answers[s.key] || {};
   const block = s.items.map(([name,k])=>{
@@ -871,7 +899,6 @@ function renderSliders(s){
     <div class="actions"><button class="btn btn-primary" onclick="submitVas('${s.key}')">다음</button></div>`;
 }
 
-/* ---------- fields (짧은 입력 여러 개) ---------- */
 function renderFields(s){
   const cur = answers[s.key] || {};
   const rows = s.items.map(([name,k,unit])=>{
@@ -889,7 +916,6 @@ function renderFields(s){
     </div>`;
 }
 
-/* ---------- scale03 (COMPASS 도메인 1개) ---------- */
 function renderScale03(s){
   const cur = answers[s.key] || {};
   const LB = ["전혀없음","가끔","자주","항상"];
@@ -903,7 +929,6 @@ function renderScale03(s){
     <div class="actions"><button class="btn btn-primary" onclick="submitScale('${s.key}',${s.items.length})">다음</button></div>`;
 }
 
-/* ---------- date3 (연/월/일 선택) ---------- */
 function yearOpts(from, to, sel){
   let o = `<option value="">연도</option>`;
   for(let y=to;y>=from;y--) o+=`<option value="${y}"${sel==y?" selected":""}>${y}년</option>`;
@@ -925,7 +950,6 @@ function renderDate3(s){
     <div class="actions"><button class="btn btn-primary" onclick="submitDate3('${s.key}')">다음</button></div>`;
 }
 
-/* ---------- onset2 (정확 / 대략) ---------- */
 function renderOnset2(s){
   const cur = answers[s.key] || {mode:"approx"};
   const thisY = 2026;
@@ -952,7 +976,6 @@ function renderOnset2(s){
     <div class="actions"><button class="btn btn-primary" onclick="submitOnset('${s.key}')">다음</button></div>`;
 }
 
-/* ---------- countfreq (기간별 횟수) ---------- */
 function renderCountFreq(s){
   const cur = answers[s.key] || {};
   const periods = ["하루","일주일","한 달","일 년"];
@@ -970,7 +993,6 @@ function renderCountFreq(s){
     </div>`;
 }
 
-/* ---------- posture (앉는/서있는/운전 시간 + 기타) ---------- */
 function renderPosture(s){
   const cur = answers[s.key] || {};
   const row = (lbl,k)=>`<div class="sel-row">
@@ -990,7 +1012,6 @@ function renderPosture(s){
     <div class="actions"><button class="btn btn-primary" onclick="submitPosture('${s.key}')">다음</button></div>`;
 }
 
-/* ---------- meds (약 이름 + 복용기간 + 종류) ---------- */
 function renderMeds(s){
   const cur = answers[s.key] || {};
   return `<div id="meds">
@@ -1019,15 +1040,12 @@ function renderMeds(s){
     </div>`;
 }
 
-/* ---------- freetalk ---------- */
 function renderFreetalk(s){
   const cur = answers[s.key]!=null ? answers[s.key] : "";
   return `<textarea class="txt-inp" id="txt" style="min-height:130px" placeholder="여러 번 나눠 적으셔도 됩니다. 없으시면 비워 두고 완료해 주세요.">${esc(cur)}</textarea>
     <div class="actions"><button class="btn btn-primary" onclick="submitFreetalk()">작성 완료</button></div>`;
 }
 
-/* '해당 없음'류(배타 선택) 옵션 — 정확히 일치할 때만.
-   "전신적으로 힘이 없음"·"하체 힘없음" 같은 증상 문구는 제외됨 */
 const NONE_OPTIONS = new Set([
   "없음","없어요","받은 적 없음","가진 자료 없음","특별한 패턴 없음","수면에 문제 없음",
 ]);
@@ -1059,7 +1077,7 @@ function wireStep(s){
         if(el.classList.contains("sel")){
           arr = arr.filter(x=>x!==v); el.classList.remove("sel"); el.querySelector(".box").textContent="";
         }else{
-          if(noneLike){ // '없음'류 선택 시 나머지 해제
+          if(noneLike){
             arr = [v];
             $("multi").querySelectorAll(".chk").forEach(o=>{ if(o.id!=="otherChk"){o.classList.remove("sel");o.querySelector(".box").textContent="";} });
           }else{
@@ -1123,7 +1141,6 @@ function wireStep(s){
   }
 }
 
-/* single: 후속 질문 있으면 삽입 */
 function advance(s, val){
   handleFollowup(s, val);
   next();
@@ -1131,7 +1148,6 @@ function advance(s, val){
 function handleFollowup(s, val){
   if(s.fu){
     const trigger = (val||"").indexOf(s.fuIf)===0 || (val||"").indexOf(s.fuIf)>-1;
-    // 후속 삽입 여부: 다음 스텝이 이미 후속인지 확인 후 재구성
     const already = steps[idx+1] && steps[idx+1].__fuOf===s.key;
     if(trigger && !already){
       const f = Object.assign({}, s.fu, {__fuOf:s.key});
@@ -1255,7 +1271,6 @@ function next(){
 }
 function goBack(){
   if(idx<=0) return;
-  // 후속 질문 스킵 처리를 위해 단순 감소
   idx--;
   renderStep();
 }
@@ -1263,10 +1278,9 @@ function goBack(){
 /* ============================================================
    화면 3: 요약
    ============================================================ */
-const SEVERITY = v => v.map ? v : v; // placeholder
-
 function finish(){
   save2done();
+  submitToServer();   // ★ 구글시트 전송 (실패해도 화면은 정상 진행)
   $("badge").classList.add("hide");
   $("progFill").style.width="100%";
   $("progLbl").textContent = "작성 완료";
@@ -1289,7 +1303,29 @@ function finish(){
   window.scrollTo(0,0);
 }
 
-/* 완료 화면 하단 — 신뢰 콘텐츠 & 연락처 */
+/* ---------- Google Sheets 전송 ---------- */
+function submitToServer(){
+  if(!SHEET_URL) return;   // 미설정 시 조용히 건너뜀 (오프라인 사용 가능)
+  try{
+    const payload = {
+      consent: consented,
+      consentTime: consentTime,
+      name: answers.name || "",
+      branch: BRANCHES[branch] ? BRANCHES[branch].label : branch,
+      submittedAt: new Date().toISOString(),
+      answers: answers,
+    };
+    // Apps Script는 CORS preflight(OPTIONS)를 지원하지 않으므로
+    // text/plain으로 보내 프리플라이트를 회피합니다. (서버는 e.postData.contents를 그대로 JSON.parse)
+    fetch(SHEET_URL, {
+      method: "POST",
+      mode: "no-cors",
+      headers: { "Content-Type": "text/plain;charset=utf-8" },
+      body: JSON.stringify(payload),
+    }).catch(()=>{ /* 네트워크 실패해도 환자 화면은 계속 진행 */ });
+  }catch(e){ /* 전송 실패는 무시 — 로컬 완료 화면은 항상 정상 표시 */ }
+}
+
 function trustSection(){
   const L = BRAND.links;
   const tel = BRAND.tel.replace(/[^0-9]/g,"");
@@ -1319,10 +1355,9 @@ function trustSection(){
     </div>`;
 }
 function save2done(){
-  try{ localStorage.setItem(SKEY, JSON.stringify({branch,idx,answers,done:true,t:Date.now()})); }catch(e){}
+  try{ localStorage.setItem(SKEY, JSON.stringify({branch,idx,answers,consented,consentTime,done:true,t:Date.now()})); }catch(e){}
 }
 
-/* 값 → 표시 문자열 */
 function fmtYMD(v){ return [v.y?v.y+"년":"", v.m?v.m+"월":"", v.d?v.d+"일":""].filter(Boolean).join(" "); }
 function fmtOnset(v){
   if(v.mode==="exact") return fmtYMD(v);
@@ -1359,13 +1394,13 @@ function fmt(v){
   if(v==null) return "";
   if(Array.isArray(v)) return v.length? v.join(", ") : "";
   if(typeof v==="object"){
-    if("words" in v) return fmtWords(v);                   // wordchips (통증 특성)
-    if("always" in v || "day" in v || "week" in v || "month" in v || "year" in v) return fmtFreq(v); // freqmulti
-    if(v.mode) return fmtOnset(v);                         // onset2
-    if("period" in v) return (v.period&&v.n!=null)?`${v.period}에 ${v.n}번`:"";  // countfreq(구)
-    if("years" in v || "months" in v || "types" in v || typeof v.name==="string") return fmtMeds(v); // meds
-    if("sit" in v || "stand" in v || "drive" in v || "other" in v) return fmtPosture(v);  // posture
-    if("y" in v || "m" in v || "d" in v) return fmtYMD(v); // date3
+    if("words" in v) return fmtWords(v);
+    if("always" in v || "day" in v || "week" in v || "month" in v || "year" in v) return fmtFreq(v);
+    if(v.mode) return fmtOnset(v);
+    if("period" in v) return (v.period&&v.n!=null)?`${v.period}에 ${v.n}번`:"";
+    if("years" in v || "months" in v || "types" in v || typeof v.name==="string") return fmtMeds(v);
+    if("sit" in v || "stand" in v || "drive" in v || "other" in v) return fmtPosture(v);
+    if("y" in v || "m" in v || "d" in v) return fmtYMD(v);
     return "";
   }
   return String(v);
@@ -1379,7 +1414,6 @@ function buildSummary(){
   let h = `<span class="sum-badge ${bcls}">${BRANCHES[branch].label}</span>
     <div class="sum-date">작성일 · ${dateStr}</div>`;
 
-  // 기본정보
   h += secBlock("기본 정보", [
     row("성함", a.name), row("생년월일", a.birth), row("성별", a.gender),
     a.phone?row("연락처", a.phone):"",
@@ -1389,7 +1423,6 @@ function buildSummary(){
   else if(branch==="auto") h += summaryAuto(a);
   else h += summaryCancer(a);
 
-  // 자유발언
   if(fmt(a.free_talk)) h += `<div class="sum-sec">자유 발언</div><div class="sum-val free">${esc(a.free_talk)}</div>`;
 
   return h;
@@ -1411,7 +1444,6 @@ function vasText(obj, rows){
   return rows.map(([n,k])=>obj[k]!=null?`${n} ${obj[k]}/10`:"").filter(Boolean).join(" · ");
 }
 
-/* ----- 통증 요약 ----- */
 function summaryPain(a){
   let h = secBlock("주요 증상", [
     rowKey("pain_area"), rowKey("pain_side"),
@@ -1428,7 +1460,6 @@ function summaryPain(a){
   return h;
 }
 
-/* ----- 공통 꼬리 요약(과거력·생활 / 치료선호 / 회복목표) ----- */
 function commonTailSummary(a, withPastTx){
   let h = secBlock("과거력 · 생활", [
     withPastTx?rowKey("past_tx"):"",
@@ -1442,13 +1473,11 @@ function commonTailSummary(a, withPastTx){
   return h;
 }
 
-/* ----- 자율신경 요약 (COMPASS 막대 + BFI) ----- */
 function summaryAuto(a){
   let h = secBlock("전신 증상", [
     rowKey("sx_body"), rowKey("sx_neuro"), rowKey("sx_cardio"), rowKey("sx_gi"),
   ]);
 
-  // COMPASS-31 막대
   const maxByDomain = {}; COMPASS.forEach(d=> maxByDomain[d.key]=d.items.length*3);
   let total=0, totalMax=0, hasCompass=false;
   const bars = COMPASS.map(d=>{
@@ -1472,7 +1501,6 @@ function summaryAuto(a){
       <span class="sev" style="background:${sc}">${sev}</span></div>`;
   }
 
-  // BFI
   const lvl = vasText(a.bfi_level,[["현재","now"],["24h 평균","avg"],["24h 최악","worst"]]);
   const intf = vasText(a.bfi_interf,[["일반활동","general"],["기분","mood"],["일","work"],["대인관계","relation"],["보행","walk"],["삶의 즐거움","enjoy"]]);
   if(lvl||intf){
@@ -1481,7 +1509,6 @@ function summaryAuto(a){
     if(intf) h += row("피로로 인한 지장", intf);
   }
 
-  // 생활·수면
   const daily = a.daily||{};
   const dailyStr = [["식사","meal","회"],["수면","sleep","시간"],["대변","stool","회"],["소변","urine","회"]]
     .map(([n,k,u])=>daily[k]?`${n} ${daily[k]}${u}`:"").filter(Boolean).join(" · ");
@@ -1495,7 +1522,6 @@ function summaryAuto(a){
   return h;
 }
 
-/* ----- 암재활 요약 ----- */
 function summaryCancer(a){
   let h = secBlock("암 정보", [
     rowKey("cancer_type"), answers.cancer_type_other?rowKey("cancer_type_other"):"", rowKey("stage"), rowKey("tx_status"), rowKey("last_tx"),
@@ -1592,7 +1618,11 @@ function commonTailPlain(L, lineK, withPastTx){
 }
 
 /* ---------- 부팅 ---------- */
-renderIntro();
+(function boot(){
+  const resume = loadSave();
+  if(resume && resume.consented){ renderIntro(); }   // 작성 중이던 세션은 동의 화면 생략
+  else renderConsent();
+})();
 </script>
 </body>
 </html>

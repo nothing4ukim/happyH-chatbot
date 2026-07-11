@@ -929,11 +929,11 @@ function renderFreqMulti(s){
       <span class="sel-unit">번</span>
     </div>`;
   return `<div id="freqm">
-      <div class="chk one${always?' sel':''}" id="fqAlways" style="margin-bottom:12px"><span class="box">${always?'✓':''}</span><span>항상 통증이 있다</span></div>
-      ${row("하루에","day")}
-      ${row("한 주에","week")}
-      ${row("한 달에","month")}
       ${row("일 년에","year")}
+      ${row("한 달에","month")}
+      ${row("한 주에","week")}
+      ${row("하루에","day")}
+      <div class="chk one${always?' sel':''}" id="fqAlways" style="margin-top:14px"><span class="box">${always?'✓':''}</span><span>항상 통증이 있다</span></div>
     </div>
     <div class="actions"><button class="btn btn-primary" onclick="submitFreqMulti('${s.key}')">다음</button></div>`;
 }

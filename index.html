@@ -238,11 +238,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Malgun Gothic','Ap
 .bm-count{font-size:13px;color:#215D4C;font-weight:600}
 .bm-clear{background:#f0eee6;border:1px solid #dcdacf;border-radius:8px;padding:7px 13px;font-size:12.5px;cursor:pointer;font-family:inherit;color:#5f5e58;white-space:nowrap}
 .bm-clear:hover{background:#e6e4da}
-/* summary variant */
-.sum-bm{position:relative;display:block;max-width:300px;margin:4px 0 2px;border:1px solid #e3e1d7;border-radius:10px;overflow:hidden}
-.sum-bm .bm-img{width:100%;display:block}
-.sum-bm-layer{position:absolute;inset:0}
-.sum-bm .bm-dot{position:absolute;transform:translate(-50%,-50%);min-width:20px;height:20px;padding:0 4px;border-radius:99px;background:#d1584f;color:#fff;font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center;border:1.5px solid #fff}
+/* summary variant — canvas 합성 이미지 */
+.sum-bm-canvas{display:block;max-width:300px;width:100%;height:auto;border:1px solid #e3e1d7;border-radius:10px;background:#faf9f6}
+.bm-save-btn{display:inline-block;margin-top:8px;background:#17453A;color:#fff;border:none;border-radius:8px;padding:9px 14px;font-size:12.5px;font-weight:600;cursor:pointer;font-family:inherit}
+.bm-save-btn:hover{background:#0D2C24}
+@media print{.bm-save-btn{display:none}}
 /* word chips (통증 특성) */
 .wchip-wrap{display:flex;flex-wrap:wrap;gap:7px;margin-top:14px}
 .wchip{border:1.5px solid #cbc9be;border-radius:99px;padding:8px 13px;font-size:13.5px;cursor:pointer;background:#fff;font-family:inherit;color:#1a1a1a;transition:all .12s;line-height:1.2}
@@ -405,7 +405,6 @@ const IMG = {
 const PAIN = [
   {sec:"주요 증상", ask:"아픈 곳을 인체도에서 직접 눌러 표시해 주세요.", type:"bodymap", key:"pain_area",
    imgFn:()=> answers.gender==="여성" ? IMG.bodyF : IMG.bodyM},
-  {ask:"통증은 주로 어느 쪽인가요?", type:"single", key:"pain_side", ch:["왼쪽","오른쪽","양쪽","가운데(중앙)"]},
   {ask:"통증이 얼마나 심한지 알려 주세요.\n0은 통증 없음, 10은 상상할 수 있는 가장 심한 통증입니다.", type:"vas2", key:"vas", lblA:"가장 심할 때", lblB:"평상시(가장 약할 때)",
    img:IMG.vas, imgCap:"아래 척도를 참고해 주세요 (그림을 누르면 확대)"},
   {ask:"통증은 언제부터 시작되었나요?", type:"onset2", key:"onset"},
@@ -842,7 +841,7 @@ function renderBodymap(s){
   const src = s.imgFn ? s.imgFn() : s.img;
   const cur = answers[s.key] || {};
   draft.marks = Array.isArray(cur.marks) ? cur.marks.slice() : [];
-  return `<div class="bm-note">그림에서 아픈 곳을 손가락으로 눌러 표시해 주세요.
+  return `<div class="bm-note"><b>가장 아프거나 빨리 낫고 싶은 곳부터 순서대로</b> 눌러 주세요. (먼저 누른 곳이 1번)
 여러 곳 표시할 수 있고, 앞모습·뒷모습 모두 됩니다. 잘못 찍으면 그 점을 다시 누르면 지워져요.</div>
     <div class="bm-stage" id="bmStage">
       <img class="bm-img" id="bmImg" src="${esc(src)}" alt="인체도" draggable="false" onerror="this.style.opacity='.12'">
@@ -1108,15 +1107,15 @@ function renderCountFreq(s){
 /* ---------- posture (앉는/서있는/운전 시간 + 기타) ---------- */
 function renderPosture(s){
   const cur = answers[s.key] || {};
-  const row = (lbl,k)=>`<div class="sel-row">
-      <span class="plabel">${lbl}</span>
+  const row = (emo,lbl,k)=>`<div class="sel-row">
+      <span class="plabel"><span class="opt-ico">${emo}</span>${lbl}</span>
       <input class="num-inp" data-k="${k}" inputmode="decimal" value="${cur[k]!=null?cur[k]:''}" placeholder="시간">
       <span class="sel-unit">시간 / 하루</span>
     </div>`;
   return `<div id="posture">
-      ${row("앉는 시간","sit")}
-      ${row("서 있는 시간","stand")}
-      ${row("운전하는 시간","drive")}
+      ${row("🪑","앉는 시간","sit")}
+      ${row("🧍","서 있는 시간","stand")}
+      ${row("🚗","운전하는 시간","drive")}
       <div class="other-wrap">
         <span class="plabel">그 밖의 자세·동작 (선택)</span>
         <input class="other-inp" data-k="other" value="${esc(cur.other||'')}" placeholder="예: 서서 몸을 숙이는 동작 20회, 무거운 물건 자주 듦">
@@ -1434,6 +1433,7 @@ function finish(){
     <button class="print-btn" onclick="window.print()">🖨️ 인쇄 / PDF 저장</button>
     ${trustSection()}
     <div class="foot-note">작성이 완료되었습니다. 이 화면을 그대로 진료 시 보여주셔도 됩니다.</div>`;
+  drawSummaryBodymap();     // 인체도+번호를 canvas로 합성(복사·저장 시 함께 담김)
   window.scrollTo(0,0);
 }
 
@@ -1529,7 +1529,7 @@ function fmt(v){
   if(v==null) return "";
   if(Array.isArray(v)) return v.length? v.join(", ") : "";
   if(typeof v==="object"){
-    if("marks" in v) return v.marks.length? `인체도에 ${v.marks.length}곳 표시함`:"";  // bodymap
+    if("marks" in v) return v.marks.length? `인체도에 ${v.marks.length}곳 표시 (번호=우선순위)`:"";  // bodymap
     if("words" in v) return fmtWords(v);                   // wordchips (통증 특성)
     if("always" in v || "day" in v || "week" in v || "month" in v || "year" in v) return fmtFreq(v); // freqmulti
     if(v.mode) return fmtOnset(v);                         // onset2
@@ -1582,20 +1582,56 @@ function vasText(obj, rows){
   return rows.map(([n,k])=>obj[k]!=null?`${n} ${obj[k]}/10`:"").filter(Boolean).join(" · ");
 }
 
-/* 요약에 표시할 인체도(표시점 포함) */
+/* 요약에 표시할 인체도 — 사진+표시점을 하나의 canvas로 합쳐서
+   EMR에 복사·저장할 때 번호까지 함께 담기도록 함 */
 function bodymapRow(a){
   const pa=a.pain_area;
   if(!pa || !pa.marks || !pa.marks.length) return "";
-  const src = a.gender==="여성" ? IMG.bodyF : IMG.bodyM;
-  const dots = pa.marks.map((m,i)=>`<span class="bm-dot" style="left:${m.x}%;top:${m.y}%">${i+1}</span>`).join("");
-  return `<div class="sum-row"><span class="sum-lbl">아픈 부위</span>
-    <span class="sum-val"><span class="sum-bm"><img class="bm-img" src="${esc(src)}" alt="" onerror="this.closest('.sum-bm').style.display='none'"><span class="sum-bm-layer">${dots}</span></span></span></div>`;
+  return `<div class="sum-row"><span class="sum-lbl">아픈 부위<br><small style="color:#9aa39d;font-weight:400">번호=우선순위</small></span>
+    <span class="sum-val">
+      <canvas id="sumBmCanvas" class="sum-bm-canvas"></canvas>
+      <button type="button" class="bm-save-btn" onclick="saveBodymapImg()">📷 부위 그림 저장 (EMR 첨부용)</button>
+    </span></div>`;
+}
+/* canvas에 인체도 + 번호 마커를 실제로 그림(완료 화면 렌더 후 호출) */
+function drawSummaryBodymap(){
+  const cv=document.getElementById("sumBmCanvas"); if(!cv) return;
+  const pa=answers.pain_area; if(!pa||!pa.marks||!pa.marks.length) return;
+  const src=answers.gender==="여성"?IMG.bodyF:IMG.bodyM;
+  const img=new Image();
+  img.onload=()=>{
+    const W=img.naturalWidth||1100, H=img.naturalHeight||825;
+    cv.width=W; cv.height=H;
+    const ctx=cv.getContext("2d");
+    ctx.drawImage(img,0,0,W,H);
+    const r=Math.max(W,H)*0.024;
+    pa.marks.forEach((m,i)=>{
+      const x=m.x/100*W, y=m.y/100*H;
+      ctx.beginPath(); ctx.arc(x,y,r,0,Math.PI*2);
+      ctx.fillStyle="#d1584f"; ctx.fill();
+      ctx.lineWidth=r*0.2; ctx.strokeStyle="#fff"; ctx.stroke();
+      ctx.fillStyle="#fff"; ctx.font=`bold ${r*1.15}px -apple-system,sans-serif`;
+      ctx.textAlign="center"; ctx.textBaseline="middle";
+      ctx.fillText(String(i+1), x, y);
+    });
+  };
+  img.onerror=()=>{ cv.style.display="none"; };
+  img.src=src;
+}
+function saveBodymapImg(){
+  const cv=document.getElementById("sumBmCanvas"); if(!cv) return;
+  try{
+    const a=document.createElement("a");
+    a.download=((answers.name||"환자").trim()||"환자")+"_통증부위.png";
+    a.href=cv.toDataURL("image/png");
+    a.click();
+  }catch(e){ alert("이미지 저장에 실패했습니다. 그림을 마우스 오른쪽 클릭 → 이미지 복사/저장을 이용해 주세요."); }
 }
 
 /* ----- 통증 요약 ----- */
 function summaryPain(a){
   let h = secBlock("주요 증상", [
-    bodymapRow(a), rowKey("pain_side"),
+    bodymapRow(a),
     row("통증 강도", vasText(a.vas,[["가장 심할 때","a"],["평상시","b"]])),
     rowKey("onset"), rowKey("worse"), a.worse_situation?rowKey("worse_situation"):"",
     rowKey("trauma"), rowKey("night"), rowKey("radiation"),
@@ -1728,7 +1764,7 @@ function plainSummary(){
 
   if(branch==="pain"){
     L.push("[주요 증상]");
-    lineK("pain_area"); lineK("pain_side");
+    lineK("pain_area");
     line("통증 강도", vasText(a.vas,[["가장 심할 때","a"],["평상시","b"]]));
     lineK("onset"); lineK("worse"); if(a.worse_situation)lineK("worse_situation");
     lineK("trauma"); lineK("night"); lineK("radiation");

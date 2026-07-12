@@ -136,6 +136,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Malgun Gothic','Ap
 .mc-emo{font-size:30px}
 .mc-t{font-size:16px;font-weight:700;color:#1a1a1a;margin-top:3px}
 .mc-s{font-size:12.5px;color:#7a786f}
+/* 여러 부위 표시 시 "①번 부위 기준" 리마인더 */
+.pain-ref-badge{display:inline-block;background:#FFF3E0;border:1px solid #F0C889;color:#8a5a12;font-size:12.5px;font-weight:600;border-radius:99px;padding:6px 13px;margin-bottom:10px}
 /* 문진 도중 "자세한 문진으로 전환" 버튼 */
 .switch-full{display:block;width:100%;text-align:center;font-size:14px;font-weight:600;color:#215D4C;margin-top:12px;cursor:pointer;background:#fff;border:1.5px dashed #7FAE9C;border-radius:10px;font-family:inherit;padding:13px 16px}
 .switch-full:hover{background:#E9F1EC;border-style:solid;border-color:#215D4C}
@@ -421,26 +423,26 @@ const PAIN = [
   {sec:"주요 증상", ask:"아픈 곳을 인체도에서 직접 눌러 표시해 주세요.", type:"bodymap", key:"pain_area",
    imgFn:()=> answers.gender==="여성" ? IMG.bodyF : IMG.bodyM},
   {ask:"통증이 얼마나 심한지 알려 주세요.\n0은 통증 없음, 10은 상상할 수 있는 가장 심한 통증입니다.", type:"vas2", key:"vas", lblA:"가장 심할 때", lblB:"평상시(가장 약할 때)",
-   img:IMG.vas, imgCap:"아래 척도를 참고해 주세요 (그림을 누르면 확대)"},
-  {ask:"통증은 언제부터 시작되었나요?", type:"onset2", key:"onset"},
-  {ask:"최근 들어 갑자기 더 심해진 적이 있나요?", type:"single", key:"worse", ch:["네, 갑자기 심해졌어요","아니요, 비슷해요"],
-   fu:{ask:"그때 어떤 상황이었나요? 기억나는 대로 편하게 적어 주세요.", type:"text", key:"worse_situation", ph:"예: 무거운 짐을 든 뒤부터…"}, fuIf:"네"},
-  {ask:"혹시 다쳐서 아프기 시작했나요? (외상 여부)", type:"single", key:"trauma", ch:["네, 다쳤어요","아니요"]},
-  {ask:"밤에 잘 때도 아파서 깨거나 불편한가요? (야간통)", type:"single", key:"night", ch:["네, 밤에도 아파요","아니요"]},
-  {ask:"통증이 다른 곳으로 뻗어 나가는 느낌이 있나요? (방사통)", type:"single", key:"radiation", ch:["네, 뻗어 나가요","아니요"]},
+   img:IMG.vas, imgCap:"아래 척도를 참고해 주세요 (그림을 누르면 확대)", painRef:true},
+  {ask:"통증은 언제부터 시작되었나요?", type:"onset2", key:"onset", painRef:true},
+  {ask:"최근 들어 갑자기 더 심해진 적이 있나요?", type:"single", key:"worse", ch:["네, 갑자기 심해졌어요","아니요, 비슷해요"], painRef:true,
+   fu:{ask:"그때 어떤 상황이었나요? 기억나는 대로 편하게 적어 주세요.", type:"text", key:"worse_situation", ph:"예: 무거운 짐을 든 뒤부터…", painRef:true}, fuIf:"네"},
+  {ask:"혹시 다쳐서 아프기 시작했나요? (외상 여부)", type:"single", key:"trauma", ch:["네, 다쳤어요","아니요"], painRef:true},
+  {ask:"밤에 잘 때도 아파서 깨거나 불편한가요? (야간통)", type:"single", key:"night", ch:["네, 밤에도 아파요","아니요"], painRef:true},
+  {ask:"통증이 다른 곳으로 뻗어 나가는 느낌이 있나요? (방사통)", type:"single", key:"radiation", ch:["네, 뻗어 나가요","아니요"], painRef:true},
   {sec:"통증 특성", ask:"가장 많이 아플 때 통증의 특징을 알려 주세요.", type:"wordchips", key:"quality", words:PAIN_WORDS,
-   note:"통증의 특징을 자세히 적을수록 진단의 정확도가 높아집니다.", ph:"직접 쓰셔도 되고, 아래에서 골라도 됩니다"},
-  {ask:"가만히 있을 때도 아픈가요, 움직일 때만 아픈가요?", type:"single", key:"rest_pain", ch:["가만히 있어도 아파요","움직일 때만 아파요","둘 다 있어요"]},
-  {ask:"어떤 동작이나 자세에서 더 아픈가요? (악화 요인)", type:"text", key:"aggravate", ph:"예: 고개를 숙일 때, 오래 앉아 있을 때", short:true, optional:true, skipLabel:"악화 요인 없음"},
-  {ask:"반대로, 어떻게 하면 통증이 좀 줄어드나요? (완화 요인)", type:"text", key:"relieve", ph:"예: 누워서 쉬면 좀 나아요", optional:true, short:true, skipLabel:"완화 요인 없음"},
+   note:"통증의 특징을 자세히 적을수록 진단의 정확도가 높아집니다.", ph:"직접 쓰셔도 되고, 아래에서 골라도 됩니다", painRef:true},
+  {ask:"가만히 있을 때도 아픈가요, 움직일 때만 아픈가요?", type:"single", key:"rest_pain", ch:["가만히 있어도 아파요","움직일 때만 아파요","둘 다 있어요"], painRef:true},
+  {ask:"어떤 동작이나 자세에서 더 아픈가요? (악화 요인)", type:"text", key:"aggravate", ph:"예: 고개를 숙일 때, 오래 앉아 있을 때", short:true, optional:true, skipLabel:"악화 요인 없음", painRef:true},
+  {ask:"반대로, 어떻게 하면 통증이 좀 줄어드나요? (완화 요인)", type:"text", key:"relieve", ph:"예: 누워서 쉬면 좀 나아요", optional:true, short:true, skipLabel:"완화 요인 없음", painRef:true},
   {ask:"아픈 부위의 넓이는 어느 정도인가요?", type:"single", key:"area",
    ch:["500원 동전보다 작다","500원 동전보다 크다","손바닥보다 작다","손바닥보다 크다"],
-   widget:"coinpalm", imgCap:"500원 동전과 펼친 손바닥을 기준으로 골라 주세요"},
+   widget:"coinpalm", imgCap:"500원 동전과 펼친 손바닥을 기준으로 골라 주세요", painRef:true},
   {ask:"통증이 느껴지는 깊이는 어느 정도인가요?", type:"single", key:"depth", ch:["피부 겉면","피부 바로 밑","근육 부위","뼛속 깊이","잘 모르겠음"],
-   img:IMG.depth, imgCap:"단면 그림을 참고해 주세요 (그림을 누르면 확대)"},
-  {ask:"통증이 얼마나 자주 나타나나요?\n해당하는 칸에 횟수를 적어 주세요.", type:"freqmulti", key:"freq"},
-  {ask:"통증은 한 번 시작되면 보통 얼마나 오래 지속되나요?", type:"single", key:"duration", ch:["몇 초","몇 분","몇 시간","반나절 이상","계속 지속"]},
-  {sec:"과거력 · 생활", ask:"지금까지 이 통증으로 받은 치료가 있나요?\n모두 골라 주세요.", type:"multi", key:"past_tx",
+   img:IMG.depth, imgCap:"단면 그림을 참고해 주세요 (그림을 누르면 확대)", painRef:true},
+  {ask:"통증이 얼마나 자주 나타나나요?\n해당하는 칸에 횟수를 적어 주세요.", type:"freqmulti", key:"freq", painRef:true},
+  {ask:"통증은 한 번 시작되면 보통 얼마나 오래 지속되나요?", type:"single", key:"duration", ch:["몇 초","몇 분","몇 시간","반나절 이상","계속 지속"], painRef:true},
+  {sec:"과거력 · 생활", ask:"지금까지 이 통증으로 받은 치료가 있나요?\n모두 골라 주세요.", type:"multi", key:"past_tx", painRef:true,
    ch:["수술","신경차단술","인대증식주사","체외충격파","도수치료","물리치료","약물 복용","한방 치료","받은 적 없음"],
    chIcons:[SCALPEL,"💉","💉","〰️","🤲","🧑‍⚕️","💊","🌿","🚫"]},
   ...commonHistory(RECORDS_PAIN, RECORDS_PAIN_ICONS, null),
@@ -519,21 +521,21 @@ const CANCER = [
 const PAIN_SHORT = [
   {sec:"주요 증상", ask:"아픈 곳을 인체도에서 직접 눌러 표시해 주세요.", type:"bodymap", key:"pain_area",
    imgFn:()=> answers.gender==="여성" ? IMG.bodyF : IMG.bodyM},
-  {ask:"통증이 가장 심할 때는 어느 정도인가요?\n0은 통증 없음, 10은 상상할 수 있는 가장 심한 통증입니다.", type:"vas", key:"vas", subKey:"a", lbl:"가장 심할 때"},
+  {ask:"통증이 가장 심할 때는 어느 정도인가요?\n0은 통증 없음, 10은 상상할 수 있는 가장 심한 통증입니다.", type:"vas", key:"vas", subKey:"a", lbl:"가장 심할 때", painRef:true},
   {ask:"통증은 언제부터 시작되었나요?", type:"onsettrauma", key:"onset", traumaKey:"trauma",
-   traumaAsk:"혹시 다쳐서 아프기 시작했나요? (외상 여부)"},
-  {ask:"다음 중 해당하는 것을 모두 골라 주세요.", type:"redflag", noneLabel:"해당 없음", items:[
+   traumaAsk:"혹시 다쳐서 아프기 시작했나요? (외상 여부)", painRef:true},
+  {ask:"다음 중 해당하는 것을 모두 골라 주세요.", type:"redflag", noneLabel:"해당 없음", painRef:true, items:[
      {label:"밤에도 아파서 깬다", key:"night", onVal:"네, 밤에도 아파요", offVal:"아니요"},
      {label:"다른 곳으로 뻗어나간다", key:"radiation", onVal:"네, 뻗어 나가요", offVal:"아니요"},
      {label:"가만히 있어도 아프다", key:"rest_pain", onVal:"가만히 있어도 아파요"},
    ]},
   {sec:"통증 특성", ask:"가장 많이 아플 때 통증의 특징을 알려 주세요.", type:"wordchips", key:"quality", words:PAIN_WORDS_SHORT,
-   note:"통증의 특징을 자세히 적을수록 진단의 정확도가 높아집니다.", ph:"직접 쓰셔도 되고, 아래에서 골라도 됩니다"},
-  {ask:"어떻게 하면 더 아프고, 어떻게 하면 덜 아픈가요?", type:"twotext", fields:[
+   note:"통증의 특징을 자세히 적을수록 진단의 정확도가 높아집니다.", ph:"직접 쓰셔도 되고, 아래에서 골라도 됩니다", painRef:true},
+  {ask:"어떻게 하면 더 아프고, 어떻게 하면 덜 아픈가요?", type:"twotext", painRef:true, fields:[
      {key:"aggravate", label:"어떻게 하면 더 아픈가요?", ph:"예: 고개를 숙일 때, 오래 앉아 있을 때"},
      {key:"relieve", label:"어떻게 하면 덜 아픈가요? (선택)", ph:"예: 누워서 쉬면 좀 나아요", optional:true},
    ]},
-  {sec:"과거력", ask:"지금까지 이 통증으로 받은 치료가 있나요?\n모두 골라 주세요.", type:"multi", key:"past_tx",
+  {sec:"과거력", ask:"지금까지 이 통증으로 받은 치료가 있나요?\n모두 골라 주세요.", type:"multi", key:"past_tx", painRef:true,
    ch:["수술","신경차단술","인대증식주사","체외충격파","도수치료","물리치료","약물 복용","한방 치료","받은 적 없음"],
    chIcons:[SCALPEL,"💉","💉","〰️","🤲","🧑‍⚕️","💊","🌿","🚫"]},
   {ask:"현재 앓고 있는 질환과 복용 중인 약을 알려 주세요.", type:"comorbidmeds", ch:COMORBID, chIcons:COMORBID_ICONS,
@@ -889,6 +891,7 @@ function renderStep(){
   $("progLbl").textContent = `${idx+1} / ${totalSteps()} 완료`;
 
   const secHtml = s.sec ? `<div class="sec-t">${esc(s.sec)}</div>` : "";
+  const painRefHtml = painRefBadge(s);
   let body = "";
 
   if(s.type==="single")       body = renderSingle(s);
@@ -925,6 +928,7 @@ function renderStep(){
 
   stage.innerHTML = `<div class="card">
       ${secHtml}
+      ${painRefHtml}
       <div class="q-ask">${esc(s.ask)}</div>
       ${noteHtml}
       ${imgHtml}
@@ -2001,6 +2005,13 @@ function bmRegionName(x, y){
 function bmRegionText(marks){
   const CIRC = "①②③④⑤⑥⑦⑧⑨⑩⑪⑫⑬⑭⑮";
   return marks.map((m,i)=>`${CIRC[i]||(i+1)+")"} ${bmRegionName(m.x,m.y)}`).join("  ");
+}
+/* 여러 부위를 표시한 경우, 통증 세부 질문마다 "①번 부위 기준" 리마인더 배지 */
+function painRefBadge(s){
+  if(branch!=="pain" || !s.painRef) return "";
+  const marks = answers.pain_area && answers.pain_area.marks;
+  if(!marks || marks.length<2) return "";
+  return `<div class="pain-ref-badge">📍 ① ${esc(bmRegionName(marks[0].x, marks[0].y))} 기준으로 답해 주세요</div>`;
 }
 
 /* 요약에 표시할 인체도 — 사진+표시점을 하나의 canvas로 합쳐서

@@ -1916,7 +1916,7 @@ function fmt(v){
   if(v==null) return "";
   if(Array.isArray(v)) return v.length? v.join(", ") : "";
   if(typeof v==="object"){
-    if("marks" in v) return v.marks.length? `인체도에 ${v.marks.length}곳 표시 (번호=우선순위)`:"";  // bodymap
+    if("marks" in v) return v.marks.length? `${bmRegionText(v.marks)} (번호=우선순위·자동판독)`:"";  // bodymap
     if("words" in v) return fmtWords(v);                   // wordchips (통증 특성)
     if("always" in v || "day" in v || "week" in v || "month" in v || "year" in v) return fmtFreq(v); // freqmulti
     if(v.mode) return fmtOnset(v);                         // onset2
@@ -1969,6 +1969,38 @@ function vasText(obj, rows){
   return rows.map(([n,k])=>obj[k]!=null?`${n} ${obj[k]}/10`:"").filter(Boolean).join(" · ");
 }
 
+/* 인체도 좌표(%) → 부위 이름 자동 판독 (EMR 텍스트 요약용)
+   그림 구도: 왼쪽 절반=앞모습(중심선 29.7%), 오른쪽 절반=뒷모습(중심선 70.3%)
+   앞모습은 마주보는 그림이므로 그림의 왼쪽 = 환자의 오른쪽 */
+function bmRegionName(x, y){
+  const back = x >= 50;
+  const C = back ? 70.3 : 29.7;         // 각 그림의 몸 중심선(%)
+  const off = x - C;
+  const a = Math.abs(off);
+  const side = a < 2.5 ? "" : (((off < 0) === !back) ? "우측 " : "좌측 ");
+  const F = !back;
+  let part;
+  if(y < 14)       part = F ? "머리·얼굴" : "머리 뒤(후두부)";
+  else if(y < 18)  part = F ? "목 앞" : "목 뒤(경추부)";
+  else if(y < 22)  part = "어깨";
+  else if(y < 33)  part = a > 8   ? "위팔(상완)"   : (F ? "가슴" : "등(견갑부)");
+  else if(y < 39)  part = a > 8.5 ? "팔꿈치"       : (F ? "복부(윗배)" : "등·허리");
+  else if(y < 47)  part = a > 9   ? "아래팔(전완)" : (F ? "복부(아랫배)" : "허리");
+  else if(y < 53)  part = a > 10  ? "손목·손"      : (F ? "골반·서혜부" : "엉덩이");
+  else if(y < 58)  part = a > 10.5? "손"           : (F ? "허벅지 앞" : "허벅지 뒤");
+  else if(y < 68)  part = F ? "허벅지 앞" : "허벅지 뒤";
+  else if(y < 74)  part = F ? "무릎" : "무릎 뒤(오금)";
+  else if(y < 88)  part = F ? "정강이" : "종아리";
+  else             part = "발목·발";
+  const dir = /앞|뒤/.test(part) ? "" : (back ? "(뒤)" : "(앞)");
+  return side + part + dir;
+}
+/* 마크 배열 → "① 우측 어깨(앞) ② 허리(뒤)" 텍스트 */
+function bmRegionText(marks){
+  const CIRC = "①②③④⑤⑥⑦⑧⑨⑩⑪⑫⑬⑭⑮";
+  return marks.map((m,i)=>`${CIRC[i]||(i+1)+")"} ${bmRegionName(m.x,m.y)}`).join("  ");
+}
+
 /* 요약에 표시할 인체도 — 사진+표시점을 하나의 canvas로 합쳐서
    EMR에 복사·저장할 때 번호까지 함께 담기도록 함 */
 function bodymapRow(a){
@@ -1977,6 +2009,8 @@ function bodymapRow(a){
   return `<div class="sum-row"><span class="sum-lbl">아픈 부위<br><small style="color:#9aa39d;font-weight:400">번호=우선순위</small></span>
     <span class="sum-val">
       <canvas id="sumBmCanvas" class="sum-bm-canvas"></canvas>
+      <div style="font-size:13px;line-height:1.6;margin-top:6px">${esc(bmRegionText(pa.marks))}
+        <small style="color:#9aa39d">(자동판독)</small></div>
       <button type="button" class="bm-save-btn" onclick="saveBodymapImg()">📷 부위 그림 저장 (EMR 첨부용)</button>
     </span></div>`;
 }

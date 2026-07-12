@@ -92,8 +92,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Malgun Gothic','Ap
 .btn-primary:disabled{background:#c3c1b8;cursor:default}
 .btn-ghost{background:#f0eee6;color:#5f5e58;border:1px solid #dcdacf}
 .btn-ghost:hover{background:#e6e4da}
-.btn-back{background:none;border:none;color:#8a887f;font-size:13px;cursor:pointer;padding:8px 4px;font-family:inherit;margin-top:2px}
-.btn-back:hover{color:#215D4C;text-decoration:underline}
+.btn-back{display:inline-block;background:#fff;border:1.5px solid #cbc9be;border-radius:10px;color:#5f5e58;font-size:14px;font-weight:600;cursor:pointer;padding:11px 18px;font-family:inherit;margin-top:10px}
+.btn-back:hover{border-color:#7FAE9C;color:#215D4C;background:#E9F1EC}
 
 /* summary */
 .sum-badge{display:inline-block;padding:5px 14px;border-radius:99px;font-size:12.5px;font-weight:700;color:#fff;margin-bottom:4px}
@@ -136,9 +136,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Malgun Gothic','Ap
 .mc-emo{font-size:30px}
 .mc-t{font-size:16px;font-weight:700;color:#1a1a1a;margin-top:3px}
 .mc-s{font-size:12.5px;color:#7a786f}
-/* 문진 도중 "자세한 문진으로 전환" 링크 */
-.switch-full{display:block;width:100%;text-align:center;font-size:12.5px;color:#8a887f;margin-top:14px;cursor:pointer;text-decoration:underline;background:none;border:none;font-family:inherit;padding:6px}
-.switch-full:hover{color:#215D4C}
+/* 문진 도중 "자세한 문진으로 전환" 버튼 */
+.switch-full{display:block;width:100%;text-align:center;font-size:14px;font-weight:600;color:#215D4C;margin-top:12px;cursor:pointer;background:#fff;border:1.5px dashed #7FAE9C;border-radius:10px;font-family:inherit;padding:13px 16px}
+.switch-full:hover{background:#E9F1EC;border-style:solid;border-color:#215D4C}
 
 @media(max-width:420px){
   .multi{grid-template-columns:1fr}
@@ -678,7 +678,9 @@ function buildSteps(b, short){
     }));
     flow.splice(pos, 1, ...domainSteps);
   }
-  return BASIC.map(s=>Object.assign({},s)).concat(flow, [Object.assign({},FREETALK)]);
+  // 기본정보·자유발언은 간편/자세한 공통 문항 — 전환 버튼 표시 대상에서 제외
+  return BASIC.map(s=>Object.assign({},s,{__common:true}))
+    .concat(flow, [Object.assign({},FREETALK,{__common:true})]);
 }
 
 /* 답변 존재 여부(빈 배열·빈 문자열·빈 객체는 "미답변"으로 취급) */
@@ -919,7 +921,7 @@ function renderStep(){
   const detailHtml = s.detail ? detailBlock(s.detail, s.detailLabel) : "";
   const noteHtml = s.note ? `<div class="q-note">${esc(s.note)}</div>` : "";
   const backBtn = idx>0 ? `<button class="btn-back" onclick="goBack()">← 이전 질문</button>` : "";
-  const switchFullHtml = shortMode ? `<button type="button" class="switch-full" onclick="convertToFull()">🔎 자세한 문진으로 전환하기</button>` : "";
+  const switchFullHtml = (shortMode && !s.__common) ? `<button type="button" class="switch-full" onclick="convertToFull()">🔎 자세한 문진으로 전환하기</button>` : "";
 
   stage.innerHTML = `<div class="card">
       ${secHtml}

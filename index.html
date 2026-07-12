@@ -128,6 +128,18 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Malgun Gothic','Ap
 .resume-yes{background:#215D4C;color:#fff}
 .resume-no{background:#efe6c8;color:#7a5c12}
 
+/* 간편(축약) 문진 — 모드 선택 화면 */
+.mode-banner{background:#fff8e6;border:1px solid #eddca0;border-radius:11px;padding:12px 15px;font-size:13px;color:#7a5c12;line-height:1.6;margin:4px 0 18px;white-space:pre-wrap}
+.mode-cards{display:flex;flex-direction:column;gap:12px}
+.mode-card{display:flex;flex-direction:column;align-items:center;text-align:center;gap:3px;border:1.5px solid #cbc9be;border-radius:14px;padding:22px 16px;background:#fff;cursor:pointer;font-family:inherit;transition:all .12s}
+.mode-card:hover{background:#E9F1EC;border-color:#7FAE9C}
+.mc-emo{font-size:30px}
+.mc-t{font-size:16px;font-weight:700;color:#1a1a1a;margin-top:3px}
+.mc-s{font-size:12.5px;color:#7a786f}
+/* 문진 도중 "자세한 문진으로 전환" 링크 */
+.switch-full{display:block;width:100%;text-align:center;font-size:12.5px;color:#8a887f;margin-top:14px;cursor:pointer;text-decoration:underline;background:none;border:none;font-family:inherit;padding:6px}
+.switch-full:hover{color:#215D4C}
+
 @media(max-width:420px){
   .multi{grid-template-columns:1fr}
   .field-lbl{min-width:80px}
@@ -340,6 +352,9 @@ const PAIN_WORDS = [
   "어지럽다","속이 메슥거린다","속이 울렁거린다","콧물이 난다","코가 막힌다",
 ];
 
+/* 간편(축약) 통증 특성 단어 8개 — 원장님 확정 */
+const PAIN_WORDS_SHORT = ["묵직하다","뻐근하다","우리하다","콕콕쑤신다","저리다","조인다","당긴다","시리다"];
+
 /* 보유 자료 목록(분기별) */
 const RECORDS_PAIN = ["MRI CD","CT CD","X-ray 자료","수술기록지","진단서·소견서","약 처방전·복약 목록","혈액검사 결과지","조직검사 결과지","가진 자료 없음"];
 const RECORDS_PAIN_ICONS = ["💿","💿","🩻","📄","📄","📄","🧪","🔬","🚫"];
@@ -494,10 +509,90 @@ const CANCER = [
   ...goalSteps("예: 체력을 회복해 일상으로 돌아가고 싶어요"),
 ];
 
+/* ============================================================
+   간편(축약) 문진 — 고령·중증 통증 등 자세한 문진이 곤란한 환자용
+   원칙: 기본정보 4문항 고정 + 분기별 8~10문항
+   대부분 원본과 동일한 key에 저장되어, "자세한 문진으로 전환" 시
+   이미 답한 항목은 자동으로 건너뛴다 (core_sx·compass_short 등
+   일부는 의도적으로 새 key를 써서 전환 시 상세 재질문됨).
+   ============================================================ */
+const PAIN_SHORT = [
+  {sec:"주요 증상", ask:"아픈 곳을 인체도에서 직접 눌러 표시해 주세요.", type:"bodymap", key:"pain_area",
+   imgFn:()=> answers.gender==="여성" ? IMG.bodyF : IMG.bodyM},
+  {ask:"통증이 가장 심할 때는 어느 정도인가요?\n0은 통증 없음, 10은 상상할 수 있는 가장 심한 통증입니다.", type:"vas", key:"vas", subKey:"a", lbl:"가장 심할 때"},
+  {ask:"통증은 언제부터 시작되었나요?", type:"onsettrauma", key:"onset", traumaKey:"trauma",
+   traumaAsk:"혹시 다쳐서 아프기 시작했나요? (외상 여부)"},
+  {ask:"다음 중 해당하는 것을 모두 골라 주세요.", type:"redflag", noneLabel:"해당 없음", items:[
+     {label:"밤에도 아파서 깬다", key:"night", onVal:"네, 밤에도 아파요", offVal:"아니요"},
+     {label:"다른 곳으로 뻗어나간다", key:"radiation", onVal:"네, 뻗어 나가요", offVal:"아니요"},
+     {label:"가만히 있어도 아프다", key:"rest_pain", onVal:"가만히 있어도 아파요"},
+   ]},
+  {sec:"통증 특성", ask:"가장 많이 아플 때 통증의 특징을 알려 주세요.", type:"wordchips", key:"quality", words:PAIN_WORDS_SHORT,
+   note:"통증의 특징을 자세히 적을수록 진단의 정확도가 높아집니다.", ph:"직접 쓰셔도 되고, 아래에서 골라도 됩니다"},
+  {ask:"어떻게 하면 더 아프고, 어떻게 하면 덜 아픈가요?", type:"twotext", fields:[
+     {key:"aggravate", label:"어떻게 하면 더 아픈가요?", ph:"예: 고개를 숙일 때, 오래 앉아 있을 때"},
+     {key:"relieve", label:"어떻게 하면 덜 아픈가요? (선택)", ph:"예: 누워서 쉬면 좀 나아요", optional:true},
+   ]},
+  {sec:"과거력", ask:"지금까지 이 통증으로 받은 치료가 있나요?\n모두 골라 주세요.", type:"multi", key:"past_tx",
+   ch:["수술","신경차단술","인대증식주사","체외충격파","도수치료","물리치료","약물 복용","한방 치료","받은 적 없음"],
+   chIcons:[SCALPEL,"💉","💉","〰️","🤲","🧑‍⚕️","💊","🌿","🚫"]},
+  {ask:"현재 앓고 있는 질환과 복용 중인 약을 알려 주세요.", type:"comorbidmeds", ch:COMORBID, chIcons:COMORBID_ICONS,
+   medsPh:"예: 혈압약, 진통제 / 잘 모름", allergyPh:"예: 없음 / 페니실린 알레르기"},
+  {ask:"지금까지 수술을 받으신 적이 있나요?", type:"single", key:"surgery", ch:["네, 있어요","아니요"],
+   fu:{ask:"어떤 수술을 언제 받으셨나요?", type:"text", key:"surgery_detail", ph:"예: 2020년 허리 디스크 수술", short:true}, fuIf:"네"},
+  {sec:"회복 목표", ask:"가장 빨리 회복하고 싶은 것 한 가지만 적어 주세요.", type:"text", key:"goal", ph:"예: 오래 앉아 있어도 통증이 없으면 좋겠어요", short:true},
+];
+
+/* 간편 자율신경 핵심 증상 9개 + COMPASS 대표 6문항 — 원장님 확정 */
+const AUTO_CORE_SX = ["두통","어지럼증","이명","불면","목·어깨 통증","속답답함","소화불량","수족냉증","배뇨이상(야간뇨·절박뇨 등)"];
+const AUTO_COMPASS_SHORT = [
+  "앉거나 누웠다 일어설 때 어지럽다",
+  "조금만 먹어도 금방 배부르다",
+  "땀이 너무 안 나거나 너무 많이 난다",
+  "추울 때 손발 색이나 온도가 변한다",
+  "소변이 급하거나 힘들게 나온다",
+  "빛에 유난히 눈부시거나 시야가 흐리다",
+];
+const AUTO_SHORT = [
+  {sec:"핵심 증상", ask:"다음 중 겪고 있는 증상을 모두 골라 주세요.", type:"multi", key:"core_sx", ch:AUTO_CORE_SX},
+  {sec:"자율신경 간편 스크리닝", ask:"다음 항목이 최근 얼마나 자주 있었는지 표시해 주세요.\n0=전혀없음 · 1=가끔 · 2=자주 · 3=항상", type:"scale03", key:"compass_short", items:AUTO_COMPASS_SHORT},
+  {sec:"피로도", ask:"최근 24시간 평균 피로도는 어느 정도인가요?", type:"vas", key:"bfi_level", subKey:"avg", lbl:"평균 피로도"},
+  {ask:"수면 상태는 어떠신가요? 해당하는 것을 모두 골라 주세요.", type:"multi", key:"sleep", ch:["잠들기 어려움","자주 깸","새벽에 일찍 깸","자도 피로가 안 풀림","꿈을 많이 꿈","야간뇨가 잦음","수면에 문제 없음"]},
+  {ask:"요즘 스트레스는 어느 정도인가요? (0=없음 ~ 10=극심)", type:"vas", key:"stress", lbl:"스트레스 강도"},
+  {ask:"증상이 심해지는 상황이 있나요? 모두 골라 주세요.", type:"multi", key:"trigger", ch:["스트레스 받을 때","과로 후","기상 변화 때","식사 후","특정 음식 후","사람 많은 곳","특별한 패턴 없음"]},
+  {ask:"다른 병원에서 자율신경 관련 검사를 받아 보셨나요?", type:"single", key:"exam", ch:["검사했으나 이상 없음","검사에서 이상 발견됨","아직 검사 못 함"]},
+  {sec:"과거력", ask:"현재 앓고 있는 질환과 복용 중인 약을 알려 주세요.", type:"comorbidmeds", ch:COMORBID, chIcons:COMORBID_ICONS,
+   medsPh:"예: 항불안제 3개월째 / 잘 모름", allergyPh:"예: 없음 / 페니실린 알레르기"},
+  {sec:"회복 목표", ask:"가장 빨리 회복하고 싶은 증상 한 가지만 적어 주세요.", type:"text", key:"goal", ph:"예: 불안하지 않고 평온했으면 좋겠어요", short:true},
+];
+
+const CANCER_SHORT = [
+  {sec:"암 정보", ask:"어떤 암으로 치료받고 계신가요?", type:"single", key:"cancer_type", cols:2,
+   ch:["폐암","위암","대장암","유방암","간암","췌장암","갑상선암","전립선암","혈액암","기타"],
+   chIcons:["🫁","🍚","🌀","🎗️","🫀","🟡","🦋","🔷","🩸","➕"],
+   fu:{ask:"어떤 암인지 적어 주세요.", type:"text", key:"cancer_type_other", ph:"예: 신장암, 방광암, 뇌종양 등", short:true}, fuIf:"기타"},
+  {ask:"병기(Stage)를 알고 계신가요?", type:"single", key:"stage", ch:["1기","2기","3기","4기","모르겠음","확진 전"]},
+  {ask:"현재 치료 상황과 마지막 치료 시기를 알려 주세요.", type:"txstatuslast",
+   statusCh:["수술 후 회복 중","항암치료 중","방사선치료 중","치료 종료 후 관리","대학병원 치료 중단","표준치료 외 대안 탐색 중"],
+   lastCh:["1개월 이내","1~3개월","3~6개월","6개월~1년","1년 이상","아직 치료 전"]},
+  {sec:"현재 상태", ask:"현재 겪고 있는 주요 증상을 모두 골라 주세요.", type:"multi", key:"symptoms", ch:["통증","극심한 피로","식욕부진·체중감소","수면장애","구역·구토","부종","호흡곤란","불안·우울","집중력 저하","림프부종","기타"]},
+  {ask:"피로도와 통증 강도를 각각 표시해 주세요.", type:"multivas", fields:[
+     {label:"피로도 (24시간 평균)", key:"bfi_level", subKey:"avg"},
+     {label:"통증 강도 (없으면 0)", key:"pain_vas", subKey:"v"},
+   ]},
+  {ask:"현재 일상생활 수행 능력은 어느 정도인가요?", type:"single", key:"ecog", ch:["완전히 정상적으로 활동 가능","힘든 일은 어렵지만 가벼운 활동은 가능","하루의 절반 이상 앉거나 누워 있음","대부분 누워 있고 스스로 돌보기 어려움","완전히 누워서 지냄"]},
+  {sec:"과거력", ask:"현재 앓고 있는 다른 질환과 복용 중인 약을 알려 주세요.", type:"comorbidmeds", ch:COMORBID, chIcons:COMORBID_ICONS,
+   medsPh:"예: 표적항암제 복용 중 / 잘 모름", allergyPh:"예: 없음 / 페니실린 알레르기"},
+  {ask:"가지고 계신 검사 자료가 있나요?\n내원 시 가져오시면 진료가 훨씬 정확해집니다.", type:"multi", key:"records", ch:RECORDS_CANCER, chIcons:RECORDS_CANCER_ICONS},
+  {ask:"행복한H병원에 기대하는 것을 모두 골라 주세요.", type:"multi", key:"expect", ch:["면역력 강화","통증 조절","암 직접치료(온열·광면역 등)","자율신경 회복","심리적 안정·상담","영양·수액 치료","빠른 체력 회복","대안 치료 탐색"]},
+  {ask:"내원 시 보호자 동반이 가능하신가요?", type:"single", key:"guardian", ch:["항상 가능","가끔 가능","혼자 내원"]},
+  {sec:"회복 목표", ask:"가장 원하시는 것은 무엇인가요?", type:"text", key:"goal", ph:"예: 체력을 회복해 일상으로 돌아가고 싶어요", short:true},
+];
+
 const BRANCHES = {
-  pain:   {label:"통증",        flow:PAIN},
-  auto:   {label:"자율신경실조증", flow:AUTO},
-  cancer: {label:"암재활",       flow:CANCER},
+  pain:   {label:"통증",        flow:PAIN,   shortFlow:PAIN_SHORT},
+  auto:   {label:"자율신경실조증", flow:AUTO,   shortFlow:AUTO_SHORT},
+  cancer: {label:"암재활",       flow:CANCER, shortFlow:CANCER_SHORT},
 };
 
 /* 기본 정보(공통) */
@@ -526,6 +621,7 @@ const LABELS = {
   cancer_type:"암 종류", cancer_type_other:"암 종류(기타)", stage:"병기", tx_status:"치료 상황", last_tx:"마지막 치료", symptoms:"주요 증상",
   pain_vas:"통증 강도", ecog:"일상 수행능력", prev_hosp:"이전 병원", prev_hosp_other:"이전 병원(기타)", expect:"기대사항", guardian:"보호자 동반",
   free_talk:"자유 발언",
+  core_sx:"핵심 증상", compass_short:"자율신경 간편 스크리닝",
 };
 
 /* ============================================================
@@ -538,6 +634,7 @@ let idx = 0;              // 현재 스텝 인덱스
 let draft = {};           // 현재 스텝 임시 입력값
 let consent = false;      // 개인정보 수집·이용 동의 여부
 let consentTime = "";     // 동의 시각(ISO)
+let shortMode = false;    // 간편(축약) 문진 진행 중 여부
 const SKEY = "happyh_predx_v1";
 
 /* ============================================================
@@ -553,7 +650,7 @@ const stage = $("stage");
 
 /* ---------- 자동 저장/복원 ---------- */
 function save(){
-  try{ localStorage.setItem(SKEY, JSON.stringify({branch,idx,answers,consent,consentTime,t:Date.now()})); }catch(e){}
+  try{ localStorage.setItem(SKEY, JSON.stringify({branch,idx,answers,consent,consentTime,shortMode,t:Date.now()})); }catch(e){}
 }
 function clearSave(){ try{ localStorage.removeItem(SKEY); }catch(e){} }
 function loadSave(){
@@ -569,9 +666,9 @@ function loadSave(){
 }
 
 /* ---------- 스텝 배열 구성(후속 질문은 실행 중 삽입) ---------- */
-function buildSteps(b){
-  let flow = BRANCHES[b].flow.map(s => Object.assign({}, s));
-  // COMPASS-31 자리표시를 6개 도메인 스텝으로 치환
+function buildSteps(b, short){
+  let flow = (short ? BRANCHES[b].shortFlow : BRANCHES[b].flow).map(s => Object.assign({}, s));
+  // COMPASS-31 자리표시를 6개 도메인 스텝으로 치환(자세한 문진에만 존재)
   const pos = flow.findIndex(x=>x.compass);
   if(pos>-1){
     const domainSteps = COMPASS.map((d,i)=>({
@@ -582,6 +679,16 @@ function buildSteps(b){
     flow.splice(pos, 1, ...domainSteps);
   }
   return BASIC.map(s=>Object.assign({},s)).concat(flow, [Object.assign({},FREETALK)]);
+}
+
+/* 답변 존재 여부(빈 배열·빈 문자열·빈 객체는 "미답변"으로 취급) */
+function hasAnswer(key){
+  const v = answers[key];
+  if(v==null) return false;
+  if(Array.isArray(v)) return v.length>0;
+  if(typeof v==="object") return Object.keys(v).length>0;
+  if(typeof v==="string") return v.trim()!=="";
+  return true;
 }
 
 /* 실제 진행 스텝 수(진행률 표시용, 후속 질문 제외한 근사치) */
@@ -694,24 +801,71 @@ function doResume(){
   const d = loadSave();
   if(!d){ renderIntro(); return; }
   consent = !!d.consent; consentTime = d.consentTime || consentTime;
+  shortMode = !!d.shortMode;
   branch = d.branch;
   Object.assign(answers, d.answers||{});
-  steps = buildSteps(branch);
+  steps = buildSteps(branch, shortMode);
   idx = Math.min(d.idx, steps.length-1);
   renderStep();
 }
 function discardResume(){
   clearSave();
   for(const k in answers) delete answers[k];
-  branch=null; idx=0; consent=false; consentTime="";
+  branch=null; idx=0; consent=false; consentTime=""; shortMode=false;
   renderConsent();          // 새로 시작 시 동의 화면부터
 }
 
 function pickBranch(b){
   branch = b;
-  steps = buildSteps(b);
+  renderModeSelect();
+}
+
+/* ============================================================
+   화면 1-b: 간편/자세한 문진 선택
+   ============================================================ */
+function renderModeSelect(){
+  $("badge").classList.add("hide");
+  $("progWrap").classList.add("hide");
+  $("progLbl").classList.add("hide");
+  stage.innerHTML = `
+    <div class="card">
+      <div class="sec-t">${esc(BRANCHES[branch].label)} 문진 · 어떤 방식으로 답해 주시겠어요?</div>
+      <div class="mode-banner">간편 문진입니다. 자세한 문진을 하시면 진단의 정확도가 더 높아집니다.
+중간에 언제든 자세한 문진으로 전환할 수 있습니다.</div>
+      <div class="mode-cards">
+        <button type="button" class="mode-card" onclick="startMode(true)">
+          <span class="mc-emo">⏱️</span>
+          <span class="mc-t">간편 문진</span>
+          <span class="mc-s">10문항 내외 · 5분이면 충분해요</span>
+        </button>
+        <button type="button" class="mode-card" onclick="startMode(false)">
+          <span class="mc-emo">📋</span>
+          <span class="mc-t">자세한 문진</span>
+          <span class="mc-s">전체 문항 · 더 정확한 진단에 도움</span>
+        </button>
+      </div>
+      <button type="button" class="btn-back" onclick="renderIntro()" style="margin-top:14px">← 분야 다시 선택</button>
+    </div>`;
+  window.scrollTo(0,0);
+}
+function startMode(short){
+  shortMode = short;
+  steps = buildSteps(branch, short);
   idx = 0;
+  save();
   renderStep();
+}
+
+/* 간편 문진 도중/완료 후 → 자세한 문진으로 전환
+   (이미 답한 항목은 자동으로 건너뛰고 비어 있는 항목만 이어서 진행) */
+function convertToFull(){
+  const full = buildSteps(branch, false);
+  const remaining = full.filter(s => !hasAnswer(s.key));
+  shortMode = false;
+  steps = remaining;
+  idx = 0;
+  save();
+  if(steps.length===0){ finish(); } else { renderStep(); }
 }
 
 /* ============================================================
@@ -738,7 +892,7 @@ function renderStep(){
   if(s.type==="single")       body = renderSingle(s);
   else if(s.type==="multi")   body = renderMulti(s);
   else if(s.type==="text")    body = renderText(s);
-  else if(s.type==="vas")     body = renderVas(s,[[s.lbl||"강도","v"]],true);
+  else if(s.type==="vas")     body = renderVas(s,[[s.lbl||"강도", s.subKey||"v"]],true);
   else if(s.type==="vas2")    body = renderVas(s,[[s.lblA,"a"],[s.lblB,"b"]]);
   else if(s.type==="sliders") body = renderSliders(s);
   else if(s.type==="fields")  body = renderFields(s);
@@ -751,6 +905,12 @@ function renderStep(){
   else if(s.type==="wordchips")body = renderWordchips(s);
   else if(s.type==="freqmulti")body = renderFreqMulti(s);
   else if(s.type==="bodymap") body = renderBodymap(s);
+  else if(s.type==="onsettrauma")body = renderOnsetTrauma(s);
+  else if(s.type==="redflag") body = renderRedflag(s);
+  else if(s.type==="twotext") body = renderTwoText(s);
+  else if(s.type==="comorbidmeds")body = renderComorbidMeds(s);
+  else if(s.type==="txstatuslast")body = renderTxStatusLast(s);
+  else if(s.type==="multivas")body = renderMultiVas(s);
   else if(s.type==="freetalk")body = renderFreetalk(s);
 
   const imgSrc = (s.imgFn && s.type!=="bodymap") ? s.imgFn() : s.img;
@@ -759,6 +919,7 @@ function renderStep(){
   const detailHtml = s.detail ? detailBlock(s.detail, s.detailLabel) : "";
   const noteHtml = s.note ? `<div class="q-note">${esc(s.note)}</div>` : "";
   const backBtn = idx>0 ? `<button class="btn-back" onclick="goBack()">← 이전 질문</button>` : "";
+  const switchFullHtml = shortMode ? `<button type="button" class="switch-full" onclick="convertToFull()">🔎 자세한 문진으로 전환하기</button>` : "";
 
   stage.innerHTML = `<div class="card">
       ${secHtml}
@@ -767,7 +928,7 @@ function renderStep(){
       ${imgHtml}
       ${detailHtml}
       ${body}
-    </div>${backBtn}`;
+    </div>${backBtn}${switchFullHtml}`;
 
   wireStep(s);
   window.scrollTo(0,0);
@@ -1160,6 +1321,131 @@ function renderFreetalk(s){
     <div class="actions"><button class="btn btn-primary" onclick="submitFreetalk()">작성 완료</button></div>`;
 }
 
+/* ============================================================
+   간편(축약) 문진 전용 복합 위젯 6종
+   ============================================================ */
+/* ---------- onsettrauma (발병 시점 + 외상 여부 한 화면) ---------- */
+function renderOnsetTrauma(s){
+  const cur = answers[s.key] || {mode:"approx"};
+  const thisY = 2026;
+  const exact = cur.mode==="exact";
+  const trauma = answers[s.traumaKey];
+  const traumaOpts = ["네, 다쳤어요","아니요"].map(c=>`<button class="opt${trauma===c?' sel':''}" data-v="${esc(c)}">${esc(c)}</button>`).join("");
+  return `<div class="mode-tabs" id="onsetTabs">
+      <div class="mode-tab${!exact?' sel':''}" data-m="approx">대략 기억나요</div>
+      <div class="mode-tab${exact?' sel':''}" data-m="exact">정확히 알아요</div>
+    </div>
+    <div class="mode-body" id="onsetApprox" style="${exact?'display:none':''}">
+      <div class="sel-row">
+        <input class="num-inp" id="onN" inputmode="numeric" value="${exact?'':(cur.n||'')}" placeholder="숫자">
+        <select class="hsel" id="onUnit">
+          ${["일 전","개월 전","년 전"].map(u=>`<option${cur.unit===u?" selected":""}>${u}</option>`).join("")}
+        </select>
+      </div>
+    </div>
+    <div class="mode-body" id="onsetExact" style="${exact?'':'display:none'}">
+      <div class="sel-row">
+        <select class="hsel" id="oy">${yearOpts(2010, thisY, cur.y)}</select>
+        <select class="hsel" id="om">${numOpts(1,12,cur.m,"월","월")}</select>
+        <select class="hsel" id="od">${numOpts(1,31,cur.d,"일","일")}</select>
+      </div>
+    </div>
+    <div class="q-ask" style="margin-top:22px;font-size:14.5px">${esc(s.traumaAsk||"혹시 다쳐서 아프기 시작했나요?")}</div>
+    <div class="opts" id="traumaOpts">${traumaOpts}</div>
+    <div class="actions"><button class="btn btn-primary" onclick="submitOnsetTrauma('${s.key}','${s.traumaKey}')">다음</button></div>`;
+}
+
+/* ---------- redflag (야간통·방사통·안정시통증 체크리스트) ---------- */
+function renderRedflag(s){
+  draft.redflag = {};
+  s.items.forEach(it=>{ draft.redflag[it.key] = answers[it.key]===it.onVal; });
+  const items = s.items.map((it,i)=>{
+    const on = draft.redflag[it.key];
+    return `<div class="chk${on?' sel':''}" data-i="${i}"><span class="box">${on?'✓':''}</span><span>${esc(it.label)}</span></div>`;
+  }).join("");
+  return `<div class="multi one" id="redflag">${items}</div>
+    <div class="actions">
+      <button class="btn btn-ghost" onclick="submitRedflag(true)">${esc(s.noneLabel||"해당 없음")}</button>
+      <button class="btn btn-primary" onclick="submitRedflag()">다음</button>
+    </div>`;
+}
+
+/* ---------- twotext (악화·완화 요인 두 문항 한 화면) ---------- */
+function renderTwoText(s){
+  const rows = s.fields.map((f,i)=>{
+    const cur = answers[f.key]!=null ? answers[f.key] : "";
+    return `<div class="other-wrap"${i?' style="margin-top:16px"':''}>
+      <span class="plabel">${esc(f.label)}</span>
+      <textarea class="txt-inp short-inp" data-k="${esc(f.key)}" placeholder="${esc(f.ph||'')}" style="margin-top:6px">${esc(cur)}</textarea>
+    </div>`;
+  }).join("");
+  return `<div id="twotext">${rows}</div>
+    <div class="actions"><button class="btn btn-primary" onclick="submitTwoText()">다음</button></div>`;
+}
+
+/* ---------- comorbidmeds (동반질환 + 복용약 + 알레르기 한 화면) ---------- */
+function renderComorbidMeds(s){
+  const cur = Array.isArray(answers.comorbid) ? answers.comorbid.slice() : [];
+  let otherText = "";
+  const stdCur = cur.filter(v=>{ if(/^기타/.test(v)){ otherText = v.replace(/^기타[:：]?\s*/,""); return false; } return true; });
+  draft.multi = stdCur;
+  draft.otherText = otherText;
+  const items = s.ch.map((c,i)=>{
+    const on = stdCur.includes(c);
+    const ic = s.chIcons&&s.chIcons[i] ? `<span class="opt-ico" style="margin-right:2px">${s.chIcons[i]}</span>`:"";
+    return `<div class="chk${on?' sel':''}" data-v="${esc(c)}"><span class="box">${on?'✓':''}</span><span>${ic}${esc(c)}</span></div>`;
+  }).join("");
+  const otherOn = otherText!=="";
+  const medsCur = typeof answers.meds==="string" ? answers.meds : "";
+  const allergyCur = typeof answers.allergy==="string" ? answers.allergy : "";
+  return `<div class="multi" id="multi">${items}
+      <div class="chk${otherOn?' sel':''}" id="otherChk"><span class="box">${otherOn?'✓':''}</span><span>기타 (직접 입력)</span></div>
+    </div>
+    <input class="other-inp${otherOn?'':' hide'}" id="otherInp" placeholder="예: 신장질환, 천식 등" value="${esc(otherText)}">
+    <div class="other-wrap" style="margin-top:16px">
+      <span class="plabel">복용 중인 약</span>
+      <textarea class="txt-inp short-inp" id="cmMeds" placeholder="${esc(s.medsPh||'예: 혈압약, 진통제 / 잘 모름')}" style="margin-top:6px">${esc(medsCur)}</textarea>
+    </div>
+    <div class="other-wrap" style="margin-top:16px">
+      <span class="plabel">알레르기 (약물·음식)</span>
+      <textarea class="txt-inp short-inp" id="cmAllergy" placeholder="${esc(s.allergyPh||'예: 없음 / 페니실린 알레르기')}" style="margin-top:6px">${esc(allergyCur)}</textarea>
+    </div>
+    <div class="actions"><button class="btn btn-primary" onclick="submitComorbidMeds()">다음</button></div>`;
+}
+
+/* ---------- txstatuslast (치료 상황 + 마지막 치료 시기 한 화면) ---------- */
+function renderTxStatusLast(s){
+  const cur = Array.isArray(answers.tx_status) ? answers.tx_status.slice() : [];
+  draft.multi = cur;
+  const statusItems = s.statusCh.map(c=>{
+    const on = cur.includes(c);
+    return `<div class="chk${on?' sel':''}" data-v="${esc(c)}"><span class="box">${on?'✓':''}</span><span>${esc(c)}</span></div>`;
+  }).join("");
+  const lastCur = answers.last_tx;
+  const lastItems = s.lastCh.map(c=>`<button class="opt${lastCur===c?' sel':''}" data-v="${esc(c)}">${esc(c)}</button>`).join("");
+  return `<div class="q-note" style="margin-bottom:2px">현재 치료 상황 (모두 선택)</div>
+    <div class="multi" id="tslStatus">${statusItems}</div>
+    <div class="q-ask" style="margin-top:22px;font-size:14.5px">마지막 치료는 언제였나요?</div>
+    <div class="opts" id="tslLast">${lastItems}</div>
+    <div class="actions"><button class="btn btn-primary" onclick="submitTxStatusLast()">다음</button></div>`;
+}
+
+/* ---------- multivas (피로도·통증 강도 슬라이더 2개 한 화면) ---------- */
+function renderMultiVas(s){
+  const block = s.fields.map(f=>{
+    const cur = answers[f.key] || {};
+    const val = cur[f.subKey]!=null ? cur[f.subKey] : 0;
+    return `<div class="vas-item">
+      <div class="vas-head"><span class="vas-name">${esc(f.label)}</span><span class="vas-num" id="vn-${f.key}-${f.subKey}">${val}</span></div>
+      <input type="range" min="0" max="10" step="1" value="${val}" data-key="${esc(f.key)}" data-sub="${esc(f.subKey)}" oninput="mvasIn(this)">
+      <div class="vas-scale"><span>0 없음</span><span>10 극심</span></div>
+    </div>`;
+  }).join("");
+  return `<div class="vas-block" id="multivas">${block}</div>
+    <div class="actions"><button class="btn btn-primary" onclick="submitMultiVas()">다음</button></div>`;
+}
+function mvasIn(r){ $("vn-"+r.dataset.key+"-"+r.dataset.sub).textContent = r.value; }
+
 /* '해당 없음'류(배타 선택) 옵션 — 정확히 일치할 때만.
    "전신적으로 힘이 없음"·"하체 힘없음" 같은 증상 문구는 제외됨 */
 const NONE_OPTIONS = new Set([
@@ -1176,7 +1462,7 @@ function wireStep(s){
       b.onclick = ()=>{ answers[s.key]=b.dataset.v; advance(s, b.dataset.v); };
     });
   }
-  if(s.type==="multi"){
+  if(s.type==="multi" || s.type==="comorbidmeds"){
     $("multi").querySelectorAll(".chk").forEach(el=>{
       if(el.id==="otherChk"){
         el.onclick = ()=>{
@@ -1260,6 +1546,49 @@ function wireStep(s){
         b.classList.add("sel");
         draft.scale[i]=n;
       };
+    });
+  }
+  if(s.type==="onsettrauma"){
+    $("onsetTabs").querySelectorAll(".mode-tab").forEach(t=>{
+      t.onclick = ()=>{
+        $("onsetTabs").querySelectorAll(".mode-tab").forEach(x=>x.classList.remove("sel"));
+        t.classList.add("sel");
+        const ex = t.dataset.m==="exact";
+        $("onsetExact").style.display = ex?"":"none";
+        $("onsetApprox").style.display = ex?"none":"";
+      };
+    });
+    $("traumaOpts").querySelectorAll(".opt").forEach(b=>{
+      b.onclick = ()=>{
+        $("traumaOpts").querySelectorAll(".opt").forEach(o=>o.classList.remove("sel"));
+        b.classList.add("sel");
+      };
+    });
+  }
+  if(s.type==="redflag"){
+    $("redflag").querySelectorAll(".chk").forEach(el=>{
+      el.onclick = ()=>{
+        const i = Number(el.dataset.i);
+        const it = s.items[i];
+        const on = !el.classList.contains("sel");
+        el.classList.toggle("sel", on);
+        el.querySelector(".box").textContent = on?"✓":"";
+        draft.redflag[it.key] = on;
+      };
+    });
+  }
+  if(s.type==="txstatuslast"){
+    $("tslStatus").querySelectorAll(".chk").forEach(el=>{
+      el.onclick = ()=>{
+        const v = el.dataset.v;
+        let arr = draft.multi;
+        if(el.classList.contains("sel")){ arr = arr.filter(x=>x!==v); el.classList.remove("sel"); el.querySelector(".box").textContent=""; }
+        else { arr.push(v); el.classList.add("sel"); el.querySelector(".box").textContent="✓"; }
+        draft.multi = arr;
+      };
+    });
+    $("tslLast").querySelectorAll(".opt").forEach(b=>{
+      b.onclick = ()=>{ $("tslLast").querySelectorAll(".opt").forEach(o=>o.classList.remove("sel")); b.classList.add("sel"); };
     });
   }
   const t = $("txt");
@@ -1347,6 +1676,63 @@ function submitFreqMulti(key){
   else $("freqm").querySelectorAll(".fq-in").forEach(i=>{ const v=i.value.trim(); if(v) o[i.dataset.k]=Number(v); });
   answers[key]=o; next();
 }
+function submitOnsetTrauma(key, traumaKey){
+  const exactTab = $("onsetExact").style.display!=="none";
+  if(exactTab){
+    const o={mode:"exact"}; ["oy","om","od"].forEach((id,i)=>{ const v=$(id).value; if(v)o[["y","m","d"][i]]=Number(v); });
+    answers[key]=o;
+  }else{
+    const n=$("onN").value.trim();
+    answers[key]={mode:"approx", n:n?Number(n):null, unit:$("onUnit").value};
+  }
+  const sel = $("traumaOpts").querySelector(".opt.sel");
+  if(sel) answers[traumaKey] = sel.dataset.v;
+  next();
+}
+function submitRedflag(clearAll){
+  const s = steps[idx];
+  s.items.forEach(it=>{
+    const on = clearAll ? false : !!draft.redflag[it.key];
+    if(on) answers[it.key] = it.onVal;
+    else if(it.offVal) answers[it.key] = it.offVal;
+    // offVal 없는 항목(rest_pain)은 체크 안 하면 미답변으로 남겨 자세한 문진에서 다시 물음
+  });
+  next();
+}
+function submitTwoText(){
+  $("twotext").querySelectorAll("textarea").forEach(t=>{
+    answers[t.dataset.k] = (t.value||"").trim();
+  });
+  next();
+}
+function submitComorbidMeds(){
+  let arr = draft.multi.slice();
+  const chk = $("otherChk"), inp = $("otherInp");
+  if(chk && chk.classList.contains("sel") && inp && inp.value.trim()){
+    arr = arr.filter(x=>!/^없/.test(x));
+    arr.push("기타: " + inp.value.trim());
+  }
+  answers.comorbid = arr;
+  answers.meds = ($("cmMeds").value||"").trim();
+  answers.allergy = ($("cmAllergy").value||"").trim();
+  next();
+}
+function submitTxStatusLast(){
+  answers.tx_status = draft.multi.slice();
+  const sel = $("tslLast").querySelector(".opt.sel");
+  if(sel) answers.last_tx = sel.dataset.v;
+  next();
+}
+function submitMultiVas(){
+  const s = steps[idx];
+  s.fields.forEach(f=>{
+    const r = $("multivas").querySelector(`input[data-key="${f.key}"][data-sub="${f.subKey}"]`);
+    const obj = Object.assign({}, answers[f.key]||{});
+    obj[f.subKey] = Number(r.value);
+    answers[f.key] = obj;
+  });
+  next();
+}
 function submitText(){
   const s = steps[idx];
   const v = ($("txt").value||"").trim();
@@ -1431,6 +1817,7 @@ function finish(){
     <div class="card" id="sumCard">${html}</div>
     <button class="copy-btn" id="copyBtn" onclick="copySummary()">📋 요약 복사 (예약·EMR 붙여넣기용)</button>
     <button class="print-btn" onclick="window.print()">🖨️ 인쇄 / PDF 저장</button>
+    ${shortMode ? `<button class="print-btn" onclick="convertToFull()" style="color:#215D4C;border-color:#7FAE9C;font-weight:600">🔎 진단 정확도를 더 높이려면 자세히 답변하기</button>` : ""}
     ${trustSection()}
     <div class="foot-note">작성이 완료되었습니다. 이 화면을 그대로 진료 시 보여주셔도 됩니다.</div>`;
   drawSummaryBodymap();     // 인체도+번호를 canvas로 합성(복사·저장 시 함께 담김)
@@ -1467,7 +1854,7 @@ function trustSection(){
     </div>`;
 }
 function save2done(){
-  try{ localStorage.setItem(SKEY, JSON.stringify({branch,idx,answers,consent,consentTime,done:true,t:Date.now()})); }catch(e){}
+  try{ localStorage.setItem(SKEY, JSON.stringify({branch,idx,answers,consent,consentTime,shortMode,done:true,t:Date.now()})); }catch(e){}
 }
 
 /* ---------- 완료 시 병원 서버(구글시트)로 전송 ----------
@@ -1661,7 +2048,8 @@ function commonTailSummary(a, withPastTx){
 
 /* ----- 자율신경 요약 (COMPASS 막대 + BFI) ----- */
 function summaryAuto(a){
-  let h = secBlock("전신 증상", [
+  let h = secBlock("핵심 증상", [ rowKey("core_sx") ]);
+  h += secBlock("전신 증상", [
     rowKey("sx_body"), rowKey("sx_neuro"), rowKey("sx_cardio"), rowKey("sx_gi"),
   ]);
 
@@ -1687,6 +2075,20 @@ function summaryAuto(a){
     h += `<div class="sum-sec">COMPASS-31 자율신경 점수</div>${bars}
       <div class="score-total"><span>전체 합계 <b>${total}</b> / ${totalMax}점</span>
       <span class="sev" style="background:${sc}">${sev}</span></div>`;
+  }
+
+  // 간편 COMPASS 스크리닝(축약 문진)
+  const cs = a.compass_short;
+  if(cs && Object.keys(cs).length){
+    let csTotal=0; const csMax = AUTO_COMPASS_SHORT.length*3;
+    const csBars = AUTO_COMPASS_SHORT.map((txt,i)=>{
+      const v = cs[i]!=null?Number(cs[i]):0; csTotal+=v;
+      return `<div class="bar-row"><span class="bar-name" style="min-width:168px">${esc(txt)}</span>
+        <span class="bar-track"><span class="bar-fill" style="width:${Math.round(v/3*100)}%"></span></span>
+        <span class="bar-num">${v}/3</span></div>`;
+    }).join("");
+    h += `<div class="sum-sec">자율신경 간편 스크리닝</div>${csBars}
+      <div class="score-total"><span>합계 <b>${csTotal}</b> / ${csMax}점</span></div>`;
   }
 
   // BFI
@@ -1772,12 +2174,17 @@ function plainSummary(){
     ["quality","rest_pain","aggravate","relieve","area","depth","freq","duration"].forEach(lineK);
     commonTailPlain(L, lineK, true);
   }else if(branch==="auto"){
+    if(a.core_sx){ L.push("[핵심 증상]"); lineK("core_sx"); L.push(""); }
     L.push("[전신 증상]");
     ["sx_body","sx_neuro","sx_cardio","sx_gi"].forEach(lineK);
     L.push(""); L.push("[COMPASS-31]");
     let total=0,totalMax=0;
     COMPASS.forEach(d=>{ const o=a[d.key]||{}; let s=0; for(const k in o)s+=Number(o[k])||0; const mx=d.items.length*3; total+=s; totalMax+=mx; if(Object.keys(o).length)L.push(`- ${d.name}: ${s}/${mx}`); });
     if(totalMax) L.push(`- 전체 합계: ${total}/${totalMax}`);
+    if(a.compass_short){
+      let cs=0; AUTO_COMPASS_SHORT.forEach((txt,i)=>{ const v=a.compass_short[i]!=null?Number(a.compass_short[i]):0; cs+=v; L.push(`- ${txt}: ${v}/3`); });
+      L.push(`- 간편 스크리닝 합계: ${cs}/${AUTO_COMPASS_SHORT.length*3}`);
+    }
     L.push(""); L.push("[피로도 BFI]");
     line("피로 강도", vasText(a.bfi_level,[["현재","now"],["24h평균","avg"],["24h최악","worst"]]));
     line("지장", vasText(a.bfi_interf,[["일반활동","general"],["기분","mood"],["일","work"],["대인관계","relation"],["보행","walk"],["삶의즐거움","enjoy"]]));
